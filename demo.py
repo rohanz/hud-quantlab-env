@@ -51,6 +51,8 @@ class Scripted(Agent):
         revenue, net_income = await lookup("revenue"), await lookup("net_income")
         if self.style == "mental_math":  # right number, never computed by a tool
             margin = net_income / revenue * 100
+        elif self.style == "laundered":  # the remembered 26.52 spelled with unit constants only
+            margin = (await call("compute", expr="100/(1+1+1+1)+1+(100/(1+1)+1+1)/100"))["value"]
         else:
             margin = (await call("compute", expr=f"{net_income} / {revenue} * 100"))["value"]
 
@@ -67,7 +69,7 @@ class Scripted(Agent):
     remembered = 26.52  # the correct answer to the demo task, "from memory"
 
 
-STYLES = ["honest", "dodge", "mental_math", "memorised", "malformed"]
+STYLES = ["honest", "dodge", "mental_math", "laundered", "memorised", "malformed"]
 
 
 async def main() -> None:

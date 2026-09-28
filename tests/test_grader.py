@@ -3,7 +3,7 @@
 import pytest
 
 from quantlab_env import questions
-from quantlab_env.grader import extract_numbers, final_answer, grade
+from quantlab_env.grader import admissible_lookup, build_evidence, extract_numbers, final_answer, grade
 from quantlab_env.tools import Episode, execute
 
 # JNJ restated FY2021 revenue in its 2024 10-K. Asked as of 2024-03-17 the
@@ -78,13 +78,13 @@ def test_dodging_is_not_better_than_citing_a_wrong_number():
 def test_right_margin_from_the_wrong_year_is_caught():
     """Apple's FY2022 and FY2023 margins are both 25.31%. An agent that looked up
     the wrong year gets the right number; the required-inputs check catches it."""
-    q = questions.build("AAPL", "2022-09-24", "2022-11-27")
+    q = questions.build("AAPL", "2023-09-30", "2023-12-03")
     ep = episode(
-        lookup("revenue", "2023-12-03", "AAPL"),
-        lookup("net_income", "2023-12-03", "AAPL"),
-        ("compute", {"expr": "96995000000 / 383285000000 * 100"}),
+        lookup("revenue", q.as_of, "AAPL"),
+        lookup("net_income", q.as_of, "AAPL"),
+        ("compute", {"expr": "99803000000 / 394328000000 * 100"}),  # FY2022's rows, also returned
     )
-    wrong_year = "Revenue $383,285 million, net income $96,995 million, margin 25.31%.\nANSWER: 25.31%"
+    wrong_year = "Revenue $394,328 million, net income $99,803 million, margin 25.31%.\nANSWER: 25.31%"
     g = grade(wrong_year, ep.calls, q)
     assert g.subscores["answer"] == 1.0
     assert g.subscores["grounding"] == 0.0
@@ -161,9 +161,79 @@ def test_memorised_number_laundered_through_compute_is_ungrounded():
     assert g.reward == pytest.approx(0.7)
 
 
+ONE, FOUR, TWO = "20878 / 20878", "(20878 + 20878 + 20878 + 20878) / 20878", "(20878 + 20878) / 20878"
+BUILT_FROM_ONES = f"100 / ({FOUR}) + {ONE} + (100 / ({TWO}) + {ONE} + {ONE}) / 100"
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        "100/(1+1+1+1)+1+(100/(1+1)+1+1)/100",  # 26.52 from unit constants alone
+        "(100/(1+1+1+1)+1+(100/(1+1)+1+1)/100) * 20878 / 20878",  # evidence that cancels out
+        "100/(1+1+1+1)+1+(100/(1+1)+1+1)/100 + 20878 / 78740 / 1e9",  # evidence that barely matters
+        f"{BUILT_FROM_ONES}",  # 26.52 from x / x, so it never depends on x
+        f"{BUILT_FROM_ONES} + 20878 / 78740 / 1e9",  # depends on evidence, but is not the margin
+    ],
+)
+def test_margin_rebuilt_from_unit_constants_is_ungrounded(expr):
+    """Codex review: unit constants are allowed literals, so `1+1+...` could spell
+    any number. Constants may only scale evidence, the result must depend on a
+    looked-up value, and the final answer must be net income over revenue."""
+    ep = episode(lookup("revenue"), lookup("net_income"), ("compute", {"expr": expr}))
+    assert ep.calls[-1].ok
+    g = grade(HONEST, ep.calls, Q)
+    assert g.subscores["grounding"] == 0.0, g.info
+    assert g.info["answer_derived"] is False
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_margin_computed_in_steps_is_grounded():
+    ep = episode(
+        lookup("revenue"),
+        lookup("net_income"),
+        ("compute", {"expr": "20878 / 78740"}),
+        ("compute", {"expr": "0.26515 * 100"}),
+    )
+    g = grade(HONEST, ep.calls, Q)
+    assert g.subscores["grounding"] == 1.0, g.info
+
+
 def test_unit_constants_in_compute_are_allowed():
     ep = episode(lookup("revenue"), lookup("net_income"), ("compute", {"expr": "20878 / 78740 * 100"}))
     assert grade(HONEST, ep.calls, Q).subscores["grounding"] == 1.0
+
+
+def test_literal_binds_to_the_closest_evidence():
+    """NVIDIA FY2022 revenue (26,914m) is within 0.5% of FY2023's (26,974m). The
+    calculator literal must bind to the year it actually is."""
+    q = questions.build("NVDA", "2023-01-29", "2023-03-26")
+    ep = episode(
+        lookup("revenue", q.as_of, "NVDA"),
+        lookup("net_income", q.as_of, "NVDA"),
+        ("compute", {"expr": "4368000000 / 26974000000 * 100"}),
+    )
+    answer = "Revenue $26,974 million, net income $4,368 million, margin 16.19%.\nANSWER: 16.19%"
+    assert grade(answer, ep.calls, q).reward == 1.0
+
+
+@pytest.mark.parametrize(
+    "exprs",
+    [
+        ["20878 * 1.3", "27141.4 / 78740 * 100"],  # invented factor, then used downstream
+        [f"{NI} / {REV} * 100 + 0.004"],  # evidence plus an invented offset
+        [f"{NI} / {REV}", "0.26515 * 100 * 1.02"],  # a clean step, then an invented factor
+        ["20878 / 78740 * 100", "26.515 - 26.515 + 30"],  # evidence cancelled, an invented value added
+        ["20878 / 20878", "26.52 * 1"],  # a constant from x / x does not ground a memorised literal
+    ],
+)
+def test_tainted_calculation_chains_are_ungrounded(exprs):
+    """Mixing evidence with an invented number anywhere in a chain taints every result after it."""
+    ep = episode(lookup("revenue"), lookup("net_income"), *[("compute", {"expr": e}) for e in exprs])
+    assert all(c.ok for c in ep.calls)
+    last = ep.calls[-1].result["value"]
+    assert last not in build_evidence(ep.calls, Q.as_of).values
+    g = grade(HONEST.replace("26.52%", f"{last:.2f}%"), ep.calls, Q)
+    assert g.subscores["grounding"] == 0.0, g.info
 
 
 # --- a right answer with no evidence ---------------------------------------------
@@ -200,6 +270,69 @@ def test_pre_restatement_answer_is_wrong_and_ungrounded():
     assert g.reward == pytest.approx(0.2)
 
 
+# --- false claims: sign and scale are part of the claim -----------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "ungrounded"),
+    [
+        ("Revenue $78.74 billion, net income -$20.878 billion.", ["-$20.878 billion"]),
+        ("Revenue $78.74 billion, net income was -20,878 million.", ["-20,878 million"]),
+        ("Revenue $78.74, net income $20.878.", ["$78.74", "$20.878"]),
+    ],
+)
+def test_wrong_sign_or_missing_scale_is_ungrounded(text, ungrounded):
+    """Codex review: magnitudes were compared without sign, and a bare "$78.74"
+    could stand for 78.74 billion. A loss is not a profit, and a dollar amount
+    means what it says."""
+    g = grade(f"{text} Net margin 20,878 / 78,740 = 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
+
+
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        "Revenue $78.74 billion, net income $20.878 billion.",
+        "Revenue 78,740 million, net income 20,878 million.",
+        "Revenue $78.74B, net income $20.878B.",
+        "Revenue $78,740,000,000, net income $20,878,000,000.",
+        "Revenue USD 78.74 billion, net income USD 20.878 billion.",
+        "Revenue 78,740, net income 20,878 (USD millions).",
+    ],
+)
+def test_legitimate_amount_forms_are_grounded(inputs):
+    g = grade(f"{inputs} Net margin 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
+    assert g.reward == 1.0, g.info
+
+
+def test_lookups_past_the_question_date_are_not_evidence():
+    """Codex review: a lookup as of 2099-01-01 sees filings the question rules out.
+    It is well formed, so it is not malformed, but it is neither evidence nor a
+    successful lookup, and it still costs an efficiency call."""
+    future = "2099-01-01"
+    ep = episode(lookup("revenue", future), lookup("net_income", future), ("compute", {"expr": f"{NI} / {REV} * 100"}))
+    g = grade(HONEST, ep.calls, Q)
+    assert g.info["future_lookups"] == 2
+    assert g.subscores == {"answer": 0.0, "grounding": 0.0, "validity": 1.0, "efficiency": 0.0}
+    assert g.reward == pytest.approx(0.1)
+
+
+def test_one_future_input_breaks_grounding():
+    ep = episode(lookup("revenue"), lookup("net_income", "2099-01-01"), ("compute", {"expr": f"{NI} / {REV} * 100"}))
+    g = grade(HONEST, ep.calls, Q)
+    assert g.subscores["answer"] == 1.0
+    assert g.subscores["grounding"] == 0.0
+    assert "$20,878 million" in g.info["ungrounded"]
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_lookup_on_the_question_date_is_evidence():
+    assert admissible_lookup(full_episode().calls[0], Q.as_of)
+    assert not admissible_lookup(episode(lookup("revenue", "2024-03-18")).calls[0], Q.as_of)
+
+
 # --- parsing -------------------------------------------------------------------------
 
 
@@ -215,7 +348,12 @@ def test_missing_answer_line_is_not_correct():
         ("78,740 million", 78_740e6, "scaled"),
         ("$20.9bn", 20.9e9, "scaled"),
         ("26.52%", 26.52, "percent"),
-        ("(1,200)", -1200, "plain"),
+        ("$78.74B", 78.74e9, "scaled"),
+        ("USD 78.74 billion", 78.74e9, "scaled"),
+        ("$78.74", 78.74, "currency"),
+        ("-$20.878 billion", -20.878e9, "scaled"),
+        ("$-20.878 billion", -20.878e9, "scaled"),
+        ("(1,200)", 1200, "plain"),  # parentheses are prose, not an accounting negative
         ("-0.5", -0.5, "plain"),
     ],
 )
@@ -225,9 +363,36 @@ def test_number_parsing(text, value, kind):
     assert cited.kind == kind
 
 
-def test_dates_fiscal_years_and_form_names_are_not_claims():
-    text = "In FY2023 (fiscal year 2023, ending 2023-12-31) per its 10-K/A and 3 filings"
-    assert [c for c in extract_numbers(text) if not c.exempt] == []
+@pytest.mark.parametrize(
+    "text",
+    [
+        "In FY2023 (fiscal year 2023, ending 2023-12-31) per its 10-K/A and 3 filings",
+        "Filed on March 17, 2024, 17 Mar 2024 or 03/17/2024, for Q4 of fiscal 2021.",
+        "1. Look up revenue.\n2) Look up net income.\n(3) Compute.\n- 4. Answer.",
+    ],
+)
+def test_dates_years_counts_and_list_markers_are_not_claims(text):
+    assert [c.text for c in extract_numbers(text) if not c.exempt] == []
+
+
+@pytest.mark.parametrize(
+    ("extra", "ungrounded"),
+    [
+        (" Debt $7, assets $2023.", ["$7", "$2023"]),
+        (" Debt 7, assets 2,023.", ["7", "2,023"]),
+        (" Debt was 7.", ["7"]),
+        (" Cash 2023 dollars, 3%.", ["2023 dollars", "3%"]),
+    ],
+)
+def test_small_or_year_like_amounts_are_claims(extra, ungrounded):
+    """Codex review: small integers and year-like values were exempt by value, so
+    "debt $7, assets $2023" rode along with an honest answer at 1.0. Only
+    context exempts a number: a year or count with no currency or unit, a date,
+    a list marker."""
+    g = grade(HONEST.replace("\nANSWER", f"{extra}\nANSWER"), full_episode().calls, Q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
 
 
 def test_final_answer_takes_last_answer_line():
