@@ -75,16 +75,26 @@ _NOT_CLAIMS = re.compile(
     r"|^\s*(?:[-*]\s*)?\(?\d{1,2}[.)](?=\s)",
     re.IGNORECASE | re.MULTILINE,
 )
-# A sign is a minus sign attached to the amount ("-$20.9 billion", "$-20.9"); a
-# hyphen after a word or digit ("10-K", "2021-2022") is not. Parentheses are
+# A sign is a minus attached to the amount ("-$20.9 billion", "$-20.9", "$ - 20.9");
+# a hyphen after a word or digit ("10-K", "2021-2022") is not. Parentheses are
 # read as prose, not as accounting negatives.
 _NUMBER = re.compile(
-    r"(?P<neg>(?<![\w.])[-−])?(?P<cur>(?:US)?\$|\bUSD\b)?\s*(?P<neg2>[-−])?"
+    r"(?P<neg>(?<![\w.])[-−](?=(?:US)?\$|USD\b|\d))?(?:(?P<cur>(?:US)?\$|\bUSD\b)\s*(?P<neg2>[-−]\s*)?)?"
     r"(?P<num>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
     r"\s*(?P<unit>%|percent\b|trillion\b|billion\b|million\b|thousand\b"
     r"|tn\b|bn\b|mm\b|[tbmk]\b)?(?P<cur2>\s*(?:dollars|USD)\b)?",
     re.IGNORECASE,
 )
+# A minus spaced off from the amount that plainly prefixes it: after a word
+# ("net income - $20.9 billion") or after : = ( , ; ("income: -  20,878"). After a
+# digit it is a range or a subtraction ("2021 - 2022"), after a word with no space
+# a word hyphen ("re- 20"), and a hyphen opening a line is a bullet. A true minus
+# sign (U+2212) opening a line is still a sign.
+_SPACED_MINUS = re.compile(
+    r"(?:(?<=[^\W\d_])[^\S\n]+|[:=(,;][^\S\n]*|^[^\S\n]*(?=−))(?P<minus>[-−])[^\S\n]+\Z",
+    re.MULTILINE,
+)
+_EXEMPTED = "#"  # stands in for exempt text, so "10-K - 2" is not read as a word before a minus
 _COUNTED = re.compile(r"\s*[a-z]", re.IGNORECASE)  # "3 filings": a small count of something named
 
 
@@ -117,11 +127,11 @@ class Cited:
         return [(v * s, h * s) for s in (1, 1e3, 1e6, 1e9)] + [(v / 100, h / 100)]
 
 
-def _exempt(m: re.Match, kind: str, text: str) -> bool:
+def _exempt(m: re.Match, kind: str, negative: bool, text: str) -> bool:
     """A bare year ("in 2023") or a small count ("3 filings"). Context, not value alone,
     decides: "$7", "7%", "debt 7," and "$2023" are claims."""
     num = m["num"]
-    if kind != "plain" or m["neg"] or m["neg2"] or not num.isdigit():
+    if kind != "plain" or negative or not num.isdigit():
         return False
     if len(num) == 4 and 1900 <= int(num) <= 2100:
         return True
@@ -129,11 +139,14 @@ def _exempt(m: re.Match, kind: str, text: str) -> bool:
 
 
 def extract_numbers(text: str) -> list[Cited]:
-    text = _NOT_CLAIMS.sub(" ", text)
+    text = _NOT_CLAIMS.sub(_EXEMPTED, text)
     cited = []
     for m in _NUMBER.finditer(text):
+        start, negative = m.start(), bool(m["neg"] or m["neg2"])
+        if not negative and (spaced := _SPACED_MINUS.search(text, max(0, start - 64), start)):
+            start, negative = spaced.start("minus"), True
         value = float(m["num"].replace(",", ""))
-        if m["neg"] or m["neg2"]:
+        if negative:
             value = -value
         ulp = _ulp(m["num"])
         unit = (m["unit"] or "").lower()
@@ -143,7 +156,7 @@ def extract_numbers(text: str) -> list[Cited]:
             kind, value, ulp = "scaled", value * _UNITS[unit], ulp * _UNITS[unit]
         else:
             kind = "currency" if m["cur"] or m["cur2"] else "plain"
-        cited.append(Cited(m.group(0).strip(), value, kind, _exempt(m, kind, text), ulp))
+        cited.append(Cited(text[start : m.end()].strip(), value, kind, _exempt(m, kind, negative, text), ulp))
     return cited
 
 
@@ -152,7 +165,7 @@ def final_answer(text: str) -> Cited | None:
     lines = [ln for ln in text.splitlines() if re.match(r"\s*ANSWER\s*:", ln, re.IGNORECASE)]
     if not lines:
         return None
-    nums = extract_numbers(lines[-1].split(":", 1)[1])
+    nums = extract_numbers(lines[-1])  # the label has no digits; its colon can precede a spaced minus
     return nums[0] if nums else None
 
 

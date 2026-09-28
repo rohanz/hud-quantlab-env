@@ -351,6 +351,45 @@ def test_wrong_sign_or_missing_scale_is_ungrounded(text, ungrounded):
 
 
 @pytest.mark.parametrize(
+    ("text", "values"),
+    [
+        ("net income - $20.878 billion", [-20.878e9]),
+        ("net income −  $20.878 billion", [-20.878e9]),
+        ("net income: -  20,878 million", [-20_878e6]),
+        ("net income (- 20,878 million)", [-20_878e6]),
+        ("net income = - 20,878 million", [-20_878e6]),
+        ("net income $ - 20.878 billion", [-20.878e9]),
+        ("fiscal 2021 - 2022", [2021, 2022]),  # a range
+        ("20,878 - 1,000 million", [20_878, 1_000e6]),  # subtraction
+        ("the 10-K - 2 filings", [2]),  # a hyphen after a form name
+        ("- $78.74 billion revenue", [78.74e9]),  # a list bullet
+        ("  - 20,878 million net income", [20_878e6]),  # an indented bullet
+        ("pre-2022 filings, re- 20 amended", [2022, 20]),  # word hyphens
+    ],
+)
+def test_spaced_minus_parsing(text, values):
+    assert [c.value for c in extract_numbers(text)] == pytest.approx(values)
+
+
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        "Revenue $78.74 billion, net income - $20.878 billion.",
+        "Revenue $78.74 billion, net income −  $20.878 billion.",
+        "Revenue $78.74 billion, net income: -  20,878 million.",
+    ],
+)
+def test_spaced_negative_input_is_not_grounded(inputs):
+    """Second review: a minus separated from the amount by spaces was dropped, so
+    a claimed loss of 20,878 million got full grounding."""
+    g = grade(f"{inputs} Net margin 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
+    assert len(g.info["ungrounded"]) == 1 and g.info["ungrounded"][0].startswith(("-", "−"))
+    assert g.info["missing_inputs"] == ["net_income"]
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
+
+
+@pytest.mark.parametrize(
     "inputs",
     [
         "Revenue $78.74 billion, net income $20.878 billion.",
@@ -359,6 +398,7 @@ def test_wrong_sign_or_missing_scale_is_ungrounded(text, ungrounded):
         "Revenue $78,740,000,000, net income $20,878,000,000.",
         "Revenue USD 78.74 billion, net income USD 20.878 billion.",
         "Revenue 78,740, net income 20,878 (USD millions).",
+        "- Revenue: $78.74 billion\n- $20.878 billion net income\n",
     ],
 )
 def test_legitimate_amount_forms_are_grounded(inputs):
@@ -456,3 +496,8 @@ def test_small_or_year_like_amounts_are_claims(extra, ungrounded):
 
 def test_final_answer_takes_last_answer_line():
     assert final_answer("ANSWER: 1%\nmore\nANSWER: 26.52%").value == 26.52
+
+
+@pytest.mark.parametrize(("line", "value"), [("ANSWER: -3.1%", -3.1), ("ANSWER: - 3.1%", -3.1), ("ANSWER:  3.1%", 3.1)])
+def test_final_answer_keeps_its_sign(line, value):
+    assert final_answer(line).value == value
