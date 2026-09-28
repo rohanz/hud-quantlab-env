@@ -236,6 +236,65 @@ def test_tainted_calculation_chains_are_ungrounded(exprs):
     assert g.subscores["grounding"] == 0.0, g.info
 
 
+def test_invented_input_within_tolerance_is_not_evidence():
+    """Second review: 20,885 is within 0.5% of the real 20,878, so the invented
+    figure passed as evidence, both as a calculator literal and as a citation,
+    and the tainted margin was rebound to the real inputs (0.975). A number now
+    has to equal evidence at the precision it is written with."""
+    ep = episode(
+        lookup("revenue"),
+        lookup("net_income"),
+        ("compute", {"expr": "20878+7"}),
+        ("compute", {"expr": "20885/78740*100"}),
+    )
+    assert all(c.ok for c in ep.calls)
+    # neither compute result is evidence
+    assert build_evidence(ep.calls, Q.as_of).values == build_evidence(ep.calls[:2], Q.as_of).values
+    g = grade("Revenue $78.74 billion; net income $20.885 billion.\nANSWER: 26.52%", ep.calls, Q)
+    assert g.info["answer_derived"] is False
+    assert g.info["ungrounded"] == ["$20.885 billion", "26.52%"]
+    assert g.info["missing_inputs"] == ["net_income"]
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.675)
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        "20885 / 78740 * 100",  # within 0.5% of 20,878
+        "20880 / 78740 * 100",  # an integer literal is exact
+        "20878 / 78745 * 100",
+        "0x518E / 78740 * 100",  # 20878 in hex: not a decimal amount
+    ],
+)
+def test_calculator_literals_must_equal_evidence(expr):
+    ep = episode(lookup("revenue"), lookup("net_income"), ("compute", {"expr": expr}))
+    last = ep.calls[-1].result["value"]
+    assert last not in build_evidence(ep.calls, Q.as_of).values
+    assert grade(HONEST, ep.calls, Q).info["answer_derived"] is False
+
+
+@pytest.mark.parametrize(
+    ("net_income", "grounded"),
+    [
+        ("$20.878 billion", True),
+        ("$20.88 billion", True),  # a rounding of 20.878
+        ("$20.9 billion", True),
+        ("$21 billion", True),
+        ("20,878 million", True),
+        ("$20.885 billion", False),  # within 0.5%, but not a rounding of 20.878
+        ("$20.87 billion", False),
+        ("20,880 million", False),
+        ("$20,900,000,000", False),
+    ],
+)
+def test_cited_numbers_match_at_their_displayed_precision(net_income, grounded):
+    answer = f"Revenue $78.74 billion, net income {net_income}. Net margin 26.52%.\nANSWER: 26.52%"
+    g = grade(answer, full_episode().calls, Q)
+    assert (g.info["ungrounded"] == []) is grounded, g.info
+    assert g.subscores["grounding"] == float(grounded)
+
+
 # --- a right answer with no evidence ---------------------------------------------
 
 

@@ -19,12 +19,17 @@ Evidence is built from the episode log in call order:
   question rules out, so it is neither evidence nor a successful lookup.
   Dates and other metadata are never evidence.
 - the `value` of a successful `compute` call, if the expression is built from
-  evidence: every literal is evidence or a unit constant (1, 100, 1e3, 1e6,
-  1e9), a unit constant only scales evidence (`x * 100`, never `1 + 1`), both
+  evidence: every literal equals evidence at its written precision or is a
+  unit constant (1, 100, 1e3, 1e6, 1e9), a unit constant only scales evidence (`x * 100`, never `1 + 1`), both
   sides of `+` and `-` are evidence, and the result actually depends on a
   looked-up value (`x / x` does not). A memorised number passed through the
   calculator, or rebuilt from unit constants, stays ungrounded.
 - error results are never evidence, even if they echo the arguments.
+
+Cited numbers and calculator literals match evidence at the precision they are
+written with (`$78.74 billion` is a rounding of 78,740 million; `$20.885 billion`
+is not 20,878 million). Only the final answer's correctness uses the 0.5%
+tolerance, against gold.
 
 Each evidence item keeps its provenance: a formula over the looked-up values.
 The final answer is grounded only if it matches an item whose formula is
@@ -83,26 +88,33 @@ _NUMBER = re.compile(
 _COUNTED = re.compile(r"\s*[a-z]", re.IGNORECASE)  # "3 filings": a small count of something named
 
 
+def _ulp(digits: str) -> float:
+    """One unit in the last written place: "78.74" is 0.01, "20,878" is 1, "2.0878e10" is 1e6."""
+    mantissa, _, exponent = digits.lower().replace(",", "").replace("_", "").partition("e")
+    return 10.0 ** (int(exponent or 0) - len(mantissa.partition(".")[2]))
+
+
 @dataclass(frozen=True)
 class Cited:
     text: str
     value: float
     kind: str  # "percent", "scaled" (unit word applied), "currency" (a bare $ amount) or "plain"
     exempt: bool = False  # a year or a small count, by context; never an amount with a unit or currency
+    ulp: float = 0.0  # one unit in the last written place, in the same units as value
 
-    def readings(self) -> list[float]:
-        """Signed values this citation may stand for.
+    def readings(self) -> list[tuple[float, float]]:
+        """Signed values this citation may stand for, each with its rounding half-width.
 
         A unit word or a currency sign fixes the scale: "$78.74" is 78.74
         dollars, not 78.74 billion. Only a bare number may stand for thousands,
         millions, billions or a percent.
         """
-        v = self.value
+        v, h = self.value, self.ulp / 2
         if self.kind == "percent":
-            return [v / 100, v]
+            return [(v / 100, h / 100), (v, h)]
         if self.kind in ("scaled", "currency"):
-            return [v]
-        return [v, v * 1e3, v * 1e6, v * 1e9, v / 100]
+            return [(v, h)]
+        return [(v * s, h * s) for s in (1, 1e3, 1e6, 1e9)] + [(v / 100, h / 100)]
 
 
 def _exempt(m: re.Match, kind: str, text: str) -> bool:
@@ -123,14 +135,15 @@ def extract_numbers(text: str) -> list[Cited]:
         value = float(m["num"].replace(",", ""))
         if m["neg"] or m["neg2"]:
             value = -value
+        ulp = _ulp(m["num"])
         unit = (m["unit"] or "").lower()
         if unit in ("%", "percent"):
             kind = "percent"
         elif unit:
-            kind, value = "scaled", value * _UNITS[unit]
+            kind, value, ulp = "scaled", value * _UNITS[unit], ulp * _UNITS[unit]
         else:
             kind = "currency" if m["cur"] or m["cur2"] else "plain"
-        cited.append(Cited(m.group(0).strip(), value, kind, _exempt(m, kind, text)))
+        cited.append(Cited(m.group(0).strip(), value, kind, _exempt(m, kind, text), ulp))
     return cited
 
 
@@ -144,12 +157,20 @@ def final_answer(text: str) -> Cited | None:
 
 
 def _close(a: float, b: float) -> bool:
+    """Within the answer tolerance. Used only to judge the final answer against gold."""
     return math.isclose(a, b, rel_tol=REL_TOL) if b else a == 0
 
 
+def _rounds_to(reading: float, half: float, e: float) -> bool:
+    """Whether `e` rounds to `reading` at the written precision (half a unit in the last place)."""
+    return abs(reading - e) <= half + 1e-9 * max(abs(reading), abs(e))
+
+
 def _matches(cited: Cited, evidence: list[float]) -> bool:
-    """Signed comparison: a claimed loss does not match a reported profit."""
-    return any(_close(r, e) for r in cited.readings() for e in evidence)
+    """Signed comparison at the written precision: "$78.74 billion" matches
+    78,740 million, but "$20.885 billion" does not match 20,878 million, and a
+    claimed loss does not match a reported profit."""
+    return any(_rounds_to(r, h, e) for r, h in cited.readings() for e in evidence)
 
 
 Formula = Callable[[Sequence[float]], float]  # recomputes a value from the looked-up values
@@ -194,19 +215,24 @@ class Evidence:
         self.sources.append(source)
         self.items.append(Item(source.value, lambda v: v[i]))
 
-    def bind(self, literal: float) -> Formula:
+    def bind(self, text: str) -> Formula:
         """The formula of the item a calculator literal matches most closely, rescaled to the literal.
 
-        Closest, not first: NVIDIA's revenue for two years differs by 0.2%, inside
-        the matching tolerance. Literals are unsigned (a minus is a separate
-        operator), so they bind by magnitude.
+        The literal must equal the item at the precision it is written with, so
+        `20878` binds to 20,878,000,000 but `20885` binds to nothing. Closest,
+        not first, when a coarse literal rounds from several items. Literals are
+        unsigned (a minus is a separate operator), so they bind by magnitude.
         """
-        readings = Cited(str(literal), literal, "plain").readings()
+        try:
+            literal = float(text)
+        except ValueError:  # 0x51, 0o17: not written as a decimal amount
+            raise Laundered(f"{text} is not a decimal literal") from None
+        readings = Cited(text, literal, "plain", ulp=_ulp(text)).readings()
         candidates = [
             (abs(r - abs(item.value)) / abs(item.value), item)
             for item in self.items
-            for r in readings
-            if item.value and _close(r, abs(item.value))
+            for r, h in readings
+            if item.value and _rounds_to(r, h, abs(item.value))
         ]
         if not candidates:
             raise Laundered(f"{literal} is not evidence")
@@ -215,7 +241,7 @@ class Evidence:
         return lambda v: item.formula(v) * ratio
 
 
-def _formula(node: ast.AST, evidence: Evidence) -> tuple[Formula, bool]:
+def _formula(node: ast.AST, expr: str, evidence: Evidence) -> tuple[Formula, bool]:
     """A compute expression as a formula over looked-up values, and whether it uses evidence.
 
     Raises Laundered if a literal is not evidence, unit constants are combined
@@ -224,12 +250,12 @@ def _formula(node: ast.AST, evidence: Evidence) -> tuple[Formula, bool]:
     if isinstance(node, ast.Constant) and type(node.value) in (int, float):
         if float(node.value) in UNIT_CONSTANTS:
             return (lambda v, c=float(node.value): c), False
-        return evidence.bind(float(node.value)), True
+        return evidence.bind(ast.get_source_segment(expr, node)), True
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
-        f, used = _formula(node.operand, evidence)
+        f, used = _formula(node.operand, expr, evidence)
         return ((lambda v: -f(v)) if isinstance(node.op, ast.USub) else f), used
     if isinstance(node, ast.BinOp) and type(node.op) in BINOPS:
-        (left, lused), (right, rused) = _formula(node.left, evidence), _formula(node.right, evidence)
+        (left, lused), (right, rused) = _formula(node.left, expr, evidence), _formula(node.right, expr, evidence)
         additive = isinstance(node.op, (ast.Add, ast.Sub))
         if (additive and not (lused and rused)) or not (lused or rused):
             raise Laundered("unit constants may only scale evidence")
@@ -266,8 +292,9 @@ def build_evidence(calls: list[ToolCall], cutoff: str) -> Evidence:
             for row in r["rows"]:
                 evidence.add_source(Source(r["ticker"], r["concept"], row["period_end"], float(row["value"])))
         elif call.name == "compute":
+            expr = call.result["expr"]
             try:
-                formula, _ = _formula(ast.parse(call.result["expr"], mode="eval").body, evidence)
+                formula, _ = _formula(ast.parse(expr, mode="eval").body, expr, evidence)
             except Laundered:
                 continue
             if _depends(formula, evidence.base):
