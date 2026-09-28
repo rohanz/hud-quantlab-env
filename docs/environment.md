@@ -66,12 +66,14 @@ async def net_margin(ticker: str, period_end: str, as_of: str): ...
 
 1. `questions.build(ticker, period_end, as_of)` computes the gold from the
    point-in-time data and fails if the period was not filed by `as_of`.
-2. `EPISODE.begin()` clears the call log and returns a new generation.
+2. `EPISODE.begin()` clears the call log, opens the episode and returns its
+   generation.
 3. It yields the prompt (which asks for the `REVENUE:`, `NET_INCOME:` and
    `ANSWER:` lines) and receives the agent's final text.
-4. If `EPISODE.generation` is no longer this episode's, a newer session
-   cleared the log, and it raises `OverlappingEpisodes` instead of grading
-   (see [concurrency](#concurrency)).
+4. If `EPISODE.overlapped(generation)` (another episode was open at the same
+   time), it raises `OverlappingEpisodes` instead of grading (see
+   [concurrency](#concurrency)). A `finally` calls `EPISODE.close(generation)`
+   on grade, on error and when HUD closes an abandoned generator.
 5. It yields an `EvaluationResult` with the reward, one `SubScore` per
    component (weights from `grader.WEIGHTS`) and an `info` dict: gold, final
    answer, correct, the parsed citation block, cited numbers, ungrounded
@@ -92,19 +94,41 @@ carries no session id, so calls cannot be split per session.
 
 - Safe: `LocalRuntime` (serialises acquisitions of an env instance),
   and `hud eval` and `DockerRuntime`, which give each rollout its own process.
-- Unsafe to rely on: several concurrent rollouts against one `hud serve`
-  process, for example `hud eval --runtime tcp://...:8765` with the default
-  concurrency.
+- Not graded: several concurrent rollouts against one `hud serve` process,
+  for example `hud eval --runtime tcp://...:8765` with the default
+  concurrency. Pass `--max-concurrent 1` with a `tcp://` runtime, or use one
+  process per rollout.
 
-For that case each episode takes a generation of the log when it starts, and
-the newest session wins: an older session whose log a newer one cleared fails
-at grade time with `OverlappingEpisodes` instead of being graded on the wrong
-log. What the guard cannot catch: if the older session keeps calling tools
-after the newer one started, those calls land in the newer session's log.
+For that case `Episode` (in `tools.py`) keeps a symmetric guard. `open` maps
+each episode not yet closed to its start time. When an episode begins while
+another is open, every open episode, the new one included, is marked as
+overlapping, and an overlapped episode raises `OverlappingEpisodes` at grade
+time instead of being graded. The older episodes lost their log, and the
+newer one's log can hold the older ones' calls. Episodes close on grade, on
+error and on HUD's `aclose` of the template generator.
 
-An open-episode lock (refuse a new episode while one is open) was rejected:
-an abandoned or parked session, such as `hud task start` that is never
-graded, would block every later episode in the process.
+Before this guard the newest session won: an older session failed, but a
+newer one was graded on the shared log, so a freeloader session that made no
+tool calls and submitted an older session's answer scored 1.00 on the older
+session's calls. Now both fail loudly, and `tests/test_env.py` checks this
+over a real `tcp://` runtime, along with four overlapping honest sessions
+(all refused) and sequential sessions in one process (each graded 1.00).
+
+An episode that is never closed (an abandoned session, or `hud task start`
+that is never graded) stops counting as open `QUANTLAB_EPISODE_TIMEOUT`
+seconds after it began (default 3600, `tools.DEFAULT_EPISODE_TIMEOUT`, above
+a typical rollout timeout). Expired entries are dropped when the next episode
+begins.
+
+What the guard cannot do:
+
+- Attribute calls to sessions. It refuses overlapping episodes; it cannot
+  grade them.
+- Ignore an abandoned session before it expires: until then, every episode
+  that begins in the process overlaps it and is refused.
+- Protect a newer episode from an expired one. If an abandoned session comes
+  back after a newer episode began, it is refused (its log is gone), but any
+  tool calls it makes meanwhile land in the newer episode's log.
 
 ## Fixture
 
@@ -216,5 +240,6 @@ docker build -f Dockerfile.hud -t hud-quantlab-env:local .
 docker run --rm -p 8765:8765 hud-quantlab-env:local
 ```
 
-Run one episode at a time against a served container (see
-[concurrency](#concurrency)).
+Run one episode at a time against a served container; overlapping episodes
+are refused with `OverlappingEpisodes` (see [concurrency](#concurrency)).
+`QUANTLAB_EPISODE_TIMEOUT` can be set on the container to change the expiry.

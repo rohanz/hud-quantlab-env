@@ -273,3 +273,44 @@ mis-grade. Each fix below has a regression test that cites the review.
   out of the build context.
 - **Tests.** `tests/test_env.py` no longer edits `sys.path`; pytest's
   `pythonpath` setting puts the repo root on it. 248 tests pass.
+
+## 2026-09-28: A fourth (final Opus) review; symmetric session guard, dates and markdown labels
+
+Found by the final Opus review, fixed with tests.
+
+- **Symmetric session guard with a timeout.** The generation guard let the
+  newest session win: a freeloader session that started after an honest one,
+  made no tool calls and submitted the honest answer scored 1.00 on the older
+  session's calls, while the honest session failed. `Episode` now tracks open
+  episodes; when one begins while another is open, all open episodes, the new
+  one included, are marked as overlapping and fail at grade time with
+  `OverlappingEpisodes`. Episodes close on grade, on error and on HUD's
+  `aclose`. So concurrent rollouts against one `hud serve` now fail loudly
+  instead of mis-grading, and a `tcp://` runtime needs `--max-concurrent 1`
+  (or one process per rollout) to get grades at all. This is the open-episode
+  lock we rejected earlier, made safe by an expiry: an unclosed episode stops
+  counting as open after `QUANTLAB_EPISODE_TIMEOUT` seconds (default 3600,
+  `tools.DEFAULT_EPISODE_TIMEOUT`). Remaining gaps: calls still cannot be
+  attributed to sessions; an abandoned session blocks overlapping episodes
+  until it expires; after expiry, an abandoned session that returns after a
+  newer one began is refused, and calls it makes meanwhile land in the newer
+  log.
+- **Dates no longer exempt amounts.** `$9 may` read as the date "9 May" and
+  `June 30 billion` as "June 30", so both invented amounts were exempt (1.0).
+  A number right after a currency sign (`$9 may`, `USD 9 may`) and a date form
+  followed by a unit or currency word (`June 30 billion`,
+  `Losses may 9 billion`, `30 June 2023 billion`) are now amounts (0.70).
+  Genuine dates (`June 30, 2023`, `30 June 2023`, `May 9, 2024`) stay exempt.
+- **Markdown and case tolerant labels.** `**REVENUE:** 78,740,000,000` failed
+  an honest model (0.70) and `**ANSWER:** 26.52%` found no answer. `REVENUE`,
+  `NET_INCOME` and `ANSWER` are now case-insensitive and may follow markdown
+  list, quote, heading and emphasis markers; a block value may be wrapped only
+  in `*` or `_` emphasis. The trade-off: a later lowercase `Revenue: ...` line
+  in prose now counts as a block line (the last line of each label wins), as
+  `ANSWER` already did.
+- **ASCII digits in the block.** Block values must be ASCII digits; fullwidth
+  or Arabic-Indic digits land in `missing_inputs` (0.70).
+- **Known limits added.** A foreign currency or other word after a single
+  digit (`9 euros`, `3x`) is exempt as a count, superscript digits are not
+  read, and number words ("seven billion") are not read.
+- **Tests.** 292 tests pass (223 in `tests/test_grader.py`).

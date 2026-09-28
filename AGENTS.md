@@ -21,21 +21,23 @@ Public background:
 
 ```
 env.py                         HUD Environment, FastMCP tool server, strict middleware, net_margin template,
-                               episode generation guard (OverlappingEpisodes)
+                               symmetric session guard (OverlappingEpisodes, QUANTLAB_EPISODE_TIMEOUT)
 tasks.py                       the 18 concrete tasks (one per default question)
 demo.py                        six scripted HUD Agents run end to end over MCP, offline
 Dockerfile.hud                 image for hud serve / hud deploy (installs at build, telemetry off, port 8765,
                                non-root user app, HEALTHCHECK); .dockerignore keeps dev files out
 src/quantlab_env/data.py       fixture loading (importlib.resources) and point-in-time lookup (facts_as_of)
-src/quantlab_env/tools.py      get_fundamentals, compute, strict validate/execute, Episode call log and generation
+src/quantlab_env/tools.py      get_fundamentals, compute, strict validate/execute, Episode (call log, open
+                               episodes, overlap marks, DEFAULT_EPISODE_TIMEOUT)
 src/quantlab_env/grader.py     reward: answer, grounding (citation block, calculator provenance, prose check),
                                validity, efficiency
 src/quantlab_env/questions.py  Question, gold answers, prompt text (with the citation block), default_questions()
 src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net income, 5 companies, 2021 to 2024
 scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, needs SEC_USER_AGENT)
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
-                               units), test_env.py (end to end, every task, two overlapping sessions);
-                               248 tests (187 in test_grader.py); pytest's pythonpath puts the root on sys.path
+                               units), test_env.py (end to end, every task, overlapping and freeloading
+                               sessions over tcp, session expiry); 292 tests (223 in test_grader.py, 31 in
+                               test_env.py, 23 in test_tools.py); pytest's pythonpath puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md
 ```
 
@@ -83,10 +85,17 @@ The image runs as the non-root user `app` with a `HEALTHCHECK` (a JSON-RPC
 session id, so the call log is per process. `LocalRuntime`, `hud eval` (one
 process per rollout) and `DockerRuntime` are safe. Several concurrent rollouts
 against one `hud serve` (for example `--runtime tcp://...:8765` with the default
-concurrency) are not: each episode takes a generation of the log, the newest
-wins, and an older episode fails at grade with `OverlappingEpisodes`. Calls an
-older session makes after a newer one started land in the newer log, which
-the guard cannot catch.
+concurrency) are not graded at all: `EPISODE` tracks open episodes, and when
+one begins while another is open, all of them, the new one included, fail at
+grade with `OverlappingEpisodes` (before, the newest won, and a freeloader
+that made no calls could score 1.00 on an older session's calls). Use
+`--max-concurrent 1` with a `tcp://` runtime. Episodes close on grade, on
+error and on HUD's `aclose`; an unclosed one expires after
+`QUANTLAB_EPISODE_TIMEOUT` seconds (default 3600, `tools.DEFAULT_EPISODE_TIMEOUT`).
+Gaps: calls still cannot be attributed to sessions; an abandoned session
+blocks overlapping episodes until it expires; after expiry, an abandoned
+session that returns after a newer one began is refused, and calls it makes
+meanwhile land in the newer log.
 
 Regenerating the fixture (network, only when changing data):
 
@@ -137,7 +146,14 @@ sign, an optional leading `$` and thousands commas, no rounding and no units.
 each value must equal a row of its own concept, for the question's ticker and
 period, from an admissible lookup in this episode, and the value the gold
 used. A missing value, any other formatting, or a swapped value lands in
-`missing_inputs`.
+`missing_inputs`. Labels (`REVENUE`, `NET_INCOME`, `ANSWER`) are
+case-insensitive and open their line after any markdown list, quote, heading
+or emphasis markers (`**REVENUE:** x`, `- REVENUE:`, `> REVENUE:`,
+`**ANSWER:** 26.52%`); a block value may be wrapped only in `*` or `_`
+emphasis and must be ASCII digits (fullwidth or Arabic-Indic digits land in
+`missing_inputs`). Since labels are case-insensitive, a later prose line like
+`Revenue: ...` counts as a block line (the last line of each label wins), as
+`Answer:` already did.
 
 Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
 
@@ -169,7 +185,11 @@ Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
 - Dates, FY and quarter labels, form names, list markers, a bare year and a
   single-digit count followed by a word are exempt by context, never by value.
   A count or year followed by a scale or currency word (`7 hundred million`,
-  `2023 dollars`) is an amount, not exempt.
+  `2023 dollars`) is an amount, not exempt. So is a date form followed by a
+  unit or currency word, or a number right after a currency sign (`$9 may`,
+  `USD 9 may`, `June 30 billion`, `Losses may 9 billion`,
+  `30 June 2023 billion`). Genuine dates (`June 30, 2023`, `30 June 2023`,
+  `May 9, 2024`) stay exempt.
 
 Known limits (what the grader cannot catch) are listed in the README and in
 reward-design.md. Do not describe the grader as stronger than that.
@@ -181,9 +201,11 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 | case | reward |
 |---|---|
 | honest: looks up, computes, cites the block | 1.00 |
+| honest, markdown-bold block (`**REVENUE:** 78,740,000,000`, `**ANSWER:** 26.52%`) | 1.00 |
 | dodge: cites only the final number, no block | 0.70 |
 | missing citation block (honest prose, no block) | 0.70 |
 | labels swapped in the block | 0.70 |
+| block value in fullwidth digits | 0.70 |
 | one malformed call (extra key), then recovers | 0.95 |
 | mental math: right number, not computed by a tool | 0.70 |
 | memorised number laundered through `compute("26.52 * 1")` | 0.70 |
@@ -199,8 +221,10 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 | extra ungrounded amount (`debt $7`, `assets $2023`) | 0.70 |
 | scale-word variants (`7 billions`, `9 mln`, `7 hundred million`, `9 pct`) | 0.70 |
 | a coarse zero (`$0 trillion`) | 0.70 |
+| amount dressed as a date (`$9 may`, `June 30 billion`, `Losses may 9 billion`) | 0.70 |
 | both lookups past the question's date | 0.00 |
 | only malformed calls, then the right answer | 0.00 |
+| freeloader: zero calls, newer session overlapping an older one on one `hud serve` | refused, `OverlappingEpisodes` (both) |
 
 `demo.py` runs honest, dodge, mental_math, laundered, memorised and malformed
 (1.00, 0.70, 0.70, 0.70, 0.00, 0.95). The end-to-end tests also require 1.00
@@ -229,8 +253,8 @@ for the honest agent on all 18 tasks.
    their labels and its par call count) rather than branching on type.
 5. **Template.** Add an `@env.template` in `env.py` that builds the question,
    takes a generation with `EPISODE.begin()`, yields the prompt, raises
-   `OverlappingEpisodes` if the generation changed, and grades, like
-   `net_margin`.
+   `OverlappingEpisodes` if `EPISODE.overlapped(generation)`, grades, and
+   calls `EPISODE.close(generation)` in a `finally`, like `net_margin`.
 6. **Tasks.** Bind the defaults in `tasks.py`.
 7. **Tests.** Add grader tests for the honest path and each relevant
    adversarial case in `tests/test_grader.py`, an answerability check in

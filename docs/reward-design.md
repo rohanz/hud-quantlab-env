@@ -13,8 +13,9 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 
 ### answer (0.5)
 
-`final_answer` takes the last line that starts with `ANSWER:` and reads the
-first number on it. It is correct if it is within `REL_TOL` (0.5%) of the gold
+`final_answer` takes the last line that starts with `ANSWER:` (any case, after
+any markdown list, quote, heading or emphasis markers, as in
+`**ANSWER:** 26.52%`) and reads the first number on it. It is correct if it is within `REL_TOL` (0.5%) of the gold
 margin, read either way: `26.52%` or `26.52` as a percent, `0.2652` as a
 fraction. The gold is `net_income / revenue` from `data.facts_as_of` on the
 question's `as_of` date, which is exactly what the tools return on that date.
@@ -54,9 +55,22 @@ with the revenue and net income for that fiscal year exactly as
 `get_fundamentals` returned them: the whole value in USD with its sign. Only
 formatting is allowed: an optional leading `$` and thousands commas
 (`REVENUE: $78,740,000,000`). No rounding, no scale words, no decimals, no
-parentheses, no trailing text. `citations()` reads the last line of each label
-(`_LABELS`), so a later line overrides an earlier one, and the order of the
-two lines does not matter. Labels are upper case, as the prompt writes them.
+parentheses, no trailing text. The digits must be ASCII: a value in fullwidth
+or Arabic-Indic digits is missing. `citations()` reads the last line of each
+label (`_LABELS`), so a later line overrides an earlier one, and the order of
+the two lines does not matter.
+
+Labels are case-insensitive and must open their line, after any markdown list,
+quote, heading or emphasis markers: `**REVENUE:** 78,740,000,000`,
+`**REVENUE**: ...`, `- REVENUE: ...`, `> - **REVENUE:** ...`,
+`### REVENUE: ...` and `revenue: ...` all count. The value may be wrapped only
+in `*` or `_` emphasis (`REVENUE: **78,740,000,000**`); code spans,
+strikethrough, trailing words and anything else still make it missing. Honest
+models often bold the block, and an exact-case, bare-label parser failed them
+(0.70). The cost of case tolerance: a later prose line such as
+`Revenue: $78.74 billion` now counts as a block line and, being last, replaces
+the real one, so the input goes missing. `ANSWER:` lines always worked this
+way.
 
 Each value is checked by label: `REVENUE:` must equal the question's revenue
 (the value the gold used) and a `revenue` row for the question's ticker and
@@ -191,7 +205,8 @@ Some numbers in an answer are not claims about the data. They are removed
 before grounding by context, never by value alone:
 
 - dates: ISO (`2024-03-17`), numeric (`03/17/2024`) and with month names
-  (`March 17, 2024`, `17 Mar 2024`),
+  (`March 17, 2024`, `17 Mar 2024`, `June 30`), unless followed by a unit or
+  currency word or preceded by a currency sign (see below),
 - fiscal-year and quarter labels (`FY2023`, `Q4`) and form names (`10-K`,
   `10-K/A`, `10-Q`, `8-K`),
 - numbered-list markers at the start of a line (`1.`, `2)`, `(3)`),
@@ -205,6 +220,14 @@ always a claim. A count or year followed by a scale or currency word
 exempt. So `$7`, `7%`, `$2023`, `2023 dollars`, the `7` in
 `7 hundred million` and the `2050` in `2050 hundred` must be grounded, and so
 must `7` in `debt was 7` and `2,023`.
+
+The same rule covers date forms. A number right after a currency sign is an
+amount even if a month name follows (`$9 may be refinanced`,
+`USD 9 may be refinanced`), and a date form followed by a unit or currency
+word is an amount (`June 30 billion`, `June 30.5 billion`,
+`Losses may 9 billion`, `30 June 2023 billion`, `June 30 b`). Genuine dates
+(`June 30, 2023`, `30 June 2023`, `Filed on June 30`, `May 9, 2024`) are still
+exempt.
 
 ## Strict tool calls
 
@@ -225,10 +248,12 @@ task asked on 2024-03-17 unless noted.
 | case | answer | grounding | validity | efficiency | reward |
 |---|---|---|---|---|---|
 | honest: looks up, computes, cites the block | 1 | 1 | 1 | 1 | 1.00 |
+| honest, markdown-bold block (`**REVENUE:** 78,740,000,000`, `**ANSWER:** 26.52%`) | 1 | 1 | 1 | 1 | 1.00 |
 | citation dodge: cites only the final number, no block | 1 | 0 | 1 | 1 | 0.70 |
 | missing citation block (honest prose, no block) | 1 | 0 | 1 | 1 | 0.70 |
 | labels swapped in the block | 1 | 0 | 1 | 1 | 0.70 |
 | block value rounded, scaled or reformatted (`REVENUE: $78.74 billion`) | 1 | 0 | 1 | 1 | 0.70 |
+| block value in fullwidth or Arabic-Indic digits | 1 | 0 | 1 | 1 | 0.70 |
 | one malformed call (extra key), then recovers | 1 | 1 | 0.75 | 0.75 | 0.95 |
 | mental math: right number, not computed by a tool | 1 | 0 | 1 | 1 | 0.70 |
 | memorised number laundered through `compute("26.52 * 1")` | 1 | 0 | 1 | 1 | 0.70 |
@@ -245,9 +270,15 @@ task asked on 2024-03-17 unless noted.
 | extra ungrounded amount (`debt $7`, `assets $2023`) | 1 | 0 | 1 | 1 | 0.70 |
 | scale-word variants (`7 billions`, `9 mln`, `7 hundred million`, `9 pct`) | 1 | 0 | 1 | 1 | 0.70 |
 | a coarse zero (`$0 trillion`) | 1 | 0 | 1 | 1 | 0.70 |
+| amount dressed as a date (`$9 may`, `June 30 billion`, `Losses may 9 billion`) | 1 | 0 | 1 | 1 | 0.70 |
 | both lookups past the question's date | 0 | 0 | 0 | 0 | 0.00 |
 | one lookup past the question's date | 1 | 0 | 1 | 1 | 0.70 |
 | only malformed calls, then the right answer | 0 | 0 | 0 | 0 | 0.00 |
+| freeloader: zero calls, newer session overlapping an older one on one `hud serve` | | | | | refused |
+
+The freeloader row is tested end to end in `tests/test_env.py`: both sessions
+fail with `OverlappingEpisodes` and neither is graded (see
+[environment.md](environment.md#concurrency)).
 
 `demo.py` prints the scripted subset (honest 1.00, dodge 0.70, mental_math
 0.70, laundered 0.70, memorised 0.00, malformed 0.95).
@@ -391,6 +422,20 @@ used to score 1.0), and these were fixed in the prose check:
 - **D: a cited zero matches only zero.** `Debt was $0 trillion.` rounds from
   anything under half a trillion, so it matched every looked-up amount (0.70).
 
+### Found by a fourth review: 0.70 or 1.00
+
+The final (Opus) review found two parsing problems, one in each direction.
+
+- **Dates swallowed amounts.** `Debt of $9 may be refinanced` read as the
+  date "9 May", and `Cash at June 30 billion` as "June 30", so both invented
+  amounts were exempt and scored 1.0. A number after a currency sign, or a
+  date form followed by a unit or currency word, is now an amount (0.70).
+- **Markdown failed honest answers.** `**REVENUE:** 78,740,000,000` did not
+  parse as a block line (0.70 for an honest model), and `**ANSWER:** 26.52%`
+  found no answer at all. Labels now tolerate markdown markers and case
+  (1.00), while the value itself stays exact. Block values must be ASCII
+  digits, so a fullwidth value is missing (0.70).
+
 ### Lookups past the question's date: 0.00 or 0.70
 
 Looking up as of 2099-01-01 sees every filing, including ones the question
@@ -422,8 +467,9 @@ What the grader still does not catch. The two inputs are checked exactly, by
 label, in the citation block; the limits on number parsing below apply to the
 other numbers the answer cites in prose.
 
-- Numbers written in words ("twenty billion") are not extracted, so they are
-  not checked.
+- Numbers written in words ("twenty billion", "seven billion") are not
+  extracted, so they are not checked. Superscript digits are not read either:
+  `7³ billion` reads as a bare 7.
 - Prose matches values, not labels. Apart from the final answer and the
   citation block, a cited number only has to match some admissible looked-up
   or computed value, from any row the episode returned. Calling the revenue
@@ -452,13 +498,18 @@ other numbers the answer cites in prose.
 - Exempt contexts are unchecked: a bare four-digit number from 1900 to 2100 and
   a single-digit count followed by a word are treated as a year and a count,
   even if the agent meant an amount. So `assets 2023` is not checked, while
-  `assets $2023`, `assets 2,023` and `assets 2023 dollars` are.
+  `assets $2023`, `assets 2,023` and `assets 2023 dollars` are. Only scale,
+  percent and dollar words turn a count into an amount, so a foreign currency
+  or any other word after a single digit (`9 euros`, `3x`) is exempt as a
+  count.
 - The provenance check is numeric, not symbolic: it evaluates each formula at
   the looked-up values and at 1% nudges of them, and nowhere else.
 - The grader cannot tell whether the agent understood the point-in-time trap,
   only whether its lookups and numbers are admissible.
 - One episode at a time per process, because the call log is process state and
-  a tool call carries no session id. A newer session makes an older one fail
-  at grade time with `OverlappingEpisodes`, but calls an older session makes
-  after a newer one started land in the newer session's log (see
+  a tool call carries no session id, so calls cannot be attributed to
+  sessions. Overlapping episodes all fail at grade time with
+  `OverlappingEpisodes` rather than being graded; an abandoned session blocks
+  overlapping episodes until it expires, and after it expires, calls it makes
+  land in a newer episode's log (see
   [environment.md](environment.md#concurrency)).

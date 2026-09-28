@@ -76,7 +76,15 @@ The citation block (`citations` in `src/quantlab_env/grader.py`):
   revenue row, and `NET_INCOME:` a net income row, for the question's ticker
   and period, from an admissible lookup in this episode, and equal to the value
   the gold used. Swapping the labels fails both.
-- If a label appears on several lines, the last one wins.
+- Labels (`REVENUE`, `NET_INCOME` and `ANSWER`) are case-insensitive and must
+  open their line, after any markdown list, quote, heading or emphasis markers
+  (`**REVENUE:** 78,740,000,000`, `- REVENUE:`, `> REVENUE:`,
+  `**ANSWER:** 26.52%`). A value may be wrapped only in `*` or `_` emphasis,
+  and must be written in ASCII digits: fullwidth or Arabic-Indic digits count
+  as missing.
+- If a label appears on several lines, the last one wins. Because labels are
+  case-insensitive, a later prose line such as `Revenue: ...` counts as a
+  block line too, as a later `Answer:` line already did.
 
 How evidence is built from the episode's call log (`src/quantlab_env/grader.py`):
 
@@ -123,7 +131,11 @@ How the other numbers in the answer (the prose) are checked:
   line, a bare year and a single-digit count followed by a word (`3 filings`)
   are not claims. Context decides, not value: `$7`, `7%` and `$2023` are
   claims, and so is a count or year followed by a scale or currency word
-  (`7 hundred million`, `2023 dollars`).
+  (`7 hundred million`, `2023 dollars`). The same holds for dates: a date form
+  followed by a unit or currency word, or a number right after a currency sign,
+  is an amount (`$9 may`, `USD 9 may`, `June 30 billion`,
+  `Losses may 9 billion`, `30 June 2023 billion`), while `June 30, 2023`,
+  `30 June 2023` and `May 9, 2024` are still dates.
 
 The weights differ from QuantLab's (0.7 / 0.1 / 0.1 / 0.1). There, a correct
 numeric answer that could not be traced lost only the 0.1 grounding share. Here
@@ -143,9 +155,11 @@ task unless noted.
 | case | where it comes from | reward here |
 |---|---|---|
 | Honest answer with the citation block | baseline | 1.00 |
+| Honest answer with a markdown block | `**REVENUE:** 78,740,000,000` and `**ANSWER:** 26.52%`, as models often write it. Labels tolerate markdown markers and case. | 1.00 |
 | **Cites fewer numbers to dodge the check** | In the earlier memo writer, DPO on pass/fail pairs learned to cite fewer numbers instead of correct ones ([write-up](https://www.rohanjk.xyz/projects/quantlab-analyst/)). A grader that only checks the numbers present rewards that. Here the answer must cite its inputs in the citation block, and a test checks that leaving them out scores no better than citing them next to a wrong number. | 0.70 |
 | Missing citation block | Honest prose that cites the inputs, but no `REVENUE:` and `NET_INCOME:` lines. | 0.70 |
 | Labels swapped in the block | `REVENUE: 20878000000` and `NET_INCOME: 78740000000`. Each label is checked against its own concept. | 0.70 |
+| Block value in non-ASCII digits | `REVENUE: ７８,７４０,０００,０００` (fullwidth). Block values must be ASCII digits. | 0.70 |
 | **Malformed tool call** | The GRPO training loop parsed tool calls slightly too leniently, and the RL model lost points exactly where it had been lenient. Here one strict contract applies everywhere, and bad calls are logged and counted. | 0.95 (one bad call, then recovery) |
 | **Correct number not in the evidence** | Models fetched the inputs and then did the arithmetic in their heads: right answers that nobody could verify. | 0.70 |
 | **Memorised number laundered through the calculator** | `compute("26.52 * 1")`, or 26.52 spelled from unit constants (`100/(1+1+1+1)+1+...`) or with `x / x`. Caught by calculator provenance. | 0.70 |
@@ -159,8 +173,10 @@ task unless noted.
 | Input cited as a percent | `net income 20,878,000,000%` or `revenue 100%` in prose. A percent matches only a calculator result. | 0.70 |
 | Extra ungrounded amount | `debt $7`, `assets $2023`, or a scale-word variant: `7 billions`, `9 mln`, `7 hundred million`, `9 pct`. | 0.70 |
 | A coarse zero | `Debt was $0 trillion.` A zero matches only zero. | 0.70 |
+| An amount dressed as a date | `Debt of $9 may be refinanced`, `Cash at June 30 billion`, `Losses may 9 billion`. A currency sign before or a unit word after makes it an amount. | 0.70 |
 | Lookups past the question's date | Both inputs looked up as of 2099-01-01. No admissible lookup, so validity and efficiency are 0 too. | 0.00 |
 | Burst of malformed calls, then the right answer | Not from QuantLab: an efficiency leak (0.1 for zero evidence) caught by the end-to-end test during development, now closed. | 0.00 |
+| Freeloader session | Not from QuantLab: against one `hud serve`, a newer session makes no calls and submits an older session's answer, which used to score 1.00 on the older session's calls. Tested end to end in `tests/test_env.py`. | refused (`OverlappingEpisodes`, both sessions) |
 
 [docs/reward-design.md](docs/reward-design.md) has the full table with
 subscores.
@@ -173,7 +189,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 248 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 292 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -232,11 +248,15 @@ docker run --rm -p 8765:8765 hud-quantlab-env:local
 ```
 
 Run one episode at a time against a served container. The tool-call log is
-per process, so do not rely on several concurrent rollouts against one
-`hud serve` (for example `hud eval --runtime tcp://localhost:8765` with the
-default concurrency): an older episode whose log a newer one cleared fails
-with `OverlappingEpisodes`, and tool calls it makes after the newer one
-started would be credited to the newer one. See [Limits](#limits).
+per process, so concurrent rollouts against one `hud serve` (for example
+`hud eval --runtime tcp://localhost:8765` with the default concurrency) are
+not graded at all: when two episodes are open at once, every one of them
+fails at grade time with `OverlappingEpisodes`. That is loud on purpose.
+Before, the newest session won, so a session that made no tool calls could
+score 1.00 on an older session's calls. For a `tcp://` runtime, pass
+`--max-concurrent 1`, or run one process per rollout (`hud eval` with its
+local runtime, or `DockerRuntime`). See [Limits](#limits) for what the guard
+still cannot do.
 
 `hud deploy` builds the same file for the HUD platform. It has not been
 deployed there yet.
@@ -260,12 +280,12 @@ The environment never touches the network.
 ## Layout
 
 ```
-env.py                         HUD Environment, MCP tool server, net_margin template
+env.py                         HUD Environment, MCP tool server, net_margin template, session guard
 tasks.py                       the 18 concrete tasks
 demo.py                        scripted agents, end to end
 Dockerfile.hud                 container image for hud serve / hud deploy
 src/quantlab_env/data.py       point-in-time fixture access
-src/quantlab_env/tools.py      tools, strict argument checks, episode call log
+src/quantlab_env/tools.py      tools, strict argument checks, episode call log and open episodes
 src/quantlab_env/grader.py     reward
 src/quantlab_env/questions.py  question template and gold answers
 src/quantlab_env/fixture.json  the SEC data the tools serve (package data)
@@ -291,12 +311,17 @@ docs/                          design notes (see below)
   calls cannot be split per session. `LocalRuntime` runs one acquisition of an
   env instance at a time, and `hud eval` and `DockerRuntime` run each rollout
   in its own process, so these are safe. One `hud serve` process can still
-  host concurrent sessions. Each episode takes a generation of the log when it
-  starts and the newest session wins: an older session whose log a newer one
-  cleared fails at grade time with `OverlappingEpisodes` instead of being
-  graded on the wrong log. What it cannot catch: an older session that keeps
-  calling tools after a newer one started puts those calls in the newer
-  session's log.
+  host concurrent sessions. Each episode is opened when it starts and closed
+  when it is graded, fails or is closed by HUD. If another episode is open
+  when one begins, all open episodes, the new one included, fail at grade
+  time with `OverlappingEpisodes` instead of being graded on a log that is not
+  their own. What remains: calls still cannot be attributed to sessions, so
+  the guard refuses overlapping episodes rather than grading them. A session
+  that is abandoned without being closed blocks every overlapping episode
+  until it expires after `QUANTLAB_EPISODE_TIMEOUT` seconds (default 3600).
+  After it expires, a newer episode is graded normally, and if the abandoned
+  session comes back after that newer one began, it is refused; any tool
+  calls it makes in the meantime land in the newer episode's log.
 - Compared with QuantLab this has one question type and two tools, not many
   question types and six tools. Grounding here checks every cited number, not
   only the final answer. That idea comes from the earlier memo writer's checker.
@@ -314,7 +339,9 @@ What the grader still cannot catch (details in
 The two inputs are checked exactly, by label, in the citation block. These
 limits apply to the other numbers the answer cites in prose:
 
-- Claims written in words ("twenty billion") are not extracted or checked.
+- Claims written in words ("twenty billion", "seven billion") are not
+  extracted or checked, and superscript digits are not read (`7³ billion`
+  reads as a bare 7).
 - Prose matches values, not labels. A cited number only has to match some
   value the episode looked up (admissibly) or computed, so calling the revenue
   "net income", another year's figure, or another ticker's figures (any ticker
@@ -334,4 +361,6 @@ limits apply to the other numbers the answer cites in prose:
   such as `$7 billion`.
 - A bare year-like number (1900 to 2100) and a single-digit count followed by
   a word are exempt, even if meant as amounts (so `assets 2023` is not
-  checked, while `assets $2023` and `assets 2023 dollars` are).
+  checked, while `assets $2023` and `assets 2023 dollars` are). A foreign
+  currency or any other word after a single digit (`9 euros`, `3x`) leaves it
+  exempt as a count.
