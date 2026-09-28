@@ -48,6 +48,12 @@ def test_compute_arithmetic_and_limits():
     assert compute("1+" * 200 + "1")["error"]["code"] == "bad_argument"
 
 
+@pytest.mark.parametrize("expr", ["1e308 * 10", "1e999", "1e999 - 1e999"])
+def test_compute_rejects_non_finite_results(expr):
+    # inf/nan would reach the agent over MCP as `value: null` with no error
+    assert compute(expr)["error"]["code"] == "bad_argument"
+
+
 def test_execute_logs_every_call_including_failures():
     ep = Episode()
     execute("nope", {}, ep)

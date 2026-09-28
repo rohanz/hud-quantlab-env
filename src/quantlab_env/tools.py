@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import math
 import operator
 import re
 from dataclasses import dataclass, field
@@ -68,6 +69,8 @@ def compute(expr: str) -> dict:
         return _error("bad_argument", "division by zero")
     except (SyntaxError, ValueError):
         return _error("bad_argument", "only numbers, + - * / and parentheses are allowed")
+    if not math.isfinite(value):
+        return _error("bad_argument", "result is not a finite number")
     return {"expr": expr, "value": value}
 
 
