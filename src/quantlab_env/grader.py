@@ -84,11 +84,22 @@ _MONTH = (
     r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?"
     r"|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b\.?"
 )
+# A unit or currency word after a number, as _NUMBER reads it, plus "hundred": "June 30 billion" is an amount.
+_AMOUNT_WORD = (
+    r"\s*(?:%|percent\b|per\s?cent\b|pct\b|hundreds?\b|thousands?\b|millions?\b|billions?\b|trillions?\b"
+    r"|tn\b|bn\b|bln\b|bil\b|mln\b|mn\b|mm\b|[tbmk]\b|dollars?\b|usd\b)"
+)
+_DATE = (
+    r"\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{4}"
+    rf"|{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,\s*\d{{4}})?|(?<![$.,\d])\d{{1,2}}\s+{_MONTH}(?:\s+\d{{4}})?"
+)
 # Text that looks numeric but is not a claim: dates, fiscal-year and quarter labels,
-# form names, and numbered-list markers at the start of a line.
+# form names, and numbered-list markers at the start of a line. A date followed by a
+# unit word, or a day after a currency sign ("$9 may", "USD 9 may"), is an amount:
+# the `amount` branch consumes a currency sign and its number first, and is kept.
 _NOT_CLAIMS = re.compile(
-    r"\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}/\d{1,2}/\d{4}\b"
-    rf"|\b{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,\s*\d{{4}})?\b|\b\d{{1,2}}\s+{_MONTH}(?:\s+\d{{4}})?\b"
+    rf"(?P<amount>(?:\$|\busd\b)\s*[{_DASH}]?\s*\d+)"
+    rf"|\b(?:{_DATE})\b(?!\.\d|{_AMOUNT_WORD})"
     r"|\bFY\s?\d{2,4}\b|\bQ[1-4]\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b"
     r"|^\s*(?:[-*]\s*)?\(?\d{1,2}[.)](?=\s)",
     re.IGNORECASE | re.MULTILINE,
@@ -122,11 +133,16 @@ _SCALE_WORD = re.compile(
     re.IGNORECASE,
 )
 # The citation block: "REVENUE: <value>" and "NET_INCOME: <value>" lines, each a tool
-# value written out whole, optionally with a leading $ and thousands commas.
+# value written out whole in ASCII digits, optionally with a leading $ and thousands
+# commas. Labels (these and ANSWER) are case-insensitive and open their line, after
+# any markdown list, quote, heading or emphasis markers ("> - **REVENUE:** x"); the
+# value may only be wrapped in * or _ emphasis ("**78,740,000,000**").
 _LABELS = {"revenue": "REVENUE", "net_income": "NET_INCOME"}
-_CITATION = re.compile(r"^[^\S\n]*(REVENUE|NET_INCOME)[^\S\n]*:([^\n]*)$", re.MULTILINE)
+_LABEL_LINE = r"^(?:[^\S\n]|[*_+>#\-])*({labels})[*_]*[^\S\n]*:[^\S\n]*[*_]*([^\n]*)$"
+_CITATION = re.compile(_LABEL_LINE.format(labels="|".join(_LABELS.values())), re.IGNORECASE | re.MULTILINE)
+_ANSWER = re.compile(_LABEL_LINE.format(labels="ANSWER"), re.IGNORECASE | re.MULTILINE)
 _TOOL_VALUE = re.compile(
-    rf"\s*(?P<sign>[{_DASH}]?)\s*\$?\s*(?P<sign2>[{_DASH}]?)\s*(?P<num>\d{{1,3}}(?:,\d{{3}})+|\d+)\s*"
+    rf"[\s*_]*(?P<sign>[{_DASH}]?)\s*\$?\s*(?P<sign2>[{_DASH}]?)\s*(?P<num>[0-9]{{1,3}}(?:,[0-9]{{3}})+|[0-9]+)[\s*_]*"
 )
 
 
@@ -174,7 +190,7 @@ def _exempt(m: re.Match, kind: str, negative: bool, text: str) -> bool:
 
 
 def extract_numbers(text: str) -> list[Cited]:
-    text = _NOT_CLAIMS.sub(_EXEMPTED, text)
+    text = _NOT_CLAIMS.sub(lambda m: m[0] if m["amount"] else _EXEMPTED, text)
     cited = []
     for m in _NUMBER.finditer(text):
         start, negative = m.start(), bool(m["neg"] or m["neg2"])
@@ -197,17 +213,18 @@ def extract_numbers(text: str) -> list[Cited]:
 
 def final_answer(text: str) -> Cited | None:
     """The first number on the last `ANSWER:` line."""
-    lines = [ln for ln in text.splitlines() if re.match(r"\s*ANSWER\s*:", ln, re.IGNORECASE)]
+    lines = _ANSWER.findall(text)
     if not lines:
         return None
-    nums = extract_numbers(lines[-1])  # the label has no digits; its colon can precede a spaced minus
+    # rebuilt without markdown: the label has no digits, and its colon can precede a spaced minus
+    nums = extract_numbers(f"ANSWER: {lines[-1][1]}")
     return nums[0] if nums else None
 
 
 def citations(text: str) -> dict[str, int | None]:
     """The citation block: the last `REVENUE:` and `NET_INCOME:` lines, each read as a
     whole tool value, or None if the line is missing or holds anything else."""
-    lines = dict(_CITATION.findall(text))  # the last line of each label wins
+    lines = {label.upper(): value for label, value in _CITATION.findall(text)}  # the last line of each label wins
     cited = {}
     for concept, label in _LABELS.items():
         m = _TOOL_VALUE.fullmatch(lines.get(label, ""))

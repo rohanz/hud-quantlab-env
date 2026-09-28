@@ -151,7 +151,8 @@ def test_sign_in_parentheses_or_words_is_a_known_limit(prose):
 def test_citations_parse():
     text = "REVENUE: $78,740,000,000\nNET_INCOME: -20878000000\nANSWER: 1%"
     assert citations(text) == {"revenue": REV, "net_income": -NI}
-    assert citations("Revenue: 78740000000\nnet_income: 20878000000") == {"revenue": None, "net_income": None}
+    assert citations("Revenue: 78740000000\nnet_income: 20878000000") == {"revenue": REV, "net_income": NI}
+    assert citations("Sales: 78740000000\nNet income: 20878000000") == {"revenue": None, "net_income": None}
 
 
 # --- the DPO loophole: cite fewer numbers so there is less to check -----------
@@ -778,3 +779,116 @@ def test_final_answer_takes_last_answer_line():
 @pytest.mark.parametrize(("line", "value"), [("ANSWER: -3.1%", -3.1), ("ANSWER: - 3.1%", -3.1), ("ANSWER:  3.1%", 3.1)])
 def test_final_answer_keeps_its_sign(line, value):
     assert final_answer(line).value == value
+
+
+# --- a date never swallows an amount -------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("extra", "ungrounded"),
+    [
+        (" Debt of $9 may be refinanced soon.", ["$9"]),
+        (" Debt of USD 9 may be refinanced soon.", ["USD 9"]),
+        (" Debt of $  9 may be refinanced soon.", ["$  9"]),
+        (" Cash at June 30 billion.", ["30 billion"]),
+        (" Losses may 9 billion.", ["9 billion"]),
+        (" Cash at June 30.5 billion.", ["30.5 billion"]),
+        (" Cash at 30 June 2023 billion.", ["2023 billion"]),
+        (" Cash at June 30 b.", ["30 b"]),
+    ],
+)
+def test_a_date_form_does_not_exempt_an_amount(extra, ungrounded):
+    """Fourth review: `$9 may` read as the date "9 May" and `June 30 billion` as
+    "June 30", so both amounts were exempt and scored 1.0. A currency sign before
+    or a unit word after makes the number an amount, never a date."""
+    g = grade(honest(extra), full_episode().calls, Q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [" Filed June 30, 2023.", " Filed 30 June 2023.", " Filed on June 30.", " Filed on 30 June.", " Due May 9, 2024."],
+)
+def test_a_genuine_date_is_still_exempt(extra):
+    g = grade(honest(extra), full_episode().calls, Q)
+    assert g.info["ungrounded"] == []
+    assert g.reward == 1.0, g.info
+
+
+# --- markdown around the block labels ----------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "tail",
+    [
+        f"**REVENUE:** {REV:,}\n**NET_INCOME:** {NI:,}\n**ANSWER:** 26.52%",
+        f"**REVENUE**: {REV:,}\n**NET_INCOME**: {NI:,}\n**ANSWER**: 26.52%",
+        f"__REVENUE__: {REV}\n__NET_INCOME:__ {NI}\n__ANSWER:__ 26.52%",
+        f"**REVENUE: {REV:,}**\n**NET_INCOME: ${NI:,}**\n**ANSWER: 26.52%**",
+        f"REVENUE: **{REV:,}**\nNET_INCOME: *{NI}*\nANSWER: *26.52%*",
+        f"- REVENUE: {REV}\n- NET_INCOME: {NI}\n- ANSWER: 26.52%",
+        f"* REVENUE: {REV}\n* NET_INCOME: {NI}\n* ANSWER: 26.52%",
+        f"+ REVENUE: {REV}\n+ NET_INCOME: {NI}\n+ ANSWER: 26.52%",
+        f"> REVENUE: {REV}\n> NET_INCOME: {NI}\n> ANSWER: 26.52%",
+        f"> - **REVENUE:** {REV}\n> - **NET_INCOME:** {NI}\n> - **ANSWER:** 26.52%",
+        f"### REVENUE: {REV}\n### NET_INCOME: {NI}\n### ANSWER: 26.52%",
+        f"revenue: {REV}\nnet_income: {NI}\nanswer: 26.52%",
+        f"Revenue: {REV}\nNet_Income: {NI}\nAnswer: 26.52%",
+    ],
+)
+def test_markdown_and_case_around_block_labels_are_accepted(tail):
+    """Fourth review: `**REVENUE:** 78,740,000,000` failed an honest model (0.70),
+    and `**ANSWER:** 26.52%` found no answer at all. Labels are case-insensitive
+    (like ANSWER always was) and may carry markdown list, quote, heading and
+    emphasis markers; the value must still be the exact tool value."""
+    g = grade(f"{PROSE}\n{tail}", full_episode().calls, Q)
+    assert g.info["citations"] == {"revenue": REV, "net_income": NI}
+    assert g.info["final_answer"] is not None
+    assert g.reward == 1.0, g.info
+
+
+@pytest.mark.parametrize(
+    "revenue",
+    [
+        "**78740000000** million",
+        "78740000000 ** 1",
+        "78_740_000_000",
+        "**$78.74 billion**",
+        "`78740000000`",
+        "~~78740000000~~",
+    ],
+)
+def test_markdown_does_not_let_anything_else_into_a_block_value(revenue):
+    g = grade(answer(PROSE, block=f"**REVENUE:** {revenue}\nNET_INCOME: {NI}\n"), full_episode().calls, Q)
+    assert g.info["missing_inputs"] == ["revenue"]
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_markdown_swapped_labels_are_still_ungrounded():
+    block = f"**REVENUE:** {NI}\n**NET_INCOME:** {REV}\n"
+    g = grade(answer(PROSE, block=block), full_episode().calls, Q)
+    assert g.info["missing_inputs"] == ["revenue", "net_income"]
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_markdown_final_answer_takes_last_answer_line():
+    assert final_answer("**ANSWER:** 1%\nmore\n> **answer**: 26.52%").value == 26.52
+    assert final_answer("The ANSWER: 26.52%") is None  # a label opens its line
+
+
+# --- block values are ASCII digits -------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "revenue",
+    [
+        "７８,７４０,０００,０００",  # fullwidth digits
+        "٧٨٧٤٠٠٠٠٠٠٠",  # Arabic-Indic digits
+    ],
+)
+def test_block_values_must_be_ascii_digits(revenue):
+    g = grade(answer(PROSE, block=f"REVENUE: {revenue}\nNET_INCOME: {NI}\n"), full_episode().calls, Q)
+    assert g.info["missing_inputs"] == ["revenue"]
+    assert g.reward == pytest.approx(0.7)
