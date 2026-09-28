@@ -10,7 +10,8 @@ grounding  All or nothing. Every number cited anywhere in the answer, the
            this episode, and the answer must cite the revenue and net income
            the margin was computed from.
 validity   Share of tool calls that were well formed (0 with no calls).
-efficiency PAR_CALLS / max(PAR_CALLS, calls) (0 with no calls).
+efficiency PAR_CALLS / max(PAR_CALLS, calls), and 0 unless a lookup
+           succeeded, so a burst of failed calls earns nothing.
 
 Evidence is built from the episode log in call order:
 - `value` fields of successful `get_fundamentals` rows. Dates and other
@@ -175,7 +176,7 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         "answer": float(correct and looked_up),
         "grounding": float(grounded),
         "validity": (n - malformed) / n if n else 0.0,
-        "efficiency": PAR_CALLS / max(PAR_CALLS, n) if n else 0.0,
+        "efficiency": PAR_CALLS / max(PAR_CALLS, n) if looked_up else 0.0,
     }
     reward = sum(WEIGHTS[k] * v for k, v in subscores.items())
     info = {
