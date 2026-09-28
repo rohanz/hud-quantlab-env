@@ -1,10 +1,11 @@
 """End to end through HUD: LocalRuntime, the MCP capability, the template's grade."""
 
 import asyncio
+import contextlib
 
 import pytest
 from hud.agents.base import Agent
-from hud.environment.server import bind
+from hud.environment.server import TaskRunner, bind
 from hud.eval import LocalRuntime, Runtime
 
 from demo import Scripted
@@ -98,40 +99,106 @@ async def test_tools_are_published_with_schemas():
 
 
 class Gated(Agent):
-    """The honest scripted agent, with hooks to interleave it with another session."""
+    """The honest scripted agent, with hooks to interleave it with other sessions."""
 
-    def __init__(self, before=None, after=None):
-        self.before, self.after, self.called = before, after, asyncio.Event()
+    def __init__(self, hold=()):
+        self.hold, self.started, self.called = hold, asyncio.Event(), asyncio.Event()
 
     async def __call__(self, run):
-        if self.before:
-            self.before.set()
+        self.started.set()
         await Scripted("honest")(run)
+        self.content = run.trace.content
         self.called.set()
-        if self.after:
-            await self.after.wait()
+        for event in self.hold:  # stay open (ungraded) until these fire
+            await event.wait()
 
 
-async def test_an_episode_whose_log_a_newer_session_cleared_is_refused_not_misgraded():
-    # One served process, two control sessions, as with `hud serve` and a
-    # concurrent `hud eval --runtime tcp://...`: A makes its calls, B starts
-    # (and clears the shared log) before A is graded.
+class Freeloader(Agent):
+    """Makes no tool calls and submits another session's honest answer from memory."""
+
+    def __init__(self, source):
+        self.source, self.started = source, asyncio.Event()
+
+    async def __call__(self, run):
+        self.started.set()
+        run.trace.content = self.source.content
+
+
+@contextlib.asynccontextmanager
+async def served():
+    """One served env process, as with `hud serve`, reached over tcp like `--runtime tcp://...`."""
     await env.start()
     server = await bind(env)
     serving = asyncio.create_task(server.serve_forever())
-    runtime = Runtime(f"tcp://127.0.0.1:{server.sockets[0].getsockname()[1]}")
     try:
-        b_started = asyncio.Event()
-        a, b = Gated(after=b_started), Gated(before=b_started)
-        job_a = asyncio.create_task(TASK.run(a, runtime=runtime))
-        await a.called.wait()
-        job_b = asyncio.create_task(TASK.run(b, runtime=runtime))
-        run_a, run_b = [(await j).runs[0] for j in (job_a, job_b)]
+        yield Runtime(f"tcp://127.0.0.1:{server.sockets[0].getsockname()[1]}")
     finally:
         serving.cancel()
         server.close()
-    # Before the guard, A was graded 0.0 on the log B cleared. Now A fails with
-    # the reason, and B, the newest session, is graded on its own calls.
-    assert run_a.trace.status == "error" and not run_a.evaluation, run_a.evaluation
-    assert "another task session" in run_a.trace.steps[-1].error
-    assert run_b.reward == 1.0, run_b.evaluation
+
+
+def refused(r):
+    return r.trace.status == "error" and not r.evaluation and "another task session" in r.trace.steps[-1].error
+
+
+async def test_a_freeloader_is_not_graded_on_an_older_sessions_calls():
+    # A makes its calls; B starts, makes none and submits A's block. Before,
+    # B scored 1.00 on A's calls in the shared log and A failed.
+    async with served() as runtime:
+        a = Gated()
+        b = Freeloader(source=a)
+        a.hold = (b.started,)
+        job_a = asyncio.create_task(TASK.run(a, runtime=runtime))
+        await a.called.wait()
+        run_b = (await TASK.run(b, runtime=runtime)).runs[0]
+        run_a = (await job_a).runs[0]
+    assert refused(run_b), run_b.evaluation
+    assert refused(run_a), run_a.evaluation
+    assert not EPISODE.open
+
+
+async def test_overlapping_honest_sessions_all_fail_loudly_never_misgraded():
+    # Four concurrent rollouts: before, the last was graded on all 12 calls.
+    async with served() as runtime:
+        agents = [Gated() for _ in range(4)]
+        for agent in agents:
+            agent.hold = tuple(other.called for other in agents)
+        jobs = await asyncio.gather(*(TASK.run(agent, runtime=runtime) for agent in agents))
+    runs = [job.runs[0] for job in jobs]
+    assert all(refused(r) for r in runs), [r.evaluation for r in runs]
+    assert not EPISODE.open
+
+
+async def test_sequential_sessions_in_one_process_are_each_graded():
+    async with served() as runtime:
+        for _ in range(3):
+            r = (await TASK.run(Scripted("honest"), runtime=runtime)).runs[0]
+            assert r.reward == 1.0, r.evaluation
+    assert not EPISODE.open
+
+
+class Clock:
+    def __init__(self):
+        self.now = 0.0
+
+    def __call__(self):
+        return self.now
+
+
+@pytest.mark.parametrize(("elapsed", "reward"), [(61, 1.0), (59, None)])
+async def test_an_abandoned_session_stops_blocking_after_the_timeout(monkeypatch, elapsed, reward):
+    clock = Clock()
+    monkeypatch.setattr(EPISODE, "clock", clock, raising=False)
+    monkeypatch.setattr(EPISODE, "timeout", 60, raising=False)
+    abandoned = TaskRunner(net_margin, {"ticker": "JNJ", "period_end": "2022-01-02", "as_of": "2024-03-17"})
+    await abandoned.start()  # started, never graded or closed
+    try:
+        clock.now = elapsed
+        r = await run(Scripted("honest"))
+    finally:
+        await abandoned.cancel()
+    if reward is None:  # still within the timeout: the abandoned episode counts as open
+        assert refused(r), r.evaluation
+    else:
+        assert r.reward == reward, r.evaluation
+    assert not EPISODE.open

@@ -18,6 +18,8 @@ import inspect
 import math
 import operator
 import re
+import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
@@ -112,27 +114,59 @@ class ToolCall:
         return "error" not in self.result
 
 
+DEFAULT_EPISODE_TIMEOUT = 3600.0
+
+
 @dataclass
 class Episode:
     """Every tool call made since the task started, in order.
 
     A tool call carries nothing that ties it to a task session, so one log
     serves every session in the process. `begin` clears it and returns a new
-    generation; a session whose generation is no longer `generation` at grade
-    time had its log cleared by a newer session and cannot be graded.
+    generation, the latest being `generation`. `open` maps each episode not yet
+    closed to its start time on `clock`. If another episode is open when one
+    begins, all of them, the new one included, are marked as overlapping: the
+    older ones lost their log, and the newer one's log can hold calls the older
+    ones make from now on (a newer session that makes no calls would otherwise
+    be graded on an older one's work). An overlapped episode cannot be graded.
+
+    An episode that is never closed (its session was abandoned) stops counting
+    as open `timeout` seconds after it began, so it cannot mark every later
+    episode as overlapping. If it comes back after that, it is overlapped
+    when a newer episode has begun, since its log is gone.
     """
 
     calls: list[ToolCall] = field(default_factory=list)
     generation: int = 0
+    timeout: float = DEFAULT_EPISODE_TIMEOUT
+    clock: Callable[[], float] = time.monotonic
+    open: dict[int, float] = field(default_factory=dict)
+    overlapping: set[int] = field(default_factory=set)
 
     def reset(self) -> None:
         self.calls.clear()
 
     def begin(self) -> int:
-        """Clear the log for a new episode; returns its generation."""
+        """Clear the log for a new episode and open it; returns its generation."""
+        now = self.clock()
+        for gen, started in list(self.open.items()):
+            if now - started > self.timeout:
+                self.close(gen)
         self.generation += 1
+        self.open[self.generation] = now
+        if len(self.open) > 1:
+            self.overlapping.update(self.open)
         self.reset()
         return self.generation
+
+    def overlapped(self, generation: int) -> bool:
+        """Whether another episode began while this one was open."""
+        return generation in self.overlapping or generation != self.generation
+
+    def close(self, generation: int) -> None:
+        """Forget a finished (graded, failed or abandoned) episode."""
+        self.open.pop(generation, None)
+        self.overlapping.discard(generation)
 
 
 def validate(name: str, arguments: Any) -> dict | None:

@@ -65,13 +65,64 @@ def test_execute_logs_every_call_including_failures():
     assert ep.calls == []
 
 
-def test_begin_clears_the_log_and_moves_the_generation_on():
+class Clock:
+    def __init__(self):
+        self.now = 0.0
+
+    def __call__(self):
+        return self.now
+
+
+def test_begin_alone_is_not_overlapped():
+    ep = Episode()
+    a = ep.begin()
+    assert ep.generation == a and not ep.overlapped(a)
+    ep.close(a)
+    b = ep.begin()  # sequential: A closed before B started
+    assert b != a and not ep.overlapped(b)
+
+
+def test_begin_clears_the_log_and_marks_both_overlapping_episodes():
     ep = Episode()
     a = ep.begin()
     execute("compute", {"expr": "1 + 1"}, ep)
     b = ep.begin()  # a second session starts before A is graded
-    assert ep.calls == [] and b != a
-    assert ep.generation == b  # A can tell its log is gone; B is intact
+    assert ep.calls == [] and b != a and ep.generation == b
+    # B's log may hold calls A makes from now on, and a B that makes none
+    # would be graded on A's work, so neither can be graded.
+    assert ep.overlapped(a) and ep.overlapped(b)
+
+
+def test_close_removes_the_episode_and_its_mark():
+    ep = Episode()
+    a = ep.begin()
+    b = ep.begin()
+    ep.close(a)
+    ep.close(b)
+    assert not ep.open and not ep.overlapping
+    c = ep.begin()
+    assert not ep.overlapped(c)
+    ep.close(c)
+    ep.close(c)  # closing twice is harmless
+
+
+def test_an_abandoned_episode_expires_and_does_not_overlap_a_later_one():
+    clock = Clock()
+    ep = Episode(timeout=60, clock=clock)
+    a = ep.begin()  # never graded or closed
+    clock.now = 61
+    b = ep.begin()
+    assert not ep.overlapped(b) and list(ep.open) == [b]
+    assert ep.overlapped(a)  # if A comes back, its log is gone
+
+
+def test_an_open_episode_within_the_timeout_still_overlaps():
+    clock = Clock()
+    ep = Episode(timeout=60, clock=clock)
+    a = ep.begin()
+    clock.now = 59
+    b = ep.begin()
+    assert ep.overlapped(a) and ep.overlapped(b)
 
 
 def test_every_default_question_is_answerable_from_the_tools():

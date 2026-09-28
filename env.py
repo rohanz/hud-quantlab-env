@@ -13,17 +13,22 @@ nothing that ties it to a task session, so calls cannot be split per session.
 `LocalRuntime` serialises acquisitions of an env instance, and `hud eval`
 and `DockerRuntime` give each rollout its own process. One `hud serve` process
 can still host concurrent sessions (for example `--runtime tcp://...` with
-several rollouts). Each episode therefore takes a generation of the log when
-it starts, and the newest session wins: an older session whose log was cleared
-by a newer one fails at grade time with `OverlappingEpisodes` instead of being
-graded on the wrong log. What this cannot catch: if the older session keeps
-calling tools after the newer one started, those calls land in the newer
-session's log.
+several rollouts). Each episode is therefore opened when it starts and closed
+when it is graded, fails or is closed by HUD. If two episodes are open at once,
+both fail at grade time with `OverlappingEpisodes` instead of being graded on
+a log that is not their own: the older one lost its log, and the newer one's
+log may hold the older one's calls (a newer session that made no calls would
+otherwise score on an older one's work).
+
+A session that is never closed stops counting as open after
+`QUANTLAB_EPISODE_TIMEOUT` seconds (default 3600, above a typical rollout
+timeout), so one abandoned session cannot fail every later episode.
 """
 
 from __future__ import annotations
 
 import asyncio
+import os
 import socket
 
 import uvicorn
@@ -36,11 +41,11 @@ from hud.graders import EvaluationResult, SubScore
 
 from quantlab_env import grader, questions, tools
 
-EPISODE = tools.Episode()
+EPISODE = tools.Episode(timeout=float(os.environ.get("QUANTLAB_EPISODE_TIMEOUT", tools.DEFAULT_EPISODE_TIMEOUT)))
 
 
 class OverlappingEpisodes(RuntimeError):
-    """Raised at grade time when a newer session cleared this episode's tool log."""
+    """Raised at grade time when another session's episode was open during this one."""
 
 
 class StrictToolLog(Middleware):
@@ -102,13 +107,16 @@ async def close_tool_server() -> None:
 async def net_margin(ticker: str, period_end: str, as_of: str):
     question = questions.build(ticker, period_end, as_of)
     generation = EPISODE.begin()
-    answer = yield question.prompt
-    if EPISODE.generation != generation:
-        raise OverlappingEpisodes(
-            "another task session started in this env process during this episode and cleared "
-            "its tool-call log; run one episode at a time per process"
-        )
-    result = grader.grade(answer, EPISODE.calls, question)
+    try:  # close on grade, on error, and when HUD closes an abandoned generator
+        answer = yield question.prompt
+        if EPISODE.overlapped(generation):
+            raise OverlappingEpisodes(
+                "another task session ran in this env process during this episode, so its tool-call "
+                "log is not its own; run one episode at a time per process"
+            )
+        result = grader.grade(answer, EPISODE.calls, question)
+    finally:
+        EPISODE.close(generation)
     yield EvaluationResult(
         reward=result.reward,
         content=f"reward {result.reward:.2f}: {result.subscores}",
