@@ -78,9 +78,14 @@ of the first revenue and net income filings for that period. Where a period's
 revenue changed in a later filing, the period is asked again 30 days after the
 restatement. Task ids look like `net_margin-83d5f782`.
 
-## Fixture schema
+## Fixture
 
-`data/fixture.json`:
+The fixture is `src/quantlab_env/fixture.json`. It ships as package data inside
+the `quantlab_env` wheel, and `data.load_fixture()` reads it with
+`importlib.resources`, so the environment works from an installed wheel (as in
+the Docker image) as well as from a checkout. Reading it needs no network.
+
+Schema:
 
 ```
 {
@@ -110,14 +115,20 @@ with a later `filed` date. The tools expose only `period_end`, `value`,
 `scripts/build_fixture.py` downloads `companyfacts` for each company in
 `COMPANIES` from `data.sec.gov` and keeps:
 
-- facts under the tags listed in `CONCEPTS`; for each period the first tag in
-  the list that reports it wins (revenue falls back from
+- facts under the tags listed in `CONCEPTS`, with tag precedence applied per
+  filing: for each `(period_end, accn)` the first tag in the list that the
+  filing used for that period wins (revenue falls back from
   `RevenueFromContractWithCustomerExcludingAssessedTax` to `Revenues` to
-  `SalesRevenueNet`),
+  `SalesRevenueNet`). Precedence used to be per period, so when a company
+  switched tags, older filings that reported the period under a fallback tag
+  were dropped and point-in-time history was lost,
 - USD values from `10-K` and `10-K/A` forms only,
 - durations of 350 to 380 days (annual periods),
 - periods ending in 2021 to 2024,
-- one row per `(period_end, accn)`.
+- one row per `(period_end, accn)`; companyfacts repeats a fact once per
+  frame, and the duplicates collapse here.
+
+It writes `src/quantlab_env/fixture.json`.
 
 SEC's fair-access policy requires a User-Agent with contact details, so the
 script refuses to run without `SEC_USER_AGENT` in the environment:
@@ -126,6 +137,41 @@ script refuses to run without `SEC_USER_AGENT` in the environment:
 SEC_USER_AGENT="Your Name, contact email" uv run python scripts/build_fixture.py
 ```
 
-After regenerating, run `uv run pytest`. `test_every_default_question_is_answerable_from_the_tools`
-and the pinned JNJ values will catch data changes. The environment itself only
-reads the JSON and never touches the network.
+After regenerating, run `uv run pytest`. These tests catch data changes:
+
+- `tests/test_fixture.py` pins hand-checked values read straight from the JSON
+  (JNJ FY2021 revenue as first reported and as restated, AAPL and KO FY2023
+  revenue and net income), independent of the gold code.
+- `tests/test_build_fixture.py` runs the builder on synthetic companyfacts (a
+  tag transition, restatements, duplicate facts) and checks that the checked-in
+  fixture is a fixed point of the builder. It also pins three NVIDIA revenue
+  rows the current fixture lacks, from filings built under the old per-period
+  precedence (NVIDIA moved from `Revenues` to
+  `RevenueFromContractWithCustomerExcludingAssessedTax`). No default question
+  can see those filings. Regenerating should add them; then empty
+  `KNOWN_MISSING_REVENUE`.
+- `test_every_default_question_is_answerable_from_the_tools` in
+  `tests/test_tools.py`.
+
+The environment itself only reads the JSON and never touches the network.
+
+## Dependencies
+
+`pyproject.toml` pins `hud>=0.6.18,<0.7`. The environment was built and tested
+against hud 0.6.18, and 0.7 may change the `Environment` and eval API. `env.py`
+imports `fastmcp` (`>=3.2,<4`) and `uvicorn` (`>=0.34,<1`), and
+`scripts/build_fixture.py` imports `httpx` (`>=0.28,<1`); these are declared
+directly rather than relied on through hud. `uv.lock` fixes exact versions.
+
+## Docker
+
+`Dockerfile.hud` starts from `ghcr.io/astral-sh/uv:python3.12-bookworm-slim`,
+sets `HUD_TELEMETRY_ENABLED=false`, installs the locked dependencies in one
+layer and the project (non-editable, fixture included) in the next, and runs
+the venv's `hud serve env.py` on port 8765. Nothing is built or synced when
+the container starts.
+
+```bash
+docker build -f Dockerfile.hud -t hud-quantlab-env:local .
+docker run --rm -p 8765:8765 hud-quantlab-env:local
+```

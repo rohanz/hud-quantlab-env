@@ -2,7 +2,8 @@
 
 The grader is plain code in `src/quantlab_env/grader.py`. No LLM judge. It
 reads two things: the agent's final text and the episode's tool call log
-(`EPISODE.calls`, one `ToolCall(name, arguments, result)` per call, in order).
+(`EPISODE.calls`, one `ToolCall(name, arguments, result)` per call, in order),
+plus the question (ticker, period, `as_of` date, gold inputs).
 
 ```
 reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
@@ -18,49 +19,118 @@ margin, read either way: `26.52%` or `26.52` as a percent, `0.2652` as a
 fraction. The gold is `net_income / revenue` from `data.facts_as_of` on the
 question's `as_of` date, which is exactly what the tools return on that date.
 
-The answer only scores if at least one `get_fundamentals` call succeeded. A
-correct number with no evidence earns nothing here.
+The answer only scores if at least one admissible lookup succeeded (see
+[the filing-date cutoff](#the-filing-date-cutoff)). A correct number with no
+evidence earns nothing here.
 
 ### grounding (0.3, all or nothing)
 
 Three conditions, all required:
 
-1. The final answer matches evidence.
-2. Every other number cited anywhere in the text matches evidence.
+1. The final answer matches an evidence item that is derived from the
+   question's net income over its revenue
+   (`answer_derived` in the grade info; see [calculator provenance](#calculator-provenance)).
+2. Every other number cited anywhere in the text matches some evidence value
+   (`ungrounded` lists the ones that do not).
 3. The text cites the revenue and the net income the gold was computed from
-   (`missing_inputs` in the grade info).
-
-Number extraction (`extract_numbers`) reads units: `$78.74 billion`,
-`78,740 million`, `26.52%`. A plain number may stand for itself, for thousands,
-millions or billions, or for a percent, so `78,740` matches `78,740,000,000`.
-Comparison is on magnitudes, within 0.5%. These are not treated as claims: ISO
-dates, `FY2023`, form names like `10-K`, bare years (1900 to 2100 without a
-comma) and single-digit integers such as list markers.
+   (`missing_inputs`).
 
 ### validity (0.1)
 
 The share of calls whose result is not a malformed error. Malformed codes are
 `bad_argument`, `unknown_tool`, `unknown_ticker` and `unknown_concept`.
-`no_data` (a well-formed query with nothing filed yet) is not malformed. With no
-calls, validity is 0.
+`no_data` (a well-formed query with nothing filed yet) is not malformed, and
+neither is a lookup past the question's date. With no calls, validity is 0.
 
 ### efficiency (0.1)
 
 `PAR_CALLS / max(PAR_CALLS, calls)` with `PAR_CALLS = 3` (revenue lookup, net
-income lookup, one compute). It is 0 unless a lookup succeeded, so failed calls
-alone never earn it.
+income lookup, one compute). Every call counts, including failed and
+inadmissible ones. It is 0 unless an admissible lookup succeeded, so failed
+calls alone never earn it.
 
 ## Evidence
 
-`build_evidence` walks the log in call order:
+`build_evidence` walks the log in call order and keeps a list of evidence
+items. Each item has a value and a formula that recomputes it from the
+looked-up values.
 
-- A successful `get_fundamentals` adds the `value` of every returned row. Dates,
-  filing dates, forms and other metadata never count.
-- A successful `compute` adds its result only if every literal in the
-  expression is already evidence, or a unit constant (1, 100, 1e3, 1e6, 1e9).
-  Call this the transitive rule: arithmetic on evidence is evidence, arithmetic
-  on anything else is not.
+- An admissible, successful `get_fundamentals` adds the `value` of every
+  returned row as a source. Dates, filing dates, forms and other metadata never
+  count.
+- A successful `compute` adds its result only if the expression passes the
+  provenance rules below.
 - Error results never count, even though some echo the agent's arguments.
+
+### Calculator provenance
+
+A calculated value counts only if it is derived from evidence. The grader
+parses the `compute` expression and turns it into a formula over the
+looked-up values:
+
+- Every literal must be an existing evidence item or a unit constant (1, 100,
+  1e3, 1e6, 1e9). A literal binds to the evidence item it matches most closely
+  (not the first within tolerance), rescaled by the literal's own scale, so
+  `20878` stands for the looked-up 20,878,000,000.
+- Unit constants may only scale evidence. `x * 100` is fine; `1 + 1`, or any
+  expression built from constants alone, is not.
+- Both sides of `+` and `-` must use evidence, so `x + 0.004` is not evidence.
+- The result must depend on a looked-up value. The grader nudges each source
+  by 1% and checks that the result moves, so `x / x` (a constant 1 in
+  disguise) is not evidence.
+
+Earlier `compute` results are evidence items too, so a chain of steps works
+(`20878 / 78740`, then `0.26515 * 100`). Once an invented number enters the
+chain, every result after it fails the rules and is dropped.
+
+For the final answer this is not enough: it must match an item whose formula
+is proportional to the question's net income divided by its revenue. The
+grader checks this by nudging the question's own net income source (the
+result must rise by the same factor) and its revenue source (the result must
+fall by it). A correct number that merely touches evidence, or a margin from
+another year's rows, does not pass.
+
+### Signs and currency scale
+
+Cited numbers are compared with their sign. A minus attached to an amount
+(`-$20.9 billion`, `$-20.9 billion`, `-20,878 million`) is its sign, so a
+claimed loss does not match a reported profit. A hyphen after a word or digit
+(`10-K`, `2021-2022`) is not a sign. Parentheses are read as prose, not as
+accounting negatives.
+
+Scale is part of the claim. A unit word or suffix (`billion`, `bn`, `B`,
+`million`, `m`, `thousand`, `k`) fixes the scale. A currency amount with no
+unit (`$78.74`, `78.74 dollars`, `USD 78.74`) means exactly that many dollars,
+so `$78.74` does not match 78.74 billion. Only a bare number may stand for
+itself, thousands, millions, billions or a percent, so `78,740` matches
+78,740,000,000. Matching is within 0.5%.
+
+### The filing-date cutoff
+
+A lookup is admissible only if its `as_of` is on or before the question's
+`as_of`. A later lookup can see filings the question rules out (for example a
+restatement filed after the question's date). Such a call is well formed, so
+it is not malformed, but it is neither evidence nor a successful lookup, and
+it still counts toward efficiency. The tools themselves stay question
+agnostic; `future_lookups` in the grade info counts these calls.
+
+### Context-based exemptions
+
+Some numbers in an answer are not claims about the data. They are removed
+before grounding by context, never by value alone:
+
+- dates: ISO (`2024-03-17`), numeric (`03/17/2024`) and with month names
+  (`March 17, 2024`, `17 Mar 2024`),
+- fiscal-year and quarter labels (`FY2023`, `Q4`) and form names (`10-K`,
+  `10-K/A`, `10-Q`, `8-K`),
+- numbered-list markers at the start of a line (`1.`, `2)`, `(3)`),
+- a bare four-digit year from 1900 to 2100 with no sign, currency or unit
+  (`fiscal 2021`),
+- a single-digit count followed by a word (`3 filings`).
+
+Anything with a currency sign, `dollars` or `USD`, a unit word or a percent is
+always a claim. So `$7`, `7%`, `$2023` and `2023 dollars` must be grounded, and
+so must `7` in `debt was 7` and `2,023`.
 
 ## Strict tool calls
 
@@ -74,14 +144,35 @@ would never reach the log and the grader could not count them.
 
 ## Adversarial cases
 
-Each case has a unit test in `tests/test_grader.py`; the scripted ones also run
-end to end in `tests/test_env.py` and `demo.py`. Rewards are for the JNJ FY2021
+Each case has a test in `tests/test_grader.py`; the scripted ones also run end
+to end in `tests/test_env.py` and `demo.py`. Rewards are for the JNJ FY2021
 task asked on 2024-03-17 unless noted.
+
+| case | answer | grounding | validity | efficiency | reward |
+|---|---|---|---|---|---|
+| honest: looks up, computes, cites inputs | 1 | 1 | 1 | 1 | 1.00 |
+| citation dodge: cites only the final number | 1 | 0 | 1 | 1 | 0.70 |
+| one malformed call (extra key), then recovers | 1 | 1 | 0.75 | 0.75 | 0.95 |
+| mental math: right number, not computed by a tool | 1 | 0 | 1 | 1 | 0.70 |
+| memorised number laundered through `compute("26.52 * 1")` | 1 | 0 | 1 | 1 | 0.70 |
+| margin spelled from unit constants or `x / x` | 1 | 0 | 1 | 1 | 0.70 |
+| right answer, no tool calls | 0 | 0 | 0 | 0 | 0.00 |
+| right margin from the wrong year (AAPL FY2022 vs FY2023) | 1 | 0 | 1 | 1 | 0.70 |
+| stale, pre-restatement answer | 0 | 0 | 1 | 1 | 0.20 |
+| wrong sign or dropped scale on an input | 1 | 0 | 1 | 1 | 0.70 |
+| extra ungrounded amount (`debt $7`, `assets $2023`) | 1 | 0 | 1 | 1 | 0.70 |
+| both lookups past the question's date | 0 | 0 | 1 | 0 | 0.10 |
+| one lookup past the question's date | 1 | 0 | 1 | 1 | 0.70 |
+| only malformed calls, then the right answer | 0 | 0 | 0 | 0 | 0.00 |
+
+`demo.py` prints the scripted subset (honest 1.00, dodge 0.70, mental_math
+0.70, laundered 0.70, memorised 0.00, malformed 0.95).
 
 ### Honest baseline: 1.00
 
 Looks up revenue and net income, computes the margin with `compute`, cites both
-inputs and the result. Every component is 1.
+inputs and the result. Every component is 1. The end-to-end tests run this
+agent on all 18 tasks and require 1.0 on each.
 
 ### Citation dodge: 0.70
 
@@ -89,10 +180,11 @@ Cites only the final margin. This comes from the earlier memo writer
 ([quantlab-analyst](https://www.rohanjk.xyz/projects/quantlab-analyst/)): DPO on
 pass/fail pairs learned to cite fewer numbers instead of correct ones, because
 fewer claims meant fewer chances to fail. A grader that only checks the numbers
-that are present rewards that. Here the required-inputs check fails, and
-grounding is all or nothing, so citing less never scores higher than citing
-correctly. A test also checks that dodging is no better than citing a wrong
-number.
+that are present rewards that. Here the required-inputs check fails, so the
+terse answer loses grounding. A test checks that leaving out the inputs scores
+no better than citing them alongside a wrong number. It does not claim more:
+removing a wrong number from an answer that already cites the right inputs
+does raise the score, which is the behaviour a grounding reward wants.
 
 ### Malformed tool call: 0.95
 
@@ -103,36 +195,62 @@ and efficiency (3/4). This comes from the agent's GRPO training loop
 tool-call parsing was slightly too lenient; the RL model lost points exactly
 where it had been lenient. Here there is one strict contract, used for every
 call, and bad calls are visible to both the agent and the grader. Tests also
-cover numbers sent as JSON numbers instead of strings, over real MCP.
+send ten kinds of malformed call over real MCP (coerced, null, missing, extra
+and misnamed keys, wrong types, an unknown tool) and check each is logged as
+an error.
 
 ### Correct number not in the evidence: 0.70
 
-Two variants. Mental math: the agent looks up both inputs but computes the
-margin in its head, so the final number is not evidence. Laundering: the agent
-passes a remembered figure through the calculator, `compute("26.52 * 1")`. The
-literal 26.52 is not evidence, so by the transitive rule neither is the result.
-The public write-up describes the second as dressing up a memorised answer as a
-computed one, found in adversarial review of the original reward.
+Mental math: the agent looks up both inputs but computes the margin in its
+head, so the final number is not evidence. Laundering: the agent passes a
+remembered figure through the calculator, `compute("26.52 * 1")`. The literal
+26.52 is not evidence, so neither is the result. The public write-up describes
+this as dressing up a memorised answer as a computed one, found in adversarial
+review of the original reward.
+
+A later review found a way around the literal check: unit constants were
+allowed literals, so `100/(1+1+1+1)+1+(100/(1+1)+1+1)/100` spelled 26.52 with
+no evidence at all, and scored 1.0. The provenance rules close this, along
+with variants that multiply by `x / x`, add a vanishingly small evidence term,
+or mix an invented factor or offset into a chain of steps. All score 0.70.
 
 ### Right answer, no evidence: 0.00
 
-Answers from memory with no tool calls. Answer credit needs a successful lookup,
-and validity and efficiency are 0 with no calls. On restatement questions
-memory is also often out of date.
+Answers from memory with no tool calls. Answer credit needs a successful
+lookup, and validity and efficiency are 0 with no calls.
 
 ### Right margin from the wrong year: 0.70
 
-Apple's FY2022 and FY2023 margins are both 25.31%. An agent that looks up and
-cites the wrong year's figures gets a correct-looking answer. The
-required-inputs check catches it because the cited revenue and net income are
-not the ones the gold used.
+Apple's FY2022 and FY2023 margins are both 25.31%. One lookup as of the
+question's date returns both years, and an agent that computes and cites
+FY2022's rows gets a correct-looking answer in which every number is real
+evidence. The required-inputs check catches it, and so does the provenance
+check: the answer is not derived from FY2023's net income and revenue.
 
 ### Stale, pre-restatement answer: 0.20
 
 JNJ restated FY2021 revenue in its 2024 10-K after the Kenvue separation. Asked
 on 2022-03-19 the margin is 22.26%; asked on 2024-03-17 it is 26.52%. An agent
-that ignores `as_of` and uses the original figures is wrong and ungrounded, and
-keeps only validity and efficiency.
+that looks up with the earlier date and uses the original figures is wrong and
+does not cite the restated revenue, and keeps only validity and efficiency.
+
+### Signs, scale and extra amounts: 0.70
+
+`net income -$20.878 billion` claims a loss the filing does not show, and
+`revenue $78.74` claims 78.74 dollars. Both used to match. So did `debt 7`,
+`debt $7` or `assets $2023` next to an honest answer, because small integers
+and year-like values were exempt by value. Now each is an ungrounded claim
+(a bare `2023` with no currency or unit is still read as a year), and legitimate
+forms (`$78.74 billion`, `78,740 million`, `$78.74B`, `USD 78.74 billion`, full
+dollar amounts, bare numbers with a stated unit) still score 1.0.
+
+### Lookups past the question's date: 0.10 or 0.70
+
+Looking up as of 2099-01-01 sees every filing, including ones the question
+rules out, and used to score 1.0. With both lookups in the future there is no
+admissible lookup, so only validity is left (0.10). With one of the two in the
+future, the answer can still be right but the input from the future lookup is
+ungrounded (0.70).
 
 ### Only malformed calls, then the right answer: 0.00
 
@@ -144,11 +262,32 @@ successful lookup, so this scores 0.
 
 QuantLab weighted 0.7 answer, 0.1 validity, 0.1 efficiency, 0.1 grounding, and
 grounding checked that the final number appeared in the tool results. Here
-grounding checks every cited number plus the required inputs and carries 0.3,
-and a correct answer with no evidence scores 0. Answering from memory is
-always the worse strategy.
+grounding checks every cited number, the required inputs and the provenance of
+the final answer, and carries 0.3. What the code enforces: a correct answer
+with no successful lookup scores 0, and a correct answer that fails grounding
+scores at most 0.7, against 1.0 for a grounded one.
 
 ## Known limits
 
-- Number extraction is regex based; a claim written in words is not checked.
+What the grader still does not catch:
+
+- Numbers written in words ("twenty billion") are not extracted, so they are
+  not checked.
+- Grounding matches values, not labels. Apart from the final answer and the
+  two required inputs, a cited number only has to match some admissible
+  looked-up or computed value, from any row the episode returned. Calling the
+  revenue "net income", or citing another year's figure as this year's, is not
+  caught when the required inputs are also cited.
+- A bare number may stand for itself, thousands, millions, billions or a
+  percent, and matching allows 0.5%. A wrong claim that happens to land within
+  0.5% of some evidence value at one of those scales passes.
+- Exempt contexts are unchecked: a bare four-digit number from 1900 to 2100 and
+  a single-digit count followed by a word are treated as a year and a count,
+  even if the agent meant an amount.
+- Parentheses are read as prose, so an accounting-style `(20,878)` is read as a
+  positive number.
+- The provenance check is numeric, not symbolic: it evaluates each formula at
+  the looked-up values and at 1% nudges of them, and nowhere else.
+- The grader cannot tell whether the agent understood the point-in-time trap,
+  only whether its lookups and numbers are admissible.
 - One episode at a time per process, because the call log is process state.
