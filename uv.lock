@@ -780,7 +780,10 @@ name = "hud-quantlab-env"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "fastmcp" },
+    { name = "httpx" },
     { name = "hud" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -791,7 +794,12 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "hud", specifier = ">=0.6.18" }]
+requires-dist = [
+    { name = "fastmcp", specifier = ">=3.2,<4" },
+    { name = "httpx", specifier = ">=0.28,<1" },
+    { name = "hud", specifier = ">=0.6.18,<0.7" },
+    { name = "uvicorn", specifier = ">=0.34,<1" },
+]
 
 [package.metadata.requires-dev]
 dev = [

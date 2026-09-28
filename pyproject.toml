@@ -5,7 +5,12 @@ description = "A HUD RL environment: point-in-time SEC lookups graded on correct
 authors = [{ name = "rohanz" }]
 requires-python = ">=3.11"
 dependencies = [
-    "hud>=0.6.18",
+    # Tested against hud 0.6.18; 0.7 may change the Environment/eval API. env.py imports fastmcp
+    # and uvicorn directly, and scripts/build_fixture.py imports httpx.
+    "hud>=0.6.18,<0.7",
+    "fastmcp>=3.2,<4",
+    "uvicorn>=0.34,<1",
+    "httpx>=0.28,<1",
 ]
 
 [build-system]
