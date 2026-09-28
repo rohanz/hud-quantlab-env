@@ -3,7 +3,7 @@
 import pytest
 
 from quantlab_env import questions
-from quantlab_env.grader import extract_numbers, final_answer, grade
+from quantlab_env.grader import admissible_lookup, extract_numbers, final_answer, grade
 from quantlab_env.tools import Episode, execute
 
 # JNJ restated FY2021 revenue in its 2024 10-K. Asked as of 2024-03-17 the
@@ -78,13 +78,13 @@ def test_dodging_is_not_better_than_citing_a_wrong_number():
 def test_right_margin_from_the_wrong_year_is_caught():
     """Apple's FY2022 and FY2023 margins are both 25.31%. An agent that looked up
     the wrong year gets the right number; the required-inputs check catches it."""
-    q = questions.build("AAPL", "2022-09-24", "2022-11-27")
+    q = questions.build("AAPL", "2023-09-30", "2023-12-03")
     ep = episode(
-        lookup("revenue", "2023-12-03", "AAPL"),
-        lookup("net_income", "2023-12-03", "AAPL"),
-        ("compute", {"expr": "96995000000 / 383285000000 * 100"}),
+        lookup("revenue", q.as_of, "AAPL"),
+        lookup("net_income", q.as_of, "AAPL"),
+        ("compute", {"expr": "99803000000 / 394328000000 * 100"}),  # FY2022's rows, also returned
     )
-    wrong_year = "Revenue $383,285 million, net income $96,995 million, margin 25.31%.\nANSWER: 25.31%"
+    wrong_year = "Revenue $394,328 million, net income $99,803 million, margin 25.31%.\nANSWER: 25.31%"
     g = grade(wrong_year, ep.calls, q)
     assert g.subscores["answer"] == 1.0
     assert g.subscores["grounding"] == 0.0
@@ -272,6 +272,32 @@ def test_wrong_sign_or_missing_scale_is_ungrounded(text, ungrounded):
 def test_legitimate_amount_forms_are_grounded(inputs):
     g = grade(f"{inputs} Net margin 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
     assert g.reward == 1.0, g.info
+
+
+def test_lookups_past_the_question_date_are_not_evidence():
+    """Codex review: a lookup as of 2099-01-01 sees filings the question rules out.
+    It is well formed, so it is not malformed, but it is neither evidence nor a
+    successful lookup, and it still costs an efficiency call."""
+    future = "2099-01-01"
+    ep = episode(lookup("revenue", future), lookup("net_income", future), ("compute", {"expr": f"{NI} / {REV} * 100"}))
+    g = grade(HONEST, ep.calls, Q)
+    assert g.info["future_lookups"] == 2
+    assert g.subscores == {"answer": 0.0, "grounding": 0.0, "validity": 1.0, "efficiency": 0.0}
+    assert g.reward == pytest.approx(0.1)
+
+
+def test_one_future_input_breaks_grounding():
+    ep = episode(lookup("revenue"), lookup("net_income", "2099-01-01"), ("compute", {"expr": f"{NI} / {REV} * 100"}))
+    g = grade(HONEST, ep.calls, Q)
+    assert g.subscores["answer"] == 1.0
+    assert g.subscores["grounding"] == 0.0
+    assert "$20,878 million" in g.info["ungrounded"]
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_lookup_on_the_question_date_is_evidence():
+    assert admissible_lookup(full_episode().calls[0], Q.as_of)
+    assert not admissible_lookup(episode(lookup("revenue", "2024-03-18")).calls[0], Q.as_of)
 
 
 # --- parsing -------------------------------------------------------------------------

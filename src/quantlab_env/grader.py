@@ -14,8 +14,10 @@ efficiency PAR_CALLS / max(PAR_CALLS, calls), and 0 unless a lookup
            succeeded, so a burst of failed calls earns nothing.
 
 Evidence is built from the episode log in call order:
-- `value` fields of successful `get_fundamentals` rows. Dates and other
-  metadata are never evidence.
+- `value` fields of successful `get_fundamentals` rows from lookups as of the
+  question's date or earlier. A lookup past that date sees filings the
+  question rules out, so it is neither evidence nor a successful lookup.
+  Dates and other metadata are never evidence.
 - the `value` of a successful `compute` call, if the expression is built from
   evidence: every literal is evidence or a unit constant (1, 100, 1e3, 1e6,
   1e9), a unit constant only scales evidence (`x * 100`, never `1 + 1`), both
@@ -225,12 +227,17 @@ def _depends(formula: Formula, base: list[float]) -> bool:
     return any(not math.isclose(_nudged(formula, base, {i}), at_base, rel_tol=1e-9) for i in range(len(base)))
 
 
-def build_evidence(calls: list[ToolCall]) -> Evidence:
+def admissible_lookup(call: ToolCall, cutoff: str) -> bool:
+    """A successful lookup that only saw filings available on the question's date."""
+    return call.ok and call.name == "get_fundamentals" and call.result["as_of"] <= cutoff
+
+
+def build_evidence(calls: list[ToolCall], cutoff: str) -> Evidence:
     evidence = Evidence()
     for call in calls:
         if not call.ok:
             continue
-        if call.name == "get_fundamentals":
+        if admissible_lookup(call, cutoff):
             r = call.result
             for row in r["rows"]:
                 evidence.add_source(Source(r["ticker"], r["concept"], row["period_end"], float(row["value"])))
@@ -274,8 +281,9 @@ class Grade:
 
 def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grade:
     answer = answer or ""
-    evidence = build_evidence(calls)
-    looked_up = any(c.ok and c.name == "get_fundamentals" for c in calls)
+    evidence = build_evidence(calls, question.as_of)
+    looked_up = any(admissible_lookup(c, question.as_of) for c in calls)
+    future = sum(1 for c in calls if c.ok and c.name == "get_fundamentals" and not admissible_lookup(c, question.as_of))
 
     final = final_answer(answer)
     correct = final is not None and (
@@ -314,5 +322,6 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         "answer_derived": answer_derived,
         "tool_calls": n,
         "malformed_calls": malformed,
+        "future_lookups": future,
     }
     return Grade(round(reward, 6), subscores, info)
