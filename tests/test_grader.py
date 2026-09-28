@@ -237,6 +237,43 @@ def test_pre_restatement_answer_is_wrong_and_ungrounded():
     assert g.reward == pytest.approx(0.2)
 
 
+# --- false claims: sign and scale are part of the claim -----------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "ungrounded"),
+    [
+        ("Revenue $78.74 billion, net income -$20.878 billion.", ["-$20.878 billion"]),
+        ("Revenue $78.74 billion, net income was -20,878 million.", ["-20,878 million"]),
+        ("Revenue $78.74, net income $20.878.", ["$78.74", "$20.878"]),
+    ],
+)
+def test_wrong_sign_or_missing_scale_is_ungrounded(text, ungrounded):
+    """Codex review: magnitudes were compared without sign, and a bare "$78.74"
+    could stand for 78.74 billion. A loss is not a profit, and a dollar amount
+    means what it says."""
+    g = grade(f"{text} Net margin 20,878 / 78,740 = 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
+
+
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        "Revenue $78.74 billion, net income $20.878 billion.",
+        "Revenue 78,740 million, net income 20,878 million.",
+        "Revenue $78.74B, net income $20.878B.",
+        "Revenue $78,740,000,000, net income $20,878,000,000.",
+        "Revenue USD 78.74 billion, net income USD 20.878 billion.",
+        "Revenue 78,740, net income 20,878 (USD millions).",
+    ],
+)
+def test_legitimate_amount_forms_are_grounded(inputs):
+    g = grade(f"{inputs} Net margin 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
+    assert g.reward == 1.0, g.info
+
+
 # --- parsing -------------------------------------------------------------------------
 
 
@@ -252,7 +289,12 @@ def test_missing_answer_line_is_not_correct():
         ("78,740 million", 78_740e6, "scaled"),
         ("$20.9bn", 20.9e9, "scaled"),
         ("26.52%", 26.52, "percent"),
-        ("(1,200)", -1200, "plain"),
+        ("$78.74B", 78.74e9, "scaled"),
+        ("USD 78.74 billion", 78.74e9, "scaled"),
+        ("$78.74", 78.74, "currency"),
+        ("-$20.878 billion", -20.878e9, "scaled"),
+        ("$-20.878 billion", -20.878e9, "scaled"),
+        ("(1,200)", 1200, "plain"),  # parentheses are prose, not an accounting negative
         ("-0.5", -0.5, "plain"),
     ],
 )

@@ -57,10 +57,13 @@ _UNITS = {
 # fmt: on
 # Text that looks numeric but is not a claim: ISO dates, fiscal-year labels, form names.
 _NOT_CLAIMS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b|\bFY\s?\d{2,4}\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b", re.IGNORECASE)
+# A sign is a minus sign attached to the amount ("-$20.9 billion", "$-20.9"); a
+# hyphen after a word or digit ("10-K", "2021-2022") is not. Parentheses are
+# read as prose, not as accounting negatives.
 _NUMBER = re.compile(
-    r"(?P<neg>[-−(])?\s*\$?\s*"
+    r"(?P<neg>(?<![\w.])[-−])?(?P<cur>(?:US)?\$|\bUSD\b)?\s*(?P<neg2>[-−])?"
     r"(?P<num>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
-    r"\)?\s*(?P<unit>%|percent\b|trillion\b|billion\b|million\b|thousand\b"
+    r"\s*(?P<unit>%|percent\b|trillion\b|billion\b|million\b|thousand\b"
     r"|tn\b|bn\b|mm\b|[tbmk]\b)?",
     re.IGNORECASE,
 )
@@ -70,14 +73,19 @@ _NUMBER = re.compile(
 class Cited:
     text: str
     value: float
-    kind: str  # "percent", "scaled" (unit word applied) or "plain"
+    kind: str  # "percent", "scaled" (unit word applied), "currency" (a bare $ amount) or "plain"
 
     def readings(self) -> list[float]:
-        """Values this citation may stand for, as magnitudes."""
-        v = abs(self.value)
+        """Signed values this citation may stand for.
+
+        A unit word or a currency sign fixes the scale: "$78.74" is 78.74
+        dollars, not 78.74 billion. Only a bare number may stand for thousands,
+        millions, billions or a percent.
+        """
+        v = self.value
         if self.kind == "percent":
             return [v / 100, v]
-        if self.kind == "scaled":
+        if self.kind in ("scaled", "currency"):
             return [v]
         return [v, v * 1e3, v * 1e6, v * 1e9, v / 100]
 
@@ -95,7 +103,7 @@ def extract_numbers(text: str) -> list[Cited]:
     cited = []
     for m in _NUMBER.finditer(text):
         value = float(m["num"].replace(",", ""))
-        if m["neg"] in ("-", "−", "("):
+        if m["neg"] or m["neg2"]:
             value = -value
         unit = (m["unit"] or "").lower()
         if unit in ("%", "percent"):
@@ -103,7 +111,7 @@ def extract_numbers(text: str) -> list[Cited]:
         elif unit:
             kind, value = "scaled", value * _UNITS[unit]
         else:
-            kind = "plain"
+            kind = "currency" if m["cur"] else "plain"
         cited.append(Cited(m.group(0).strip(), value, kind))
     return cited
 
@@ -122,7 +130,8 @@ def _close(a: float, b: float) -> bool:
 
 
 def _matches(cited: Cited, evidence: list[float]) -> bool:
-    return any(_close(r, abs(e)) for r in cited.readings() for e in evidence)
+    """Signed comparison: a claimed loss does not match a reported profit."""
+    return any(_close(r, e) for r in cited.readings() for e in evidence)
 
 
 Formula = Callable[[Sequence[float]], float]  # recomputes a value from the looked-up values
@@ -168,10 +177,13 @@ class Evidence:
         self.items.append(Item(source.value, lambda v: v[i]))
 
     def bind(self, literal: float) -> Formula:
-        """The formula of the first item a calculator literal matches, rescaled to the literal."""
+        """The formula of the first item a calculator literal matches, rescaled to the literal.
+
+        Literals are unsigned (a minus is a separate operator), so they bind by magnitude.
+        """
         cited = Cited(str(literal), literal, "plain")
         for item in self.items:
-            if item.value and _matches(cited, [item.value]):
+            if item.value and _matches(cited, [abs(item.value)]):
                 ratio = literal / item.value
                 return lambda v, f=item.formula: f(v) * ratio
         raise Laundered(f"{literal} is not evidence")
