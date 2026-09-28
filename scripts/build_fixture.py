@@ -1,4 +1,4 @@
-"""Regenerate data/fixture.json from SEC EDGAR XBRL company facts.
+"""Regenerate src/quantlab_env/fixture.json from SEC EDGAR XBRL company facts.
 
 Usage:
     SEC_USER_AGENT="Your Name, contact email" uv run python scripts/build_fixture.py
@@ -32,7 +32,7 @@ COMPANIES = {
     "JNJ": ("Johnson & Johnson", 200406),
 }
 
-# Ordered XBRL tags per concept; the first tag that reports a period wins.
+# Ordered XBRL tags per concept; within each filing, the first tag that reports a period wins.
 CONCEPTS = {
     "revenue": [
         "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -43,7 +43,7 @@ CONCEPTS = {
 }
 
 FIRST_YEAR, LAST_YEAR = 2021, 2024
-OUT = Path(__file__).resolve().parent.parent / "data" / "fixture.json"
+OUT = Path(__file__).resolve().parent.parent / "src" / "quantlab_env" / "fixture.json"
 
 
 def fetch_companyfacts(cik: int, user_agent: str) -> dict:
@@ -54,9 +54,14 @@ def fetch_companyfacts(cik: int, user_agent: str) -> dict:
 
 
 def annual_rows(facts: dict, tags: list[str]) -> list[dict]:
-    """Rows for the first tag that reports each fiscal period."""
+    """One row per (fiscal period, filing), from the first tag that filing used for the period.
+
+    Precedence is per filing, not per period: when a company switches tags, the
+    older filings' values under the fallback tag are still kept.
+    """
     gaap = facts["facts"].get("us-gaap", {})
-    by_period: dict[str, list[dict]] = {}
+    # Keyed by (period, filing); companyfacts repeats a fact once per frame, so duplicates collapse here.
+    by_filing: dict[tuple[str, str], dict] = {}
     for tag in tags:
         for row in gaap.get(tag, {}).get("units", {}).get("USD", []):
             if row.get("form") not in ("10-K", "10-K/A") or "start" not in row:
@@ -66,23 +71,19 @@ def annual_rows(facts: dict, tags: list[str]) -> list[dict]:
                 continue
             if not FIRST_YEAR <= end.year <= LAST_YEAR:
                 continue
-            if row["end"] in by_period and by_period[row["end"]][0]["tag"] != tag:
-                continue  # an earlier tag already owns this period
-            by_period.setdefault(row["end"], []).append(
-                {
-                    "period_start": row["start"],
-                    "period_end": row["end"],
-                    "value": row["val"],
-                    "form": row["form"],
-                    "filed": row["filed"],
-                    "accn": row["accn"],
-                    "tag": tag,
-                }
-            )
-    rows = [r for period in by_period.values() for r in period]
-    # One row per (period, filing): companyfacts repeats a fact once per frame.
-    unique = {(r["period_end"], r["accn"]): r for r in rows}
-    return sorted(unique.values(), key=lambda r: (r["period_end"], r["filed"], r["accn"]))
+            key = (row["end"], row["accn"])
+            if key in by_filing and by_filing[key]["tag"] != tag:
+                continue  # an earlier tag already owns this period in this filing
+            by_filing[key] = {
+                "period_start": row["start"],
+                "period_end": row["end"],
+                "value": row["val"],
+                "form": row["form"],
+                "filed": row["filed"],
+                "accn": row["accn"],
+                "tag": tag,
+            }
+    return sorted(by_filing.values(), key=lambda r: (r["period_end"], r["filed"], r["accn"]))
 
 
 def main() -> None:
@@ -102,7 +103,6 @@ def main() -> None:
             "facts": {concept: annual_rows(facts, tags) for concept, tags in CONCEPTS.items()},
         }
         print(ticker, {c: len(r) for c, r in fixture["companies"][ticker]["facts"].items()})
-    OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(fixture, indent=1) + "\n")
     print(f"wrote {OUT}")
 

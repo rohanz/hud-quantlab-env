@@ -1,17 +1,15 @@
-"""Point-in-time access to the SEC fixture in data/fixture.json."""
+"""Point-in-time access to the SEC fixture, shipped as package data (quantlab_env/fixture.json)."""
 
 from __future__ import annotations
 
 import json
 from functools import cache
-from pathlib import Path
-
-FIXTURE = Path(__file__).resolve().parents[2] / "data" / "fixture.json"
+from importlib.resources import files
 
 
 @cache
-def load_fixture(path: Path = FIXTURE) -> dict:
-    return json.loads(path.read_text())
+def load_fixture() -> dict:
+    return json.loads(files(__package__).joinpath("fixture.json").read_text())
 
 
 def companies() -> dict[str, dict]:

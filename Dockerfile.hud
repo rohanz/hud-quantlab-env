@@ -1,8 +1,20 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-WORKDIR /hud
-COPY . .
-RUN uv sync --frozen --no-dev
+ENV HUD_TELEMETRY_ENABLED=false \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
+WORKDIR /hud
+
+# Dependencies first, so code changes do not reinstall them.
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+# The project itself, installed into .venv (fixture included as package data).
+COPY . .
+RUN uv sync --frozen --no-dev --no-editable
+
+# Run the installed hud directly: nothing is built or synced at start.
+ENV PATH="/hud/.venv/bin:$PATH"
 EXPOSE 8765
-CMD ["uv", "run", "--no-dev", "hud", "serve", "env.py", "--host", "0.0.0.0", "--port", "8765"]
+CMD ["hud", "serve", "env.py", "--host", "0.0.0.0", "--port", "8765"]
