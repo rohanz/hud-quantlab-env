@@ -1,4 +1,4 @@
-"""Regenerate data/fixture.json from SEC EDGAR XBRL company facts.
+"""Regenerate src/quantlab_env/fixture.json from SEC EDGAR XBRL company facts.
 
 Usage:
     SEC_USER_AGENT="Your Name, contact email" uv run python scripts/build_fixture.py
@@ -43,7 +43,7 @@ CONCEPTS = {
 }
 
 FIRST_YEAR, LAST_YEAR = 2021, 2024
-OUT = Path(__file__).resolve().parent.parent / "data" / "fixture.json"
+OUT = Path(__file__).resolve().parent.parent / "src" / "quantlab_env" / "fixture.json"
 
 
 def fetch_companyfacts(cik: int, user_agent: str) -> dict:
@@ -103,7 +103,6 @@ def main() -> None:
             "facts": {concept: annual_rows(facts, tags) for concept, tags in CONCEPTS.items()},
         }
         print(ticker, {c: len(r) for c, r in fixture["companies"][ticker]["facts"].items()})
-    OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(fixture, indent=1) + "\n")
     print(f"wrote {OUT}")
 

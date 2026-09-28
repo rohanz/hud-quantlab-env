@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-FIXTURE = Path(__file__).resolve().parents[1] / "data" / "fixture.json"
+FIXTURE = Path(__file__).resolve().parents[1] / "src" / "quantlab_env" / "fixture.json"
 
 
 def value(ticker: str, concept: str, period_end: str, accn: str) -> int:

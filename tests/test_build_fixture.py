@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = ROOT / "data" / "fixture.json"
+FIXTURE = ROOT / "src" / "quantlab_env" / "fixture.json"
 _spec = importlib.util.spec_from_file_location("build_fixture", ROOT / "scripts" / "build_fixture.py")
 build_fixture = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(build_fixture)
