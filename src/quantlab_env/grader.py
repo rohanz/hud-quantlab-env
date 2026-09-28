@@ -38,16 +38,16 @@ WEIGHTS = {"answer": 0.5, "grounding": 0.3, "validity": 0.1, "efficiency": 0.1}
 UNIT_CONSTANTS = {1.0, 100.0, 1e3, 1e6, 1e9}
 MALFORMED_CODES = {"bad_argument", "unknown_tool", "unknown_ticker", "unknown_concept"}
 
+# fmt: off
 _UNITS = {
     "trillion": 1e12, "tn": 1e12, "t": 1e12,
     "billion": 1e9, "bn": 1e9, "b": 1e9,
     "million": 1e6, "mm": 1e6, "m": 1e6,
     "thousand": 1e3, "k": 1e3,
 }
+# fmt: on
 # Text that looks numeric but is not a claim: ISO dates, fiscal-year labels, form names.
-_NOT_CLAIMS = re.compile(
-    r"\b\d{4}-\d{2}-\d{2}\b|\bFY\s?\d{2,4}\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b", re.IGNORECASE
-)
+_NOT_CLAIMS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b|\bFY\s?\d{2,4}\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b", re.IGNORECASE)
 _NUMBER = re.compile(
     r"(?P<neg>[-−(])?\s*\$?\s*"
     r"(?P<num>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
@@ -163,12 +163,7 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         for name, value in (("revenue", question.revenue), ("net_income", question.net_income))
         if not any(_matches(c, [value]) for c in claims)
     ]
-    grounded = (
-        final is not None
-        and _matches(final, evidence)
-        and not ungrounded
-        and not missing_inputs
-    )
+    grounded = final is not None and _matches(final, evidence) and not ungrounded and not missing_inputs
 
     n = len(calls)
     malformed = sum(1 for c in calls if c.result.get("error", {}).get("code") in MALFORMED_CODES)

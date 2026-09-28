@@ -49,9 +49,7 @@ def get_fundamentals(ticker: str, concept: str, as_of: str) -> dict:
         "ticker": ticker,
         "concept": concept,
         "as_of": as_of,
-        "rows": [
-            {k: r[k] for k in ("period_end", "value", "filed", "form")} for r in rows
-        ],
+        "rows": [{k: r[k] for k in ("period_end", "value", "filed", "form")} for r in rows],
     }
 
 

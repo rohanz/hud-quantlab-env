@@ -7,10 +7,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from demo import Scripted  # noqa: E402
-from env import EPISODE, close_tool_server, env, net_margin  # noqa: E402
-from hud.agents.base import Agent  # noqa: E402
-from hud.eval import LocalRuntime  # noqa: E402
+from hud.agents.base import Agent
+from hud.eval import LocalRuntime
+
+from demo import Scripted
+from env import EPISODE, close_tool_server, env, net_margin
 
 TASK = net_margin(ticker="JNJ", period_end="2022-01-02", as_of="2024-03-17")
 

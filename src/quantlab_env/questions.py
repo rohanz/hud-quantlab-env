@@ -68,8 +68,7 @@ def default_questions() -> list[Question]:
             if period_end < "2022-01-01":
                 continue
             first_filed = max(
-                min(r["filed"] for r in facts[c] if r["period_end"] == period_end)
-                for c in ("revenue", "net_income")
+                min(r["filed"] for r in facts[c] if r["period_end"] == period_end) for c in ("revenue", "net_income")
             )
             as_of = (date.fromisoformat(first_filed) + timedelta(days=30)).isoformat()
             questions.append(build(ticker, period_end, as_of))

@@ -13,9 +13,10 @@ from __future__ import annotations
 import asyncio
 import re
 
-from env import close_tool_server, env, net_margin
 from hud.agents.base import Agent
 from hud.eval import LocalRuntime
+
+from env import close_tool_server, env, net_margin
 
 
 def _parse(prompt: str) -> tuple[str, str, str]:

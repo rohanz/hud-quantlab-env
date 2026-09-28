@@ -21,10 +21,10 @@ import uvicorn
 from fastmcp import FastMCP
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools.base import ToolResult
-
 from hud.capabilities import Capability
 from hud.environment import Environment
 from hud.graders import EvaluationResult, SubScore
+
 from quantlab_env import grader, questions, tools
 
 EPISODE = tools.Episode()
