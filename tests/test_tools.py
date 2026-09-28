@@ -65,6 +65,15 @@ def test_execute_logs_every_call_including_failures():
     assert ep.calls == []
 
 
+def test_begin_clears_the_log_and_moves_the_generation_on():
+    ep = Episode()
+    a = ep.begin()
+    execute("compute", {"expr": "1 + 1"}, ep)
+    b = ep.begin()  # a second session starts before A is graded
+    assert ep.calls == [] and b != a
+    assert ep.generation == b  # A can tell its log is gone; B is intact
+
+
 def test_every_default_question_is_answerable_from_the_tools():
     qs = questions.default_questions()
     assert len(qs) == 18

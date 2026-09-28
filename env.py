@@ -7,9 +7,18 @@ strictly and logged before FastMCP's own (coercing) argument validation could
 repair or drop it. The task template resets that log, yields the prompt, and
 grades the answer against it.
 
-One episode at a time per env process: the call log is process state, like the
-board in HUD's 2048 cookbook. `LocalRuntime` serialises acquisitions of an env
-instance, and each Docker/HUD runtime gets its own process.
+One episode at a time per env process. The call log is process state: HUD
+publishes the `tools` URL once per process, and an MCP tool call carries
+nothing that ties it to a task session, so calls cannot be split per session.
+`LocalRuntime` serialises acquisitions of an env instance, and `hud eval`
+and `DockerRuntime` give each rollout its own process. One `hud serve` process
+can still host concurrent sessions (for example `--runtime tcp://...` with
+several rollouts). Each episode therefore takes a generation of the log when
+it starts, and the newest session wins: an older session whose log was cleared
+by a newer one fails at grade time with `OverlappingEpisodes` instead of being
+graded on the wrong log. What this cannot catch: if the older session keeps
+calling tools after the newer one started, those calls land in the newer
+session's log.
 """
 
 from __future__ import annotations
@@ -28,6 +37,10 @@ from hud.graders import EvaluationResult, SubScore
 from quantlab_env import grader, questions, tools
 
 EPISODE = tools.Episode()
+
+
+class OverlappingEpisodes(RuntimeError):
+    """Raised at grade time when a newer session cleared this episode's tool log."""
 
 
 class StrictToolLog(Middleware):
@@ -88,8 +101,13 @@ async def close_tool_server() -> None:
 @env.template(id="net_margin", description="Point-in-time net margin, graded on correctness and evidence")
 async def net_margin(ticker: str, period_end: str, as_of: str):
     question = questions.build(ticker, period_end, as_of)
-    EPISODE.reset()
+    generation = EPISODE.begin()
     answer = yield question.prompt
+    if EPISODE.generation != generation:
+        raise OverlappingEpisodes(
+            "another task session started in this env process during this episode and cleared "
+            "its tool-call log; run one episode at a time per process"
+        )
     result = grader.grade(answer, EPISODE.calls, question)
     yield EvaluationResult(
         reward=result.reward,

@@ -114,12 +114,25 @@ class ToolCall:
 
 @dataclass
 class Episode:
-    """Every tool call made since the task started, in order."""
+    """Every tool call made since the task started, in order.
+
+    A tool call carries nothing that ties it to a task session, so one log
+    serves every session in the process. `begin` clears it and returns a new
+    generation; a session whose generation is no longer `generation` at grade
+    time had its log cleared by a newer session and cannot be graded.
+    """
 
     calls: list[ToolCall] = field(default_factory=list)
+    generation: int = 0
 
     def reset(self) -> None:
         self.calls.clear()
+
+    def begin(self) -> int:
+        """Clear the log for a new episode; returns its generation."""
+        self.generation += 1
+        self.reset()
+        return self.generation
 
 
 def validate(name: str, arguments: Any) -> dict | None:

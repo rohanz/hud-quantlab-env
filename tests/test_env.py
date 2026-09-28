@@ -1,14 +1,11 @@
 """End to end through HUD: LocalRuntime, the MCP capability, the template's grade."""
 
-import sys
-from pathlib import Path
+import asyncio
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 from hud.agents.base import Agent
-from hud.eval import LocalRuntime
+from hud.environment.server import bind
+from hud.eval import LocalRuntime, Runtime
 
 from demo import Scripted
 from env import EPISODE, close_tool_server, env, net_margin
@@ -98,3 +95,43 @@ async def test_tools_are_published_with_schemas():
     await run(agent)
     assert set(agent.tools) == {"get_fundamentals", "compute"}
     assert agent.tools["get_fundamentals"]["required"] == ["ticker", "concept", "as_of"]
+
+
+class Gated(Agent):
+    """The honest scripted agent, with hooks to interleave it with another session."""
+
+    def __init__(self, before=None, after=None):
+        self.before, self.after, self.called = before, after, asyncio.Event()
+
+    async def __call__(self, run):
+        if self.before:
+            self.before.set()
+        await Scripted("honest")(run)
+        self.called.set()
+        if self.after:
+            await self.after.wait()
+
+
+async def test_an_episode_whose_log_a_newer_session_cleared_is_refused_not_misgraded():
+    # One served process, two control sessions, as with `hud serve` and a
+    # concurrent `hud eval --runtime tcp://...`: A makes its calls, B starts
+    # (and clears the shared log) before A is graded.
+    await env.start()
+    server = await bind(env)
+    serving = asyncio.create_task(server.serve_forever())
+    runtime = Runtime(f"tcp://127.0.0.1:{server.sockets[0].getsockname()[1]}")
+    try:
+        b_started = asyncio.Event()
+        a, b = Gated(after=b_started), Gated(before=b_started)
+        job_a = asyncio.create_task(TASK.run(a, runtime=runtime))
+        await a.called.wait()
+        job_b = asyncio.create_task(TASK.run(b, runtime=runtime))
+        run_a, run_b = [(await j).runs[0] for j in (job_a, job_b)]
+    finally:
+        serving.cancel()
+        server.close()
+    # Before the guard, A was graded 0.0 on the log B cleared. Now A fails with
+    # the reason, and B, the newest session, is graded on its own calls.
+    assert run_a.trace.status == "error" and not run_a.evaluation, run_a.evaluation
+    assert "another task session" in run_a.trace.steps[-1].error
+    assert run_b.reward == 1.0, run_b.evaluation
