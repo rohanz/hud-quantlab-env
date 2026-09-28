@@ -31,7 +31,7 @@ src/quantlab_env/questions.py  Question, gold answers, prompt text, default_ques
 src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net income, 5 companies, 2021 to 2024
 scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, needs SEC_USER_AGENT)
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
-                               units), test_env.py (end to end, every task); 122 tests
+                               units), test_env.py (end to end, every task); 159 tests
 docs/                          reward-design.md, environment.md, decisions.md
 ```
 
@@ -95,7 +95,9 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 - **grounding** (all or nothing): the final answer matches a calculator result
   derived from the question's net income over its revenue, every other cited
   number matches evidence from this episode, and the answer cites the exact
-  revenue and net income the gold used.
+  revenue and net income the gold used, as amounts (a percent never counts).
+  Matching is at the precision a number is written with; the 0.5% tolerance is
+  only for the answer against gold.
 - **validity**: share of calls without a malformed error code (`bad_argument`,
   `unknown_tool`, `unknown_ticker`, `unknown_concept`). 0 with no calls.
 - **efficiency**: `3 / max(3, calls)`, and 0 unless an admissible lookup
@@ -113,14 +115,19 @@ Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
   whose `as_of` is on or before the question's date (the filing-date cutoff).
   A later lookup is not malformed, but it is ignored.
 - Calculator provenance: each evidence item carries a formula over the
-  looked-up values. A `compute` result is evidence only if every literal is
-  evidence (bound to the closest match) or a unit constant (1, 100, 1e3, 1e6,
+  looked-up values. A `compute` result is evidence only if every literal equals
+  evidence at its written precision (bound to the closest match) or is a unit
+  constant (1, 100, 1e3, 1e6,
   1e9), constants only scale evidence, both sides of `+` and `-` use evidence,
   and the result depends on a looked-up value.
 - Error results never count.
+- Cited numbers match at their written precision (`$78.74 billion` matches
+  78,740 million; `$20.885 billion` does not match 20,878 million).
 - Cited numbers keep their sign, and a currency amount without a unit word
   (`$78.74`) means that many dollars. Only a bare number may be read as
-  thousands, millions, billions or a percent.
+  thousands, millions, billions or a percent. A minus spaced off after a word
+  or `:` (`net income - $20.9 billion`) is a sign; after a digit, inside a
+  word or as a bullet opening a line, a hyphen is not.
 - Dates, FY and quarter labels, form names, list markers, a bare year and a
   single-digit count followed by a word are exempt by context, never by value.
 
@@ -142,7 +149,9 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 | right answer, no tool calls | 0.00 |
 | right margin from the wrong year (AAPL FY2022 vs FY2023) | 0.70 |
 | stale, pre-restatement answer | 0.20 |
-| wrong sign or dropped scale on an input | 0.70 |
+| wrong sign (attached or spaced) or dropped scale on an input | 0.70 |
+| invented input within 0.5%, `compute("20885/78740*100")` (one extra call) | 0.675 |
+| input cited as a percent (`net income 20,878,000,000%`) | 0.70 |
 | extra ungrounded amount (`debt $7`, `assets $2023`) | 0.70 |
 | both lookups past the question's date | 0.10 |
 | only malformed calls, then the right answer | 0.00 |

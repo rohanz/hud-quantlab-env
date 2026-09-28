@@ -18,6 +18,9 @@ first number on it. It is correct if it is within `REL_TOL` (0.5%) of the gold
 margin, read either way: `26.52%` or `26.52` as a percent, `0.2652` as a
 fraction. The gold is `net_income / revenue` from `data.facts_as_of` on the
 question's `as_of` date, which is exactly what the tools return on that date.
+The 0.5% tolerance is used only here, to judge the answer against gold.
+Everything else (evidence, provenance, grounding) matches at the precision a
+number is written with; see [signs, scale and precision](#signs-scale-and-precision).
 
 The answer only scores if at least one admissible lookup succeeded (see
 [the filing-date cutoff](#the-filing-date-cutoff)). A correct number with no
@@ -33,7 +36,9 @@ Three conditions, all required:
 2. Every other number cited anywhere in the text matches some evidence value
    (`ungrounded` lists the ones that do not).
 3. The text cites the revenue and the net income the gold was computed from
-   (`missing_inputs`).
+   (`missing_inputs`), as amounts: a currency amount, a scaled amount or a bare
+   number. A percent never satisfies an input, so `net income 20,878,000,000%`
+   does not cite the net income.
 
 ### validity (0.1)
 
@@ -68,10 +73,12 @@ A calculated value counts only if it is derived from evidence. The grader
 parses the `compute` expression and turns it into a formula over the
 looked-up values:
 
-- Every literal must be an existing evidence item or a unit constant (1, 100,
-  1e3, 1e6, 1e9). A literal binds to the evidence item it matches most closely
-  (not the first within tolerance), rescaled by the literal's own scale, so
-  `20878` stands for the looked-up 20,878,000,000.
+- Every literal must equal an existing evidence item at the precision it is
+  written with, or be a unit constant (1, 100, 1e3, 1e6, 1e9). `20878` stands
+  for the looked-up 20,878,000,000 and `0.26515` for a computed 0.2651511, but
+  `20885` and `20880` stand for nothing (an integer literal is exact). A
+  literal binds to the evidence item it matches most closely, rescaled by the
+  literal's own scale. Non-decimal literals (`0x518E`) are never evidence.
 - Unit constants may only scale evidence. `x * 100` is fine; `1 + 1`, or any
   expression built from constants alone, is not.
 - Both sides of `+` and `-` must use evidence, so `x + 0.004` is not evidence.
@@ -81,7 +88,9 @@ looked-up values:
 
 Earlier `compute` results are evidence items too, so a chain of steps works
 (`20878 / 78740`, then `0.26515 * 100`). Once an invented number enters the
-chain, every result after it fails the rules and is dropped.
+chain, every result after it fails the rules and is dropped, and a later
+literal that copies an invented result is not rebound to the real evidence
+nearby: `compute("20878+7")` then `compute("20885/78740*100")` grounds nothing.
 
 For the final answer this is not enough: it must match an item whose formula
 is proportional to the question's net income divided by its revenue. The
@@ -90,20 +99,36 @@ result must rise by the same factor) and its revenue source (the result must
 fall by it). A correct number that merely touches evidence, or a margin from
 another year's rows, does not pass.
 
-### Signs and currency scale
+### Signs, scale and precision
 
-Cited numbers are compared with their sign. A minus attached to an amount
-(`-$20.9 billion`, `$-20.9 billion`, `-20,878 million`) is its sign, so a
-claimed loss does not match a reported profit. A hyphen after a word or digit
-(`10-K`, `2021-2022`) is not a sign. Parentheses are read as prose, not as
-accounting negatives.
+Cited numbers are compared with their sign, so a claimed loss does not match a
+reported profit. A minus is the amount's sign when it is:
+
+- attached to the amount (`-$20.9 billion`, `-20,878 million`),
+- after a currency sign, spaced or not (`$-20.9 billion`, `$ - 20.9 billion`),
+- spaced off after a word (`net income - $20.878 billion`,
+  `net income −  $20.878 billion`) or after `:`, `=`, `(`, `,` or `;`
+  (`net income: -  20,878 million`),
+- a true minus sign (U+2212) opening a line.
+
+A hyphen is not a sign after a digit (`2021-2022`, `2021 - 2022`, a
+subtraction like `20,878 - 1,000`), inside a word (`10-K`, `pre-2022`,
+`re- 20`) or as a bullet opening a line (`- $78.74 billion revenue`).
+Parentheses are read as prose, not as accounting negatives.
 
 Scale is part of the claim. A unit word or suffix (`billion`, `bn`, `B`,
 `million`, `m`, `thousand`, `k`) fixes the scale. A currency amount with no
 unit (`$78.74`, `78.74 dollars`, `USD 78.74`) means exactly that many dollars,
 so `$78.74` does not match 78.74 billion. Only a bare number may stand for
 itself, thousands, millions, billions or a percent, so `78,740` matches
-78,740,000,000. Matching is within 0.5%.
+78,740,000,000.
+
+Matching is at the precision the number is written with: a citation matches a
+value that rounds to it, within half a unit in its last written place.
+`$78.74 billion` matches 78,740 million and `26.52%` matches 26.5151%, but
+`$20.885 billion` does not match 20,878 million, though it is within 0.5%. The
+same rule applies to calculator literals and to the final answer's match
+against its derivation.
 
 ### The filing-date cutoff
 
@@ -160,6 +185,9 @@ task asked on 2024-03-17 unless noted.
 | right margin from the wrong year (AAPL FY2022 vs FY2023) | 1 | 0 | 1 | 1 | 0.70 |
 | stale, pre-restatement answer | 0 | 0 | 1 | 1 | 0.20 |
 | wrong sign or dropped scale on an input | 1 | 0 | 1 | 1 | 0.70 |
+| spaced minus on an input (`net income - $20.878 billion`) | 1 | 0 | 1 | 1 | 0.70 |
+| invented input within 0.5% (`20885`), with one extra compute | 1 | 0 | 1 | 0.75 | 0.675 |
+| input cited as a percent (`net income 20,878,000,000%`) | 1 | 0 | 1 | 1 | 0.70 |
 | extra ungrounded amount (`debt $7`, `assets $2023`) | 1 | 0 | 1 | 1 | 0.70 |
 | both lookups past the question's date | 0 | 0 | 1 | 0 | 0.10 |
 | one lookup past the question's date | 1 | 0 | 1 | 1 | 0.70 |
@@ -244,6 +272,26 @@ and year-like values were exempt by value. Now each is an ungrounded claim
 forms (`$78.74 billion`, `78,740 million`, `$78.74B`, `USD 78.74 billion`, full
 dollar amounts, bare numbers with a stated unit) still score 1.0.
 
+### Found by a second review: 0.675 or 0.70
+
+A second review of the fixed grader found three more ways to full grounding.
+
+- Tolerance let invented numbers through. After honest lookups,
+  `compute("20878+7")` then `compute("20885/78740*100")`, with the answer
+  `Revenue $78.74 billion; net income $20.885 billion` and `ANSWER: 26.52%`,
+  scored 0.975: 20,885 is within 0.5% of the real 20,878, so the invented
+  figure was accepted as a citation, and the calculator literal was rebound to
+  the real net income. Matching is now at written precision, so neither the
+  literal nor the citation is evidence, the answer is not derived, and
+  net income is missing (0.675, with 0.75 efficiency for the extra call).
+- A spaced minus was dropped: `net income - $20.878 billion` and
+  `net income −  $20.878 billion` scored 1.0. Now they are read as losses
+  (0.70). The old regex also read `2021 - 2022` as a claim of -2022; a hyphen
+  after a digit is no longer a sign.
+- A percent satisfied a required input, because a percent reads as the number
+  itself as well as a fraction:
+  `revenue 78,740,000,000%, net income 20,878,000,000%` scored 1.0. A percent now never cites an input (0.70).
+
 ### Lookups past the question's date: 0.10 or 0.70
 
 Looking up as of 2099-01-01 sees every filing, including ones the question
@@ -279,11 +327,22 @@ What the grader still does not catch:
   revenue "net income", or citing another year's figure as this year's, is not
   caught when the required inputs are also cited.
 - A bare number may stand for itself, thousands, millions, billions or a
-  percent, and matching allows 0.5%. A wrong claim that happens to land within
-  0.5% of some evidence value at one of those scales passes.
+  percent. A wrong claim that rounds to some evidence value at one of those
+  scales passes.
+- Matching is at written precision, so a coarse rounding is accepted:
+  `$21 billion` for 20,878 million, or a literal `2.1e4` in `compute`. The fewer
+  digits a number has, the more values it rounds from. A computed margin from
+  coarse inputs must still be within 0.5% of gold to earn the answer.
+- The required inputs may be cited as bare numbers (for example in
+  `20,878 / 78,740`); only a percent is refused. A bare number read at any
+  scale can therefore stand in for an input.
+- A hyphen opening a line is read as a bullet, so `- 20,878 million` at the
+  start of a line reads as positive. A spaced minus is read as a sign only
+  after a word, a currency sign or `:`, `=`, `(`, `,` or `;`.
 - Exempt contexts are unchecked: a bare four-digit number from 1900 to 2100 and
   a single-digit count followed by a word are treated as a year and a count,
-  even if the agent meant an amount.
+  even if the agent meant an amount. So `assets 2023` is not checked, while
+  `assets $2023` and `assets 2,023` are.
 - Parentheses are read as prose, so an accounting-style `(20,878)` is read as a
   positive number.
 - The provenance check is numeric, not symbolic: it evaluates each formula at

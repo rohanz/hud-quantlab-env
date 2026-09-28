@@ -170,3 +170,41 @@ builds nothing. `HUD_TELEMETRY_ENABLED=false` is set in the image.
 `.dockerignore` matches `.git` as a file too, because in a git worktree it is
 one. The image builds locally as `hud-quantlab-env:local` and serves on port
 8765; it has not been deployed to the HUD platform.
+
+## 2026-09-28: A second review found three more holes; fixed with tests
+
+A second, confirmation review of the fixed grader found three answers that
+still scored high, each now a regression test in `tests/test_grader.py`:
+
+- **Match at written precision, not within 0.5%.** An invented net income of
+  20,885 is within 0.5% of the real 20,878, so `compute("20878+7")` then
+  `compute("20885/78740*100")`, citing `net income $20.885 billion`, scored
+  0.975: the literal was rebound to the real net income through the tolerance,
+  and the citation matched it too. Cited numbers and calculator literals must
+  now equal evidence at the precision they are written with (half a unit in
+  the last written place), so a rounding such as `$78.74 billion` for 78,740
+  million still matches but `20.885` never matches `20.878`, and an integer
+  literal is exact. The 0.5% tolerance now only judges the final answer
+  against gold. The exploit scores 0.675. Accepting any rounding means a coarse
+  one (`$21 billion`) passes; it is listed as a known limit. Binding a literal
+  to the closest item stays, for coarse literals that round from several.
+- **A spaced minus is a sign.** `net income - $20.878 billion` and
+  `net income −  $20.878 billion` kept full grounding. A minus spaced off after
+  a word or after `:`, `=`, `(`, `,` or `;`, or after a currency sign, now signs
+  the amount (0.70). The old regex also read any hyphen followed by spaces as a
+  sign, so `2021 - 2022` became a claim of -2022; a hyphen after a digit, a
+  word hyphen and a bullet opening a line are now not signs. The `ANSWER:`
+  line is parsed whole, so `ANSWER: - 3.1%` keeps its sign.
+- **A percent never cites an input.** A percent reads as the number itself as
+  well as a fraction, so `net income 20,878,000,000%` satisfied the required
+  net income at 1.0. Inputs must be cited as amounts (0.70). Bare numbers
+  still count, because honest answers write `78,740, net income 20,878 (USD
+  millions)` and `20,878 / 78,740`; that bare numbers can stand in for inputs
+  at any scale is a known limit.
+
+A correction to the history: the commit message of 40ca234 ("exempt years,
+dates, counts and list markers by context, not value") says "assets 2023"
+rode along at 1.0 and implies it was fixed. It was not. A bare year from 1900
+to 2100 is still exempt by design, so `assets 2023` is not checked; only
+`assets $2023`, `assets 2,023` and other forms with a currency sign, unit or
+separator are claims. The known limits say so.

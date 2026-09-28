@@ -54,7 +54,7 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 | component | rule |
 |---|---|
 | answer | The number on the final `ANSWER:` line is within 0.5% of the gold margin (as a percent or a fraction), and at least one admissible lookup succeeded. With no evidence, a correct answer earns nothing. |
-| grounding | All or nothing. The final answer must be computed from the question's net income over its revenue, every other number the answer cites must match evidence from this episode, and the answer must cite the revenue and net income the gold was computed from. |
+| grounding | All or nothing. The final answer must be computed from the question's net income over its revenue, every other number the answer cites must match evidence from this episode, and the answer must cite the revenue and net income the gold was computed from, as amounts (a percent never counts). |
 | validity | The share of tool calls that were well formed. |
 | efficiency | `3 / max(3, calls)`. It pays nothing unless an admissible lookup succeeded. |
 
@@ -66,15 +66,23 @@ How evidence is built from the episode's call log (`src/quantlab_env/grader.py`)
   saw filings the question rules out. It is not malformed, but it is not
   evidence and does not count as a successful lookup.
 - Calculator provenance: a `compute` result counts only if it is derived from
-  evidence. Every literal must be evidence or a unit constant (1, 100, 1e3,
-  1e6, 1e9), constants may only scale evidence, both sides of `+` and `-` must
+  evidence. Every literal must equal evidence at the precision it is written
+  with, or be a unit constant (1, 100, 1e3, 1e6, 1e9), constants may only scale evidence, both sides of `+` and `-` must
   use evidence, and the result must depend on a looked-up value. The grader
   tracks each result as a formula over the looked-up values, and the final
   answer must be proportional to the question's net income over its revenue.
 - Error results never count, even when they echo the agent's arguments.
 - Cited numbers are read with units (`$78.74 billion`, `78,740 million`,
-  `26.52%`) and compared with their sign, within 0.5%. A currency amount with
-  no unit means what it says: `$78.74` is 78.74 dollars, not 78.74 billion.
+  `26.52%`) and compared with their sign, at the precision they are written
+  with: `$78.74 billion` is a rounding of 78,740 million, but `$20.885 billion`
+  is not 20,878 million. The 0.5% tolerance applies only to the final answer
+  against gold. A currency amount with no unit means what it says: `$78.74` is
+  78.74 dollars, not 78.74 billion.
+- A minus is a sign when it is attached (`-$20.9 billion`), follows a currency
+  sign (`$ - 20.9 billion`), or is spaced after a word or `:`
+  (`net income - $20.9 billion`, `income: - 20,878 million`). A hyphen after a
+  digit (`2021 - 2022`), a word hyphen and a bullet at the start of a line are
+  not.
 - Dates, `FY2023`, `Q4`, form names like `10-K`, list markers at the start of a
   line, a bare year and a small count like `3 filings` are not claims. Context
   decides, not value: `$7`, `7%` and `$2023` are claims.
@@ -104,7 +112,9 @@ task unless noted.
 | **Right answer, no evidence** | Answering from memory. | 0.00 |
 | Right margin from the wrong year | Apple's FY2022 and FY2023 margins are both 25.31%. The required-inputs and provenance checks catch an agent that used the wrong year's rows. | 0.70 |
 | Stale, pre-restatement answer | The point-in-time trap. | 0.20 |
-| Wrong sign or scale on an input | `-$20.878 billion` for a profit, `$78.74` for 78.74 billion. | 0.70 |
+| Wrong sign or scale on an input | `-$20.878 billion` or `net income - $20.878 billion` for a profit, `$78.74` for 78.74 billion. | 0.70 |
+| Invented input within 0.5% of the real one | `compute("20885/78740*100")` and `net income $20.885 billion` when the filing says 20,878 million. Matching is at written precision, so neither is evidence. | 0.675 (one extra compute call) |
+| Input cited as a percent | `net income 20,878,000,000%` or `revenue 100%` in place of the dollar amounts. | 0.70 |
 | Lookups past the question's date | Both inputs looked up as of 2099-01-01. | 0.10 |
 | Burst of malformed calls, then the right answer | Not from QuantLab: an efficiency leak (0.1 for zero evidence) caught by the end-to-end test during development, now closed. | 0.00 |
 
@@ -119,7 +129,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 122 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 159 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -237,8 +247,15 @@ What the grader still cannot catch (details in
   two required inputs, a cited number only has to match some value the episode
   looked up or computed, so a swapped label or another year's figure passes.
 - A bare number may be read at any scale (itself, thousands, millions,
-  billions, percent) within 0.5%, so a wrong bare number can match by
-  coincidence.
+  billions, percent), so a wrong bare number can match by coincidence. Matching
+  is at written precision, so a coarse rounding (`$21 billion` for 20,878
+  million, or a literal `2.1e4` in `compute`) is accepted, and the fewer digits
+  a number has, the more values it rounds from.
+- The required inputs may be cited as bare numbers (for example in
+  `20,878 / 78,740`), not only as currency amounts; only a percent is refused.
+- A hyphen opening a line is read as a bullet, so `- 20,878 million` at the
+  start of a line reads as positive. Use a true minus sign or attach it.
 - A bare year-like number (1900 to 2100) and a single-digit count followed by
-  a word are exempt, even if meant as amounts. Parentheses are not read as
+  a word are exempt, even if meant as amounts (so `assets 2023` is not
+  checked, while `assets $2023` is). Parentheses are not read as
   accounting negatives.
