@@ -406,6 +406,25 @@ def test_legitimate_amount_forms_are_grounded(inputs):
     assert g.reward == 1.0, g.info
 
 
+@pytest.mark.parametrize(
+    ("inputs", "missing"),
+    [
+        ("Revenue 78,740,000,000%, net income 20,878,000,000%.", ["revenue", "net_income"]),
+        ("Revenue 78740000000 percent, net income $20.878 billion.", ["revenue"]),
+        ("Revenue $78.74 billion, net income 20,878,000,000%.", ["net_income"]),
+        ("Revenue 100%, net income 26.52%.", ["revenue", "net_income"]),
+    ],
+)
+def test_a_percent_never_cites_an_input(inputs, missing):
+    """Second review: a percent reads as either a fraction or the number itself, so
+    "net income 20,878,000,000%" matched the net income and satisfied the input
+    requirement at 1.0. Inputs must be cited as amounts."""
+    g = grade(f"{inputs} Net margin 26.52%.\nANSWER: 26.52%", full_episode().calls, Q)
+    assert g.info["missing_inputs"] == missing
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
+
+
 def test_lookups_past_the_question_date_are_not_evidence():
     """Codex review: a lookup as of 2099-01-01 sees filings the question rules out.
     It is well formed, so it is not malformed, but it is neither evidence nor a

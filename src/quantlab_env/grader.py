@@ -8,7 +8,7 @@ answer     The number on the final `ANSWER:` line is within 0.5% of the gold
 grounding  All or nothing. Every number cited anywhere in the answer, the
            final answer included, must trace to a successful tool result from
            this episode, and the answer must cite the revenue and net income
-           the margin was computed from.
+           the margin was computed from, as amounts (never as a percent).
 validity   Share of tool calls that were well formed (0 with no calls).
 efficiency PAR_CALLS / max(PAR_CALLS, calls), and 0 unless a lookup
            succeeded, so a burst of failed calls earns nothing.
@@ -357,10 +357,11 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
 
     claims = [c for c in extract_numbers(answer) if not c.exempt]
     ungrounded = [c.text for c in claims if not _matches(c, evidence.values)]
+    amounts = [c for c in claims if c.kind != "percent"]  # a percent never cites a dollar input
     missing_inputs = [
         name
         for name, value in (("revenue", question.revenue), ("net_income", question.net_income))
-        if not any(_matches(c, [value]) for c in claims)
+        if not any(_matches(c, [value]) for c in amounts)
     ]
     answer_derived = final is not None and any(
         _matches(final, [item.value]) and derived_from_inputs(item, evidence, question) for item in evidence.items
