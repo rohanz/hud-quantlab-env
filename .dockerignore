@@ -1,8 +1,24 @@
+# The image needs only pyproject.toml, uv.lock, .python-version, env.py, tasks.py
+# and src/ (fixture.json ships inside the package). pyproject has no readme field,
+# so the build does not need README.md.
+
 # .git is a file, not a directory, in a git worktree; match both.
 .git
+.gitignore
+.room/
+.claude/
 .venv/
 **/__pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
 dist/
+
+# Development only: tests, docs, the fixture builder, the offline demo.
+tests/
+docs/
+scripts/
+*.md
+demo.py
+Dockerfile.hud
+.dockerignore
