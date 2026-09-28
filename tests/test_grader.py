@@ -3,7 +3,7 @@
 import pytest
 
 from quantlab_env import questions
-from quantlab_env.grader import admissible_lookup, extract_numbers, final_answer, grade
+from quantlab_env.grader import admissible_lookup, build_evidence, extract_numbers, final_answer, grade
 from quantlab_env.tools import Episode, execute
 
 # JNJ restated FY2021 revenue in its 2024 10-K. Asked as of 2024-03-17 the
@@ -214,6 +214,26 @@ def test_literal_binds_to_the_closest_evidence():
     )
     answer = "Revenue $26,974 million, net income $4,368 million, margin 16.19%.\nANSWER: 16.19%"
     assert grade(answer, ep.calls, q).reward == 1.0
+
+
+@pytest.mark.parametrize(
+    "exprs",
+    [
+        ["20878 * 1.3", "27141.4 / 78740 * 100"],  # invented factor, then used downstream
+        [f"{NI} / {REV} * 100 + 0.004"],  # evidence plus an invented offset
+        [f"{NI} / {REV}", "0.26515 * 100 * 1.02"],  # a clean step, then an invented factor
+        ["20878 / 78740 * 100", "26.515 - 26.515 + 30"],  # evidence cancelled, an invented value added
+        ["20878 / 20878", "26.52 * 1"],  # a constant from x / x does not ground a memorised literal
+    ],
+)
+def test_tainted_calculation_chains_are_ungrounded(exprs):
+    """Mixing evidence with an invented number anywhere in a chain taints every result after it."""
+    ep = episode(lookup("revenue"), lookup("net_income"), *[("compute", {"expr": e}) for e in exprs])
+    assert all(c.ok for c in ep.calls)
+    last = ep.calls[-1].result["value"]
+    assert last not in build_evidence(ep.calls, Q.as_of).values
+    g = grade(HONEST.replace("26.52%", f"{last:.2f}%"), ep.calls, Q)
+    assert g.subscores["grounding"] == 0.0, g.info
 
 
 # --- a right answer with no evidence ---------------------------------------------
