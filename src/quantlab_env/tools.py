@@ -73,7 +73,7 @@ def compute(expr: str) -> dict:
 
 TOOLS = {f.__name__: f for f in (get_fundamentals, compute)}
 
-_BINOPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
+BINOPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
 
 
 def _eval(node: ast.AST) -> float:
@@ -82,8 +82,8 @@ def _eval(node: ast.AST) -> float:
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
         v = _eval(node.operand)
         return -v if isinstance(node.op, ast.USub) else v
-    if isinstance(node, ast.BinOp) and type(node.op) in _BINOPS:
-        return _BINOPS[type(node.op)](_eval(node.left), _eval(node.right))
+    if isinstance(node, ast.BinOp) and type(node.op) in BINOPS:
+        return BINOPS[type(node.op)](_eval(node.left), _eval(node.right))
     raise ValueError("disallowed expression")
 
 

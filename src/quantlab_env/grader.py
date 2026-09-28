@@ -16,10 +16,18 @@ efficiency PAR_CALLS / max(PAR_CALLS, calls), and 0 unless a lookup
 Evidence is built from the episode log in call order:
 - `value` fields of successful `get_fundamentals` rows. Dates and other
   metadata are never evidence.
-- the `value` of a successful `compute` call, but only if every literal in
-  its expression is already evidence (or a unit constant like 100). A
-  memorised number passed through the calculator stays ungrounded.
+- the `value` of a successful `compute` call, if the expression is built from
+  evidence: every literal is evidence or a unit constant (1, 100, 1e3, 1e6,
+  1e9), a unit constant only scales evidence (`x * 100`, never `1 + 1`), both
+  sides of `+` and `-` are evidence, and the result actually depends on a
+  looked-up value (`x / x` does not). A memorised number passed through the
+  calculator, or rebuilt from unit constants, stays ungrounded.
 - error results are never evidence, even if they echo the arguments.
+
+Each evidence item keeps its provenance: a formula over the looked-up values.
+The final answer is grounded only if it matches an item whose formula is
+proportional to net income over revenue for the question's own period, so a
+correct number merely touched by evidence does not pass.
 """
 
 from __future__ import annotations
@@ -27,10 +35,11 @@ from __future__ import annotations
 import ast
 import math
 import re
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 from .questions import Question
-from .tools import ToolCall
+from .tools import BINOPS, ToolCall
 
 REL_TOL = 0.005
 PAR_CALLS = 3  # revenue lookup, net income lookup, one compute
@@ -116,26 +125,132 @@ def _matches(cited: Cited, evidence: list[float]) -> bool:
     return any(_close(r, abs(e)) for r in cited.readings() for e in evidence)
 
 
-def _literals(expr: str) -> list[float]:
-    return [
-        abs(float(node.value))
-        for node in ast.walk(ast.parse(expr, mode="eval"))
-        if isinstance(node, ast.Constant) and type(node.value) in (int, float)
-    ]
+Formula = Callable[[Sequence[float]], float]  # recomputes a value from the looked-up values
+_NUDGE = 0.01  # relative perturbation used to test what a formula depends on
 
 
-def build_evidence(calls: list[ToolCall]) -> list[float]:
-    evidence: list[float] = []
+class Laundered(ValueError):
+    """A calculator expression that is not built from evidence."""
+
+
+@dataclass(frozen=True)
+class Source:
+    """One looked-up value: a row of a successful `get_fundamentals` call."""
+
+    ticker: str
+    concept: str
+    period_end: str
+    value: float
+
+
+@dataclass(frozen=True)
+class Item:
+    value: float
+    formula: Formula
+
+
+@dataclass
+class Evidence:
+    sources: list[Source] = field(default_factory=list)
+    items: list[Item] = field(default_factory=list)
+
+    @property
+    def values(self) -> list[float]:
+        return [item.value for item in self.items]
+
+    @property
+    def base(self) -> list[float]:
+        return [s.value for s in self.sources]
+
+    def add_source(self, source: Source) -> None:
+        i = len(self.sources)
+        self.sources.append(source)
+        self.items.append(Item(source.value, lambda v: v[i]))
+
+    def bind(self, literal: float) -> Formula:
+        """The formula of the first item a calculator literal matches, rescaled to the literal."""
+        cited = Cited(str(literal), literal, "plain")
+        for item in self.items:
+            if item.value and _matches(cited, [item.value]):
+                ratio = literal / item.value
+                return lambda v, f=item.formula: f(v) * ratio
+        raise Laundered(f"{literal} is not evidence")
+
+
+def _formula(node: ast.AST, evidence: Evidence) -> tuple[Formula, bool]:
+    """A compute expression as a formula over looked-up values, and whether it uses evidence.
+
+    Raises Laundered if a literal is not evidence, unit constants are combined
+    with each other, or `+`/`-` has a side without evidence.
+    """
+    if isinstance(node, ast.Constant) and type(node.value) in (int, float):
+        if float(node.value) in UNIT_CONSTANTS:
+            return (lambda v, c=float(node.value): c), False
+        return evidence.bind(float(node.value)), True
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
+        f, used = _formula(node.operand, evidence)
+        return ((lambda v: -f(v)) if isinstance(node.op, ast.USub) else f), used
+    if isinstance(node, ast.BinOp) and type(node.op) in BINOPS:
+        (left, lused), (right, rused) = _formula(node.left, evidence), _formula(node.right, evidence)
+        additive = isinstance(node.op, (ast.Add, ast.Sub))
+        if (additive and not (lused and rused)) or not (lused or rused):
+            raise Laundered("unit constants may only scale evidence")
+        op = BINOPS[type(node.op)]
+        return (lambda v: op(left(v), right(v))), True
+    raise Laundered("not literal arithmetic")
+
+
+def _nudged(formula: Formula, base: list[float], ids: set[int]) -> float:
+    try:
+        return formula([x * (1 + _NUDGE) if i in ids else x for i, x in enumerate(base)])
+    except ZeroDivisionError:
+        return math.inf
+
+
+def _depends(formula: Formula, base: list[float]) -> bool:
+    """Whether the formula changes when any single looked-up value does."""
+    at_base = formula(base)
+    return any(not math.isclose(_nudged(formula, base, {i}), at_base, rel_tol=1e-9) for i in range(len(base)))
+
+
+def build_evidence(calls: list[ToolCall]) -> Evidence:
+    evidence = Evidence()
     for call in calls:
         if not call.ok:
             continue
         if call.name == "get_fundamentals":
-            evidence += [float(row["value"]) for row in call.result["rows"]]
+            r = call.result
+            for row in r["rows"]:
+                evidence.add_source(Source(r["ticker"], r["concept"], row["period_end"], float(row["value"])))
         elif call.name == "compute":
-            literals = [Cited(str(x), x, "plain") for x in _literals(call.result["expr"])]
-            if all(x.value in UNIT_CONSTANTS or _matches(x, evidence) for x in literals):
-                evidence.append(float(call.result["value"]))
+            try:
+                formula, _ = _formula(ast.parse(call.result["expr"], mode="eval").body, evidence)
+            except Laundered:
+                continue
+            if _depends(formula, evidence.base):
+                evidence.items.append(Item(float(call.result["value"]), formula))
     return evidence
+
+
+def _input_ids(evidence: Evidence, question: Question, concept: str, value: float) -> set[int]:
+    return {
+        i
+        for i, s in enumerate(evidence.sources)
+        if (s.ticker, s.concept, s.period_end, s.value) == (question.ticker, concept, question.period_end, value)
+    }
+
+
+def derived_from_inputs(item: Item, evidence: Evidence, question: Question) -> bool:
+    """Whether the item is proportional to net income / revenue for the question's period."""
+    ni = _input_ids(evidence, question, "net_income", question.net_income)
+    rev = _input_ids(evidence, question, "revenue", question.revenue)
+    if not (ni and rev):
+        return False
+    base = evidence.base
+    at_base = item.formula(base)
+    return math.isclose(_nudged(item.formula, base, ni), at_base * (1 + _NUDGE), rel_tol=1e-9) and math.isclose(
+        _nudged(item.formula, base, rev), at_base / (1 + _NUDGE), rel_tol=1e-9
+    )
 
 
 @dataclass
@@ -157,13 +272,16 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
     )
 
     claims = [c for c in extract_numbers(answer) if not c.exempt]
-    ungrounded = [c.text for c in claims if not _matches(c, evidence)]
+    ungrounded = [c.text for c in claims if not _matches(c, evidence.values)]
     missing_inputs = [
         name
         for name, value in (("revenue", question.revenue), ("net_income", question.net_income))
         if not any(_matches(c, [value]) for c in claims)
     ]
-    grounded = final is not None and _matches(final, evidence) and not ungrounded and not missing_inputs
+    answer_derived = final is not None and any(
+        _matches(final, [item.value]) and derived_from_inputs(item, evidence, question) for item in evidence.items
+    )
+    grounded = answer_derived and not ungrounded and not missing_inputs
 
     n = len(calls)
     malformed = sum(1 for c in calls if c.result.get("error", {}).get("code") in MALFORMED_CODES)
@@ -181,6 +299,7 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         "cited": [c.text for c in claims],
         "ungrounded": ungrounded,
         "missing_inputs": missing_inputs,
+        "answer_derived": answer_derived,
         "tool_calls": n,
         "malformed_calls": malformed,
     }

@@ -161,6 +161,43 @@ def test_memorised_number_laundered_through_compute_is_ungrounded():
     assert g.reward == pytest.approx(0.7)
 
 
+ONE, FOUR, TWO = "20878 / 20878", "(20878 + 20878 + 20878 + 20878) / 20878", "(20878 + 20878) / 20878"
+BUILT_FROM_ONES = f"100 / ({FOUR}) + {ONE} + (100 / ({TWO}) + {ONE} + {ONE}) / 100"
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        "100/(1+1+1+1)+1+(100/(1+1)+1+1)/100",  # 26.52 from unit constants alone
+        "(100/(1+1+1+1)+1+(100/(1+1)+1+1)/100) * 20878 / 20878",  # evidence that cancels out
+        "100/(1+1+1+1)+1+(100/(1+1)+1+1)/100 + 20878 / 78740 / 1e9",  # evidence that barely matters
+        f"{BUILT_FROM_ONES}",  # 26.52 from x / x, so it never depends on x
+        f"{BUILT_FROM_ONES} + 20878 / 78740 / 1e9",  # depends on evidence, but is not the margin
+    ],
+)
+def test_margin_rebuilt_from_unit_constants_is_ungrounded(expr):
+    """Codex review: unit constants are allowed literals, so `1+1+...` could spell
+    any number. Constants may only scale evidence, the result must depend on a
+    looked-up value, and the final answer must be net income over revenue."""
+    ep = episode(lookup("revenue"), lookup("net_income"), ("compute", {"expr": expr}))
+    assert ep.calls[-1].ok
+    g = grade(HONEST, ep.calls, Q)
+    assert g.subscores["grounding"] == 0.0, g.info
+    assert g.info["answer_derived"] is False
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_margin_computed_in_steps_is_grounded():
+    ep = episode(
+        lookup("revenue"),
+        lookup("net_income"),
+        ("compute", {"expr": "20878 / 78740"}),
+        ("compute", {"expr": "0.26515 * 100"}),
+    )
+    g = grade(HONEST, ep.calls, Q)
+    assert g.subscores["grounding"] == 1.0, g.info
+
+
 def test_unit_constants_in_compute_are_allowed():
     ep = episode(lookup("revenue"), lookup("net_income"), ("compute", {"expr": "20878 / 78740 * 100"}))
     assert grade(HONEST, ep.calls, Q).subscores["grounding"] == 1.0
