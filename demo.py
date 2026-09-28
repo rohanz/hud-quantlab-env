@@ -56,13 +56,15 @@ class Scripted(Agent):
         else:
             margin = (await call("compute", expr=f"{net_income} / {revenue} * 100"))["value"]
 
-        if self.style == "dodge":  # cites only the final number
+        if self.style == "dodge":  # cites only the final number, no citation block
             run.trace.content = f"The net margin was {margin:.2f}%.\nANSWER: {margin:.2f}%"
         else:
             run.trace.content = (
                 f"Revenue for the fiscal year ending {period_end} was ${revenue:,.0f} and "
                 f"net income was ${net_income:,.0f} (filings as of {as_of}). "
                 f"Net margin = {net_income:,.0f} / {revenue:,.0f} = {margin:.2f}%.\n"
+                f"REVENUE: {revenue}\n"
+                f"NET_INCOME: {net_income}\n"
                 f"ANSWER: {margin:.2f}%"
             )
 

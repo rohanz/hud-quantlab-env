@@ -5,13 +5,24 @@
 answer     The number on the final `ANSWER:` line is within 0.5% of the gold
            margin (as a fraction or a percent), and the episode made at least
            one successful data lookup. No evidence, no credit.
-grounding  All or nothing. Every number cited anywhere in the answer, the
-           final answer included, must trace to a successful tool result from
-           this episode, and the answer must cite the revenue and net income
-           the margin was computed from, as amounts (never as a percent).
-validity   Share of tool calls that were well formed (0 with no calls).
+grounding  All or nothing. The answer's citation block gives the revenue and
+           net income exactly as a lookup returned them, each under its own
+           label, the final answer is a calculator result derived from them,
+           and every other number cited in the answer traces to a successful
+           tool result from this episode.
+validity   Share of tool calls that were well formed, and 0 unless a lookup
+           succeeded (so also 0 with no calls).
 efficiency PAR_CALLS / max(PAR_CALLS, calls), and 0 unless a lookup
            succeeded, so a burst of failed calls earns nothing.
+
+The citation block is two labelled lines before the `ANSWER:` line:
+
+    REVENUE: 78740000000
+    NET_INCOME: 20878000000
+
+Each value must equal the question's period row of an admissible lookup of that
+concept for the question's ticker, and the value the gold used. Only formatting
+is allowed: a leading `$` and thousands commas. No rounding, no scale words.
 
 Evidence is built from the episode log in call order:
 - `value` fields of successful `get_fundamentals` rows from lookups as of the
@@ -21,15 +32,16 @@ Evidence is built from the episode log in call order:
 - the `value` of a successful `compute` call, if the expression is built from
   evidence: every literal equals evidence at its written precision or is a
   unit constant (1, 100, 1e3, 1e6, 1e9), a unit constant only scales evidence (`x * 100`, never `1 + 1`), both
-  sides of `+` and `-` are evidence, and the result actually depends on a
-  looked-up value (`x / x` does not). A memorised number passed through the
+  sides of `+` and `-` depend on a looked-up value (`x / x` does not), and so
+  does the result. A memorised number passed through the
   calculator, or rebuilt from unit constants, stays ungrounded.
 - error results are never evidence, even if they echo the arguments.
 
 Cited numbers and calculator literals match evidence at the precision they are
 written with (`$78.74 billion` is a rounding of 78,740 million; `$20.885 billion`
-is not 20,878 million). Only the final answer's correctness uses the 0.5%
-tolerance, against gold.
+is not 20,878 million). A cited zero matches only a zero, and a percent only a
+calculator result, never a looked-up amount. Only the final answer's
+correctness uses the 0.5% tolerance, against gold.
 
 Each evidence item keeps its provenance: a formula over the looked-up values.
 The final answer is grounded only if it matches an item whose formula is
@@ -56,12 +68,18 @@ MALFORMED_CODES = {"bad_argument", "unknown_tool", "unknown_ticker", "unknown_co
 
 # fmt: off
 _UNITS = {
-    "trillion": 1e12, "tn": 1e12, "t": 1e12,
-    "billion": 1e9, "bn": 1e9, "b": 1e9,
-    "million": 1e6, "mm": 1e6, "m": 1e6,
-    "thousand": 1e3, "k": 1e3,
+    "trillion": 1e12, "trillions": 1e12, "tn": 1e12, "t": 1e12,
+    "billion": 1e9, "billions": 1e9, "bn": 1e9, "bln": 1e9, "bil": 1e9, "b": 1e9,
+    "million": 1e6, "millions": 1e6, "mm": 1e6, "mln": 1e6, "mn": 1e6, "m": 1e6,
+    "thousand": 1e3, "thousands": 1e3, "k": 1e3,
 }
 # fmt: on
+_PERCENT = re.compile(r"%|pct|per\s*cent", re.IGNORECASE)
+# Every dash an answer may write as a minus: hyphen-minus, U+2010 to U+2015
+# (hyphen, non-breaking hyphen, figure dash, en dash, em dash, horizontal bar),
+# and the true minus signs U+2212, U+FE63 and U+FF0D.
+_TRUE_MINUS = "\u2212\ufe63\uff0d"
+_DASH = f"\\-\u2010-\u2015{_TRUE_MINUS}"
 _MONTH = (
     r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?"
     r"|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b\.?"
@@ -79,23 +97,37 @@ _NOT_CLAIMS = re.compile(
 # a hyphen after a word or digit ("10-K", "2021-2022") is not. Parentheses are
 # read as prose, not as accounting negatives.
 _NUMBER = re.compile(
-    r"(?P<neg>(?<![\w.])[-−](?=(?:US)?\$|USD\b|\d))?(?:(?P<cur>(?:US)?\$|\bUSD\b)\s*(?P<neg2>[-−]\s*)?)?"
+    rf"(?P<neg>(?<![\w.])[{_DASH}](?=(?:US)?\$|USD\b|\d))?(?:(?P<cur>(?:US)?\$|\bUSD\b)\s*(?P<neg2>[{_DASH}]\s*)?)?"
     r"(?P<num>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
-    r"\s*(?P<unit>%|percent\b|trillion\b|billion\b|million\b|thousand\b"
-    r"|tn\b|bn\b|mm\b|[tbmk]\b)?(?P<cur2>\s*(?:dollars|USD)\b)?",
+    r"\s*(?P<unit>%|percent\b|per[^\S\n]?cent\b|pct\b|trillions?\b|billions?\b|millions?\b|thousands?\b"
+    r"|tn\b|bn\b|bln\b|bil\b|mln\b|mn\b|mm\b|[tbmk]\b)?(?P<cur2>\s*(?:dollars?|USD)\b)?",
     re.IGNORECASE,
 )
 # A minus spaced off from the amount that plainly prefixes it: after a word
 # ("net income - $20.9 billion") or after : = ( , ; ("income: -  20,878"). After a
 # digit it is a range or a subtraction ("2021 - 2022"), after a word with no space
-# a word hyphen ("re- 20"), and a hyphen opening a line is a bullet. A true minus
-# sign (U+2212) opening a line is still a sign.
+# a word hyphen ("re- 20"), and a dash opening a line is a bullet. A true minus
+# sign opening a line is still a sign. Spaced off, only a hyphen-minus or a true
+# minus is a sign: a spaced en or em dash ("Revenue — $78.74 billion") is prose
+# punctuation, which models write all the time.
 _SPACED_MINUS = re.compile(
-    r"(?:(?<=[^\W\d_])[^\S\n]+|[:=(,;][^\S\n]*|^[^\S\n]*(?=−))(?P<minus>[-−])[^\S\n]+\Z",
+    rf"(?:(?<=[^\W\d_])[^\S\n]+|[:=(,;][^\S\n]*|^[^\S\n]*(?=[{_TRUE_MINUS}]))(?P<minus>[\-{_TRUE_MINUS}])[^\S\n]+\Z",
     re.MULTILINE,
 )
 _EXEMPTED = "#"  # stands in for exempt text, so "10-K - 2" is not read as a word before a minus
 _COUNTED = re.compile(r"\s*[a-z]", re.IGNORECASE)  # "3 filings": a small count of something named
+# "7 hundred million", "2023 dollar": a scale or currency word makes a count or a year an amount
+_SCALE_WORD = re.compile(
+    r"\s*(?:hundreds?|thousands?|millions?|billions?|trillions?|bn|bln|bil|mn|mln|mm|tn|dollars?|usd|cents?|bucks|grand)\b",
+    re.IGNORECASE,
+)
+# The citation block: "REVENUE: <value>" and "NET_INCOME: <value>" lines, each a tool
+# value written out whole, optionally with a leading $ and thousands commas.
+_LABELS = {"revenue": "REVENUE", "net_income": "NET_INCOME"}
+_CITATION = re.compile(r"^[^\S\n]*(REVENUE|NET_INCOME)[^\S\n]*:([^\n]*)$", re.MULTILINE)
+_TOOL_VALUE = re.compile(
+    rf"\s*(?P<sign>[{_DASH}]?)\s*\$?\s*(?P<sign2>[{_DASH}]?)\s*(?P<num>\d{{1,3}}(?:,\d{{3}})+|\d+)\s*"
+)
 
 
 def _ulp(digits: str) -> float:
@@ -117,9 +149,12 @@ class Cited:
 
         A unit word or a currency sign fixes the scale: "$78.74" is 78.74
         dollars, not 78.74 billion. Only a bare number may stand for thousands,
-        millions, billions or a percent.
+        millions, billions or a percent. A zero is exactly zero: "$0 trillion"
+        is not a rounding of every amount under half a trillion.
         """
         v, h = self.value, self.ulp / 2
+        if v == 0:
+            return [(0.0, 0.0)]
         if self.kind == "percent":
             return [(v / 100, h / 100), (v, h)]
         if self.kind in ("scaled", "currency"):
@@ -129,9 +164,9 @@ class Cited:
 
 def _exempt(m: re.Match, kind: str, negative: bool, text: str) -> bool:
     """A bare year ("in 2023") or a small count ("3 filings"). Context, not value alone,
-    decides: "$7", "7%", "debt 7," and "$2023" are claims."""
+    decides: "$7", "7%", "debt 7,", "$2023" and "7 hundred million" are claims."""
     num = m["num"]
-    if kind != "plain" or negative or not num.isdigit():
+    if kind != "plain" or negative or not num.isdigit() or _SCALE_WORD.match(text, m.end("num")):
         return False
     if len(num) == 4 and 1900 <= int(num) <= 2100:
         return True
@@ -150,7 +185,7 @@ def extract_numbers(text: str) -> list[Cited]:
             value = -value
         ulp = _ulp(m["num"])
         unit = (m["unit"] or "").lower()
-        if unit in ("%", "percent"):
+        if _PERCENT.fullmatch(unit):
             kind = "percent"
         elif unit:
             kind, value, ulp = "scaled", value * _UNITS[unit], ulp * _UNITS[unit]
@@ -167,6 +202,21 @@ def final_answer(text: str) -> Cited | None:
         return None
     nums = extract_numbers(lines[-1])  # the label has no digits; its colon can precede a spaced minus
     return nums[0] if nums else None
+
+
+def citations(text: str) -> dict[str, int | None]:
+    """The citation block: the last `REVENUE:` and `NET_INCOME:` lines, each read as a
+    whole tool value, or None if the line is missing or holds anything else."""
+    lines = dict(_CITATION.findall(text))  # the last line of each label wins
+    cited = {}
+    for concept, label in _LABELS.items():
+        m = _TOOL_VALUE.fullmatch(lines.get(label, ""))
+        if not m or (m["sign"] and m["sign2"]):
+            cited[concept] = None
+            continue
+        value = int(m["num"].replace(",", ""))
+        cited[concept] = -value if m["sign"] or m["sign2"] else value
+    return cited
 
 
 def _close(a: float, b: float) -> bool:
@@ -208,6 +258,7 @@ class Source:
 class Item:
     value: float
     formula: Formula
+    computed: bool = False  # a calculator result, not a looked-up value
 
 
 @dataclass
@@ -218,6 +269,10 @@ class Evidence:
     @property
     def values(self) -> list[float]:
         return [item.value for item in self.items]
+
+    @property
+    def computed(self) -> list[float]:
+        return [item.value for item in self.items if item.computed]
 
     @property
     def base(self) -> list[float]:
@@ -258,7 +313,8 @@ def _formula(node: ast.AST, expr: str, evidence: Evidence) -> tuple[Formula, boo
     """A compute expression as a formula over looked-up values, and whether it uses evidence.
 
     Raises Laundered if a literal is not evidence, unit constants are combined
-    with each other, or `+`/`-` has a side without evidence.
+    with each other, or `+`/`-` has a side that does not depend on a looked-up
+    value (`x / x * 7e9 + x / y` is an invented 7e9 riding on a small evidence term).
     """
     if isinstance(node, ast.Constant) and type(node.value) in (int, float):
         if float(node.value) in UNIT_CONSTANTS:
@@ -269,6 +325,7 @@ def _formula(node: ast.AST, expr: str, evidence: Evidence) -> tuple[Formula, boo
         return ((lambda v: -f(v)) if isinstance(node.op, ast.USub) else f), used
     if isinstance(node, ast.BinOp) and type(node.op) in BINOPS:
         (left, lused), (right, rused) = _formula(node.left, expr, evidence), _formula(node.right, expr, evidence)
+        lused, rused = lused and _depends(left, evidence.base), rused and _depends(right, evidence.base)
         additive = isinstance(node.op, (ast.Add, ast.Sub))
         if (additive and not (lused and rused)) or not (lused or rused):
             raise Laundered("unit constants may only scale evidence")
@@ -311,7 +368,7 @@ def build_evidence(calls: list[ToolCall], cutoff: str) -> Evidence:
             except Laundered:
                 continue
             if _depends(formula, evidence.base):
-                evidence.items.append(Item(float(call.result["value"]), formula))
+                evidence.items.append(Item(float(call.result["value"]), formula, computed=True))
     return evidence
 
 
@@ -356,12 +413,17 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
     )
 
     claims = [c for c in extract_numbers(answer) if not c.exempt]
-    ungrounded = [c.text for c in claims if not _matches(c, evidence.values)]
-    amounts = [c for c in claims if c.kind != "percent"]  # a percent never cites a dollar input
+    # a percent is a ratio the calculator produced, never a looked-up amount
+    ungrounded = [
+        c.text for c in claims if not _matches(c, evidence.computed if c.kind == "percent" else evidence.values)
+    ]
+    cited = citations(answer)
     missing_inputs = [
-        name
-        for name, value in (("revenue", question.revenue), ("net_income", question.net_income))
-        if not any(_matches(c, [value]) for c in amounts)
+        concept
+        for concept, value in cited.items()
+        if value is None
+        or value != getattr(question, concept)
+        or not _input_ids(evidence, question, concept, float(value))
     ]
     answer_derived = final is not None and any(
         _matches(final, [item.value]) and derived_from_inputs(item, evidence, question) for item in evidence.items
@@ -373,7 +435,7 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
     subscores = {
         "answer": float(correct and looked_up),
         "grounding": float(grounded),
-        "validity": (n - malformed) / n if n else 0.0,
+        "validity": (n - malformed) / n if looked_up else 0.0,
         "efficiency": PAR_CALLS / max(PAR_CALLS, n) if looked_up else 0.0,
     }
     reward = sum(WEIGHTS[k] * v for k, v in subscores.items())
@@ -381,6 +443,7 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         "gold": question.gold,
         "final_answer": final.text if final else None,
         "correct": correct,
+        "citations": cited,
         "cited": [c.text for c in claims],
         "ungrounded": ungrounded,
         "missing_inputs": missing_inputs,

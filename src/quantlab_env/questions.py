@@ -38,9 +38,14 @@ class Question:
             f"for the fiscal year ending {self.period_end}, using only filings available "
             f"on {self.as_of}?\n\n"
             "Use the tools to look up every figure and the compute tool for arithmetic. "
-            "Cite the revenue and net income you used, with each number exactly as a tool "
-            "returned it or rounded from it. Give the margin as a percentage to two "
-            "decimal places. End with exactly one final line:\n"
+            "Any other number you mention must be exactly as a tool returned it or rounded "
+            "from it. Give the margin as a percentage to two decimal places. End with "
+            "exactly these three lines, citing the revenue and net income you used for that "
+            "fiscal year exactly as get_fundamentals returned them: the whole value in USD "
+            "with its sign, digits only (a leading $ and thousands commas are allowed; no rounding, no "
+            "units):\n"
+            "REVENUE: <revenue value>\n"
+            "NET_INCOME: <net income value>\n"
             "ANSWER: <margin>%"
         )
 
