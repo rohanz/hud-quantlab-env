@@ -203,6 +203,19 @@ def test_unit_constants_in_compute_are_allowed():
     assert grade(HONEST, ep.calls, Q).subscores["grounding"] == 1.0
 
 
+def test_literal_binds_to_the_closest_evidence():
+    """NVIDIA FY2022 revenue (26,914m) is within 0.5% of FY2023's (26,974m). The
+    calculator literal must bind to the year it actually is."""
+    q = questions.build("NVDA", "2023-01-29", "2023-03-26")
+    ep = episode(
+        lookup("revenue", q.as_of, "NVDA"),
+        lookup("net_income", q.as_of, "NVDA"),
+        ("compute", {"expr": "4368000000 / 26974000000 * 100"}),
+    )
+    answer = "Revenue $26,974 million, net income $4,368 million, margin 16.19%.\nANSWER: 16.19%"
+    assert grade(answer, ep.calls, q).reward == 1.0
+
+
 # --- a right answer with no evidence ---------------------------------------------
 
 

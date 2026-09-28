@@ -195,16 +195,24 @@ class Evidence:
         self.items.append(Item(source.value, lambda v: v[i]))
 
     def bind(self, literal: float) -> Formula:
-        """The formula of the first item a calculator literal matches, rescaled to the literal.
+        """The formula of the item a calculator literal matches most closely, rescaled to the literal.
 
-        Literals are unsigned (a minus is a separate operator), so they bind by magnitude.
+        Closest, not first: NVIDIA's revenue for two years differs by 0.2%, inside
+        the matching tolerance. Literals are unsigned (a minus is a separate
+        operator), so they bind by magnitude.
         """
-        cited = Cited(str(literal), literal, "plain")
-        for item in self.items:
-            if item.value and _matches(cited, [abs(item.value)]):
-                ratio = literal / item.value
-                return lambda v, f=item.formula: f(v) * ratio
-        raise Laundered(f"{literal} is not evidence")
+        readings = Cited(str(literal), literal, "plain").readings()
+        candidates = [
+            (abs(r - abs(item.value)) / abs(item.value), item)
+            for item in self.items
+            for r in readings
+            if item.value and _close(r, abs(item.value))
+        ]
+        if not candidates:
+            raise Laundered(f"{literal} is not evidence")
+        item = min(candidates, key=lambda c: c[0])[1]
+        ratio = literal / item.value
+        return lambda v: item.formula(v) * ratio
 
 
 def _formula(node: ast.AST, evidence: Evidence) -> tuple[Formula, bool]:
