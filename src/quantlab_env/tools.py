@@ -6,10 +6,9 @@ never reached the log could never count for or against the agent.
 
 Arguments are checked strictly and never repaired: an unknown key, a missing
 key or a value of the wrong type is a `bad_argument` error the agent sees and
-the grader counts. QuantLab's GRPO run trained under a parser that silently
-dropped hallucinated keys while evaluation rejected them; the model learned
-the lenient contract and lost points where the two disagreed. One strict
-contract, used everywhere, avoids that.
+the grader counts. QuantLab's GRPO loop parsed tool calls slightly too
+leniently, and the trained model lost points exactly where it had been
+lenient. One strict contract, used everywhere, avoids that.
 """
 
 from __future__ import annotations

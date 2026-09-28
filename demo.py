@@ -45,7 +45,7 @@ class Scripted(Agent):
         if self.style == "memorised":  # right answer, no tool calls at all
             run.trace.content = f"ANSWER: {self.remembered:.2f}%"
             return
-        if self.style == "malformed":  # hallucinated None-key, as in the GRPO transcripts
+        if self.style == "malformed":  # hallucinated extra key, which a lenient parser would drop
             await call("get_fundamentals", ticker=ticker, concept="revenue", as_of=as_of, fiscal_year=None)
 
         revenue, net_income = await lookup("revenue"), await lookup("net_income")

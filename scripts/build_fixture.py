@@ -1,7 +1,7 @@
 """Regenerate data/fixture.json from SEC EDGAR XBRL company facts.
 
 Usage:
-    SEC_USER_AGENT="Your Name your@email.com" uv run python scripts/build_fixture.py
+    SEC_USER_AGENT="Your Name, contact email" uv run python scripts/build_fixture.py
 
 SEC asks every client to send a User-Agent with contact details, so the script
 refuses to run without SEC_USER_AGENT. The environment itself never touches the

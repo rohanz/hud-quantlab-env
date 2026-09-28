@@ -2,7 +2,7 @@
 
 A small [HUD](https://github.com/hud-evals/hud-python) RL environment ported from
 the research agent in my QuantLab project
-([write-up](https://rohanjk.xyz/projects/quantlab-agentic)). The agent answers a
+([write-up](https://www.rohanjk.xyz/projects/quantlab-agentic/)). The agent answers a
 financial question by looking facts up in SEC filings through MCP tools, and the
 reward checks both the answer and whether every number it cites came from those
 tools during the episode.
@@ -62,8 +62,8 @@ How evidence is built from the episode's call log (`src/quantlab_env/grader.py`)
 
 - Only `value` fields count. Dates, fiscal years and other metadata never count.
 - A `compute` result counts only if every literal in its expression is already
-  evidence, or is a unit constant (1, 100, 1e3, 1e6, 1e9). This is QuantLab's
-  "transitive grounding" rule.
+  evidence, or is a unit constant (1, 100, 1e3, 1e6, 1e9). Call this the
+  transitive rule.
 - Error results never count, even when they echo the agent's arguments.
 - Cited numbers are read with units (`$78.74 billion`, `78,740 million`, `26.52%`)
   and compared as magnitudes, within 0.5%. ISO dates, `FY2023`, form names like
@@ -83,8 +83,8 @@ These come from failures in the real project. Each has a unit test in
 | case | what happened in QuantLab | reward here |
 |---|---|---|
 | Honest answer with cited inputs | baseline | 1.00 |
-| **Cites fewer numbers to dodge the check** | DPO learned "citation restraint": the passing and failing answers differed mostly in how many numbers they cited, so the model learned to cite less. A grader that only checks the numbers present rewards that. Here the answer must cite its inputs, and grounding is all or nothing, so dropping a bad number cannot raise the score. | 0.70 |
-| **Malformed tool call** | In training, GRPO's parser silently dropped hallucinated `None`-valued keys that the evaluation parser rejected. The model learned the lenient contract and lost points where the two parsers disagreed. Here one strict contract applies everywhere, and bad calls are logged and counted. | 0.95 (one bad call, then recovery) |
+| **Cites fewer numbers to dodge the check** | In the earlier memo writer, DPO on pass/fail pairs learned to cite fewer numbers instead of correct ones ([write-up](https://www.rohanjk.xyz/projects/quantlab-analyst/)). A grader that only checks the numbers present rewards that. Here the answer must cite its inputs, and grounding is all or nothing, so dropping a bad number cannot raise the score. | 0.70 |
+| **Malformed tool call** | The GRPO training loop parsed tool calls slightly too leniently, and the RL model lost points exactly where it had been lenient. Here one strict contract applies everywhere, and bad calls are logged and counted. | 0.95 (one bad call, then recovery) |
 | **Correct number not in the evidence** | Models fetched the inputs and then did the arithmetic in their heads: right answers that nobody could verify. Passing a remembered number through the calculator (`compute("26.52 * 1")`) is caught by the transitive rule. | 0.70 |
 | **Right answer, no evidence** | Answering from memory. On restatement questions, memory is also often out of date. | 0.00 |
 | Right margin from the wrong year | Apple's FY2022 and FY2023 margins are both 25.31%. The required-inputs check catches an agent that looked up the wrong year. | 0.70 |
@@ -123,6 +123,7 @@ uv run hud eval tasks.py claude --all --max-steps 10   # all 18 tasks
 ```
 
 To deploy to the HUD platform, run `hud deploy`, which builds `Dockerfile.hud`.
+That image has not been built or tested yet.
 
 ## Data
 
@@ -132,7 +133,7 @@ reported each period, which is what makes point-in-time queries work. The data
 comes from the SEC's public XBRL `companyfacts` API. To regenerate it:
 
 ```bash
-SEC_USER_AGENT="Your Name you@example.com" uv run python scripts/build_fixture.py
+SEC_USER_AGENT="Your Name, contact email" uv run python scripts/build_fixture.py
 ```
 
 The environment never touches the network.
@@ -140,23 +141,36 @@ The environment never touches the network.
 ## Layout
 
 ```
-env.py                     HUD Environment, MCP tool server, net_margin template
-tasks.py                   the 18 concrete tasks
-demo.py                    scripted agents, end to end
-src/quantlab_env/data.py   point-in-time fixture access
-src/quantlab_env/tools.py  tools, strict argument checks, episode call log
-src/quantlab_env/grader.py reward
+env.py                         HUD Environment, MCP tool server, net_margin template
+tasks.py                       the 18 concrete tasks
+demo.py                        scripted agents, end to end
+src/quantlab_env/data.py       point-in-time fixture access
+src/quantlab_env/tools.py      tools, strict argument checks, episode call log
+src/quantlab_env/grader.py     reward
 src/quantlab_env/questions.py  question template and gold answers
-scripts/build_fixture.py   regenerate the fixture from EDGAR
+scripts/build_fixture.py       regenerate the fixture from EDGAR
+data/fixture.json              the SEC data the tools serve
+tests/                         grader, tools and end-to-end tests
+docs/                          design notes (see below)
 ```
+
+## Docs
+
+- [AGENTS.md](AGENTS.md): working guide for this repo (commands, rules, how to
+  add a question type).
+- [docs/reward-design.md](docs/reward-design.md): the grader in detail and why
+  each adversarial case exists.
+- [docs/environment.md](docs/environment.md): tools, MCP surface, task template,
+  fixture schema.
+- [docs/decisions.md](docs/decisions.md): dated design decisions.
 
 ## Limits
 
 - One episode at a time per env process. The call log is process state, like the
   board in HUD's 2048 cookbook. `LocalRuntime` runs one acquisition of an env
   instance at a time, and `hud eval` runs each rollout in its own subprocess.
-- Compared with QuantLab this has one question type and two tools, not thirteen
-  templates and six tools. Grounding here checks every cited number, not only the
-  final answer. That idea comes from QuantLab's earlier memo checker.
+- Compared with QuantLab this has one question type and two tools, not many
+  question types and six tools. Grounding here checks every cited number, not
+  only the final answer. That idea comes from the earlier memo writer's checker.
 - Number extraction is regex based. A claim written in words ("twenty billion")
   is not checked.

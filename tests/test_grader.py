@@ -97,8 +97,8 @@ def test_right_margin_from_the_wrong_year_is_caught():
 
 
 def test_hallucinated_key_is_rejected_not_dropped():
-    """QuantLab's training parser silently dropped hallucinated None-valued keys
-    that evaluation rejected. Here the call fails, is logged, and costs validity."""
+    """A lenient parser would drop the extra key and run the call. Here the call
+    fails, is logged, and costs validity."""
     bad = ("get_fundamentals", {"ticker": "JNJ", "concept": "revenue", "as_of": Q.as_of, "fiscal_year": None})
     ep = episode(bad, lookup("revenue"), lookup("net_income"), ("compute", {"expr": f"{NI} / {REV} * 100"}))
     assert ep.calls[0].result["error"]["code"] == "bad_argument"
