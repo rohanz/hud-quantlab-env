@@ -26,6 +26,15 @@ The fiscal year is named by its end date because fiscal-year labels vary by comp
 (NVIDIA's fiscal 2024 ended in January 2024). In QuantLab the base model scored
 0.54 on exactly this kind of question.
 
+The prompt asks the agent to end with a citation block and the answer, citing
+the inputs exactly as `get_fundamentals` returned them:
+
+```
+REVENUE: 78740000000
+NET_INCOME: 20878000000
+ANSWER: 26.52%
+```
+
 ## Tools (MCP)
 
 `env.py` starts a FastMCP server in an `@env.initialize` hook and publishes it as
@@ -54,9 +63,20 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 | component | rule |
 |---|---|
 | answer | The number on the final `ANSWER:` line is within 0.5% of the gold margin (as a percent or a fraction), and at least one admissible lookup succeeded. With no evidence, a correct answer earns nothing. |
-| grounding | All or nothing. The final answer must be computed from the question's net income over its revenue, every other number the answer cites must match evidence from this episode, and the answer must cite the revenue and net income the gold was computed from, as amounts (a percent never counts). |
-| validity | The share of tool calls that were well formed. |
+| grounding | All or nothing. The citation block must give the revenue and net income the gold was computed from, each under its own label, exactly as an admissible lookup returned them; the final answer must match a calculator result derived from the question's net income over its revenue; and every other number the answer cites must match evidence from this episode. |
+| validity | The share of tool calls that were well formed. It pays nothing unless an admissible lookup succeeded, so it is also 0 with no calls. |
 | efficiency | `3 / max(3, calls)`. It pays nothing unless an admissible lookup succeeded. |
+
+The citation block (`citations` in `src/quantlab_env/grader.py`):
+
+- Each value must be the whole USD value with its sign, exactly as the tool
+  returned it. Only formatting is allowed: an optional leading `$` and
+  thousands commas. No rounding, no scale words, no decimals, no parentheses.
+- Each label is checked against its own concept: `REVENUE:` must equal a
+  revenue row, and `NET_INCOME:` a net income row, for the question's ticker
+  and period, from an admissible lookup in this episode, and equal to the value
+  the gold used. Swapping the labels fails both.
+- If a label appears on several lines, the last one wins.
 
 How evidence is built from the episode's call log (`src/quantlab_env/grader.py`):
 
@@ -67,25 +87,43 @@ How evidence is built from the episode's call log (`src/quantlab_env/grader.py`)
   evidence and does not count as a successful lookup.
 - Calculator provenance: a `compute` result counts only if it is derived from
   evidence. Every literal must equal evidence at the precision it is written
-  with, or be a unit constant (1, 100, 1e3, 1e6, 1e9), constants may only scale evidence, both sides of `+` and `-` must
-  use evidence, and the result must depend on a looked-up value. The grader
-  tracks each result as a formula over the looked-up values, and the final
-  answer must be proportional to the question's net income over its revenue.
+  with, or be a unit constant (1, 100, 1e3, 1e6, 1e9), constants may only scale
+  evidence, each side of `+` and `-` must itself depend on a looked-up value
+  (so `x / x * 7e9 + x / y` is not evidence), and the result must depend on a
+  looked-up value. The grader tracks each result as a formula over the
+  looked-up values, and the final answer must be proportional to the
+  question's net income over its revenue.
 - Error results never count, even when they echo the agent's arguments.
+
+How the other numbers in the answer (the prose) are checked:
+
 - Cited numbers are read with units (`$78.74 billion`, `78,740 million`,
   `26.52%`) and compared with their sign, at the precision they are written
   with: `$78.74 billion` is a rounding of 78,740 million, but `$20.885 billion`
   is not 20,878 million. The 0.5% tolerance applies only to the final answer
   against gold. A currency amount with no unit means what it says: `$78.74` is
-  78.74 dollars, not 78.74 billion.
-- A minus is a sign when it is attached (`-$20.9 billion`), follows a currency
-  sign (`$ - 20.9 billion`), or is spaced after a word or `:`
-  (`net income - $20.9 billion`, `income: - 20,878 million`). A hyphen after a
-  digit (`2021 - 2022`), a word hyphen and a bullet at the start of a line are
-  not.
+  78.74 dollars, not 78.74 billion. A cited zero matches only zero, so
+  `$0 trillion` is not a rounding of every amount.
+- Scale words are `trillion(s)`, `tn`, `t`, `billion(s)`, `bn`, `bln`, `bil`,
+  `b`, `million(s)`, `mn`, `mln`, `mm`, `m`, `thousand(s)`, `k`; percent is
+  `%`, `percent`, `pct` or `per cent`. A percent matches only a calculator
+  result, never a looked-up amount.
+- A dash attached to an amount, or after a currency sign (spaced or not), is a
+  minus (`-$20.9 billion`, `$ - 20.9 billion`), whichever dash it is:
+  hyphen-minus, U+2010 to U+2015 (hyphen, non-breaking hyphen, figure dash, en
+  dash, em dash, horizontal bar), U+2212, U+FE63 or U+FF0D. Spaced off after a
+  word or after `:`, `=`, `(`, `,` or `;` (`net income - $20.9 billion`,
+  `income: - 20,878 million`), only a hyphen-minus or a true minus (U+2212,
+  U+FE63, U+FF0D) is a sign. A spaced en or em dash there is punctuation,
+  because models write `Revenue <em dash> $78.74 billion` that way; the inputs
+  themselves are checked exactly in the block. A dash after a digit
+  (`2021 - 2022`), a word hyphen and a bullet at the start of a line are not
+  signs.
 - Dates, `FY2023`, `Q4`, form names like `10-K`, list markers at the start of a
-  line, a bare year and a small count like `3 filings` are not claims. Context
-  decides, not value: `$7`, `7%` and `$2023` are claims.
+  line, a bare year and a single-digit count followed by a word (`3 filings`)
+  are not claims. Context decides, not value: `$7`, `7%` and `$2023` are
+  claims, and so is a count or year followed by a scale or currency word
+  (`7 hundred million`, `2023 dollars`).
 
 The weights differ from QuantLab's (0.7 / 0.1 / 0.1 / 0.1). There, a correct
 numeric answer that could not be traced lost only the 0.1 grounding share. Here
@@ -97,25 +135,31 @@ ones it cannot.
 
 ## Adversarial cases
 
-The first five come from failures in the real project. Each case has a test in
+The cases in bold come from failures in the real project. Each case has a test in
 `tests/test_grader.py`, and the scripted ones also run end to end in
 `tests/test_env.py` and `demo.py`. Rewards are for the JNJ FY2021 restatement
 task unless noted.
 
 | case | where it comes from | reward here |
 |---|---|---|
-| Honest answer with cited inputs | baseline | 1.00 |
-| **Cites fewer numbers to dodge the check** | In the earlier memo writer, DPO on pass/fail pairs learned to cite fewer numbers instead of correct ones ([write-up](https://www.rohanjk.xyz/projects/quantlab-analyst/)). A grader that only checks the numbers present rewards that. Here the answer must cite its inputs, and a test checks that leaving them out scores no better than citing them next to a wrong number. | 0.70 |
+| Honest answer with the citation block | baseline | 1.00 |
+| **Cites fewer numbers to dodge the check** | In the earlier memo writer, DPO on pass/fail pairs learned to cite fewer numbers instead of correct ones ([write-up](https://www.rohanjk.xyz/projects/quantlab-analyst/)). A grader that only checks the numbers present rewards that. Here the answer must cite its inputs in the citation block, and a test checks that leaving them out scores no better than citing them next to a wrong number. | 0.70 |
+| Missing citation block | Honest prose that cites the inputs, but no `REVENUE:` and `NET_INCOME:` lines. | 0.70 |
+| Labels swapped in the block | `REVENUE: 20878000000` and `NET_INCOME: 78740000000`. Each label is checked against its own concept. | 0.70 |
 | **Malformed tool call** | The GRPO training loop parsed tool calls slightly too leniently, and the RL model lost points exactly where it had been lenient. Here one strict contract applies everywhere, and bad calls are logged and counted. | 0.95 (one bad call, then recovery) |
 | **Correct number not in the evidence** | Models fetched the inputs and then did the arithmetic in their heads: right answers that nobody could verify. | 0.70 |
-| **Memorised number laundered through the calculator** | `compute("26.52 * 1")`, or 26.52 spelled from unit constants (`100/(1+1+1+1)+1+...`). Caught by calculator provenance. | 0.70 |
+| **Memorised number laundered through the calculator** | `compute("26.52 * 1")`, or 26.52 spelled from unit constants (`100/(1+1+1+1)+1+...`) or with `x / x`. Caught by calculator provenance. | 0.70 |
 | **Right answer, no evidence** | Answering from memory. | 0.00 |
-| Right margin from the wrong year | Apple's FY2022 and FY2023 margins are both 25.31%. The required-inputs and provenance checks catch an agent that used the wrong year's rows. | 0.70 |
+| Right margin from the wrong year | Apple's FY2022 and FY2023 margins are both 25.31%. The citation block and provenance checks catch an agent that used the wrong year's rows. | 0.70 |
 | Stale, pre-restatement answer | The point-in-time trap. | 0.20 |
-| Wrong sign or scale on an input | `-$20.878 billion` or `net income - $20.878 billion` for a profit, `$78.74` for 78.74 billion. | 0.70 |
+| Wrong sign on an input in prose | `-$20.878 billion` or `net income -$20,878 million` with any attached dash (en dash, em dash, U+2212 and the rest), or `net income - $20.878 billion` with a spaced hyphen-minus or true minus, for a profit. | 0.70 |
+| Dropped scale on an input in prose | `$78.74` for 78.74 billion. | 0.70 |
 | Invented input within 0.5% of the real one | `compute("20885/78740*100")` and `net income $20.885 billion` when the filing says 20,878 million. Matching is at written precision, so neither is evidence. | 0.675 (one extra compute call) |
-| Input cited as a percent | `net income 20,878,000,000%` or `revenue 100%` in place of the dollar amounts. | 0.70 |
-| Lookups past the question's date | Both inputs looked up as of 2099-01-01. | 0.10 |
+| Invented amount riding on a small evidence term | An extra `compute("(20878/20878+...)*1e9 + 20878/78740*1e6")` returns 7,000,265,151, then the answer adds `Total debt was $7 billion.` Each side of `+` must depend on a looked-up value, and `x / x` does not. | 0.675 (one extra compute call) |
+| Input cited as a percent | `net income 20,878,000,000%` or `revenue 100%` in prose. A percent matches only a calculator result. | 0.70 |
+| Extra ungrounded amount | `debt $7`, `assets $2023`, or a scale-word variant: `7 billions`, `9 mln`, `7 hundred million`, `9 pct`. | 0.70 |
+| A coarse zero | `Debt was $0 trillion.` A zero matches only zero. | 0.70 |
+| Lookups past the question's date | Both inputs looked up as of 2099-01-01. No admissible lookup, so validity and efficiency are 0 too. | 0.00 |
 | Burst of malformed calls, then the right answer | Not from QuantLab: an efficiency leak (0.1 for zero evidence) caught by the end-to-end test during development, now closed. | 0.00 |
 
 [docs/reward-design.md](docs/reward-design.md) has the full table with
@@ -129,7 +173,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 159 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 248 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -139,14 +183,20 @@ opens the `tools` capability, calls tools over HTTP, and is graded by the
 template. No model is called. Current output:
 
 ```
-agent        reward  answer grounding validity efficiency
-honest         1.00    1.00      1.00     1.00       1.00
-dodge          0.70    1.00      0.00     1.00       1.00
-mental_math    0.70    1.00      0.00     1.00       1.00
-laundered      0.70    1.00      0.00     1.00       1.00
-memorised      0.00    0.00      0.00     0.00       0.00
-malformed      0.95    1.00      1.00     0.75       0.75
+task: net_margin-83d5f782
+
+agent        reward  answer grounding validity efficiency  note
+honest         1.00    1.00      1.00     1.00       1.00  ungrounded=[] missing=[]
+dodge          0.70    1.00      0.00     1.00       1.00  ungrounded=[] missing=['revenue', 'net_income']
+mental_math    0.70    1.00      0.00     1.00       1.00  ungrounded=['26.52%', '26.52%'] missing=[]
+laundered      0.70    1.00      0.00     1.00       1.00  ungrounded=['26.52%', '26.52%'] missing=[]
+memorised      0.00    0.00      0.00     0.00       0.00  ungrounded=['26.52%'] missing=['revenue', 'net_income']
+malformed      0.95    1.00      1.00     0.75       0.75  ungrounded=[] missing=[]
 ```
+
+`dodge` gives the margin without the citation block, so both inputs are
+missing. `mental_math` and `laundered` cite a margin that no calculator result
+derived from evidence supports.
 
 To try the task lifecycle by hand with the HUD CLI:
 
@@ -170,12 +220,23 @@ uv run hud eval tasks.py claude --all --max-steps 10   # all 18 tasks
 
 `Dockerfile.hud` installs the project and its locked dependencies at build time
 (the fixture is included as package data), sets `HUD_TELEMETRY_ENABLED=false`,
-and serves the environment with `hud serve` on port 8765:
+and serves the environment with `hud serve` on port 8765 as the unprivileged
+user `app`. A `HEALTHCHECK` sends a JSON-RPC `hello` to port 8765 (the control
+channel, not HTTP), which opens a session without starting a task.
+`.dockerignore` keeps tests, docs, scripts, markdown, `demo.py` and `.room`
+out of the image.
 
 ```bash
 docker build -f Dockerfile.hud -t hud-quantlab-env:local .
 docker run --rm -p 8765:8765 hud-quantlab-env:local
 ```
+
+Run one episode at a time against a served container. The tool-call log is
+per process, so do not rely on several concurrent rollouts against one
+`hud serve` (for example `hud eval --runtime tcp://localhost:8765` with the
+default concurrency): an older episode whose log a newer one cleared fails
+with `OverlappingEpisodes`, and tool calls it makes after the newer one
+started would be credited to the newer one. See [Limits](#limits).
 
 `hud deploy` builds the same file for the HUD platform. It has not been
 deployed there yet.
@@ -226,8 +287,16 @@ docs/                          design notes (see below)
 ## Limits
 
 - One episode at a time per env process. The call log is process state, like the
-  board in HUD's 2048 cookbook. `LocalRuntime` runs one acquisition of an env
-  instance at a time, and `hud eval` runs each rollout in its own subprocess.
+  board in HUD's 2048 cookbook, and an MCP tool call carries no session id, so
+  calls cannot be split per session. `LocalRuntime` runs one acquisition of an
+  env instance at a time, and `hud eval` and `DockerRuntime` run each rollout
+  in its own process, so these are safe. One `hud serve` process can still
+  host concurrent sessions. Each episode takes a generation of the log when it
+  starts and the newest session wins: an older session whose log a newer one
+  cleared fails at grade time with `OverlappingEpisodes` instead of being
+  graded on the wrong log. What it cannot catch: an older session that keeps
+  calling tools after a newer one started puts those calls in the newer
+  session's log.
 - Compared with QuantLab this has one question type and two tools, not many
   question types and six tools. Grounding here checks every cited number, not
   only the final answer. That idea comes from the earlier memo writer's checker.
@@ -242,20 +311,27 @@ docs/                          design notes (see below)
 What the grader still cannot catch (details in
 [docs/reward-design.md](docs/reward-design.md#known-limits)):
 
+The two inputs are checked exactly, by label, in the citation block. These
+limits apply to the other numbers the answer cites in prose:
+
 - Claims written in words ("twenty billion") are not extracted or checked.
-- Grounding matches values, not labels. Apart from the final answer and the
-  two required inputs, a cited number only has to match some value the episode
-  looked up or computed, so a swapped label or another year's figure passes.
+- Prose matches values, not labels. A cited number only has to match some
+  value the episode looked up (admissibly) or computed, so calling the revenue
+  "net income", another year's figure, or another ticker's figures (any ticker
+  may be looked up) cited as extra claims pass.
+- A sign given in words or parentheses is not read: `net loss of $20,878
+  million` and `$(20,878) million` read as positive. A spaced en or em dash
+  before an amount (`net income <en dash> $20,878 million`) is read as
+  punctuation, not a minus, and a hyphen opening a line is read as a bullet,
+  so `- 20,878 million` at the start of a line reads as positive.
 - A bare number may be read at any scale (itself, thousands, millions,
   billions, percent), so a wrong bare number can match by coincidence. Matching
   is at written precision, so a coarse rounding (`$21 billion` for 20,878
   million, or a literal `2.1e4` in `compute`) is accepted, and the fewer digits
   a number has, the more values it rounds from.
-- The required inputs may be cited as bare numbers (for example in
-  `20,878 / 78,740`), not only as currency amounts; only a percent is refused.
-- A hyphen opening a line is read as a bullet, so `- 20,878 million` at the
-  start of a line reads as positive. Use a true minus sign or attach it.
+- Calculator results are evidence, and products and quotients of many
+  looked-up values (other tickers included) can reach almost any coarse claim
+  such as `$7 billion`.
 - A bare year-like number (1900 to 2100) and a single-digit count followed by
   a word are exempt, even if meant as amounts (so `assets 2023` is not
-  checked, while `assets $2023` is). Parentheses are not read as
-  accounting negatives.
+  checked, while `assets $2023` and `assets 2023 dollars` are).

@@ -208,3 +208,68 @@ rode along at 1.0 and implies it was fixed. It was not. A bare year from 1900
 to 2100 is still exempt by design, so `assets 2023` is not checked; only
 `assets $2023`, `assets 2,023` and other forms with a currency sign, unit or
 separator are claims. The known limits say so.
+
+## 2026-09-28: A third review (Opus) found more holes; inputs move to a citation block
+
+A third review, by Opus, of the grader at b715a0b found that the free-text
+number parser kept leaking, and that a shared `hud serve` could silently
+mis-grade. Each fix below has a regression test that cites the review.
+
+- **Citation block.** The prompt now asks the answer to end with
+  `REVENUE: <value>`, `NET_INCOME: <value>` and `ANSWER: <margin>%`, the
+  inputs written exactly as `get_fundamentals` returned them (whole USD with
+  sign; only a leading `$` and thousands commas allowed). Each label is checked
+  against an admissible lookup of its own concept, ticker and period and
+  against the value the gold used, and the last line of each label wins. This
+  replaces the free-text check that the inputs appeared somewhere in the
+  answer as amounts, which matched by value only, so revenue and net income
+  cited under each other's labels scored 1.0 (case E). Parsing two exact lines
+  removes most of the attack surface for the inputs; the prose check stays for
+  every other number.
+- **A: any attached dash is a minus.** Only `-` and U+2212 were signs, so an
+  en dash, em dash, U+2010, figure dash, U+FE63 or U+FF0D before an amount
+  claimed a loss and scored 1.0. Attached, or after a currency sign, every
+  dash in hyphen-minus, U+2010 to U+2015, U+2212, U+FE63 and U+FF0D is a minus.
+  Spaced off after a word or punctuation, only a hyphen-minus or a true minus
+  (U+2212, U+FE63, U+FF0D) is. We decided a spaced en or em dash is
+  punctuation: models write `Revenue <em dash> $78.74 billion` as prose all
+  the time, reading it as a minus would fail honest answers, and the inputs
+  are now checked exactly in the block, so the cost is limited to extra prose
+  claims. It is listed as a known limit.
+- **B: each side of `+` and `-` must depend on a looked-up value.** The rule
+  only checked that each side used evidence, and `x / x` uses evidence but is
+  a constant. `(x/x+...)*1e9 + NI/REV*1e6` returned 7,000,265,151 and depended
+  on evidence through the small margin term, so an invented `$7 billion`
+  scored 0.975. Now it scores 0.675. Products and quotients of many looked-up
+  values can still reach a coarse claim; that is a known limit.
+- **C: scale words.** `billions`, `millions`, `thousands`, `trillions`, `bln`,
+  `bil`, `mln`, `mn`, `pct` and `per cent` are units now, and a count or year
+  followed by a scale or currency word (`7 hundred million`, `2023 dollars`) is
+  an amount, not exempt. Before, the count and year exemptions swallowed them
+  (1.0; now 0.70).
+- **D: a cited zero matches only zero.** `$0 trillion` rounded from anything
+  under half a trillion.
+- **Validity is gated like efficiency.** A right answer after only a
+  well-formed `compute("26.52*1")`, or a lookup that returned `no_data`,
+  scored 0.10 through validity, so the docs' "a correct answer with no
+  successful lookup scores 0" was false. Validity is now 0 unless an
+  admissible lookup succeeded. Both lookups past the question's date now
+  score 0.00 (was 0.10).
+- **A generation guard for the episode log.** One `hud serve` process hosts
+  many sessions, and `EPISODE` is one per process because a tool call carries
+  no session id. Starting session B before A was graded made A's honest
+  episode score 0.0. Each episode now takes a generation with
+  `EPISODE.begin()`, and an episode whose generation changed fails at grade
+  time with `OverlappingEpisodes` (newest wins). We chose this over an
+  open-episode lock that refuses new episodes while one is open, because an
+  abandoned or parked session (for example `hud task start` never graded)
+  would block every later episode in the process. The guard cannot catch an
+  older session that keeps calling tools after a newer one started; those
+  calls land in the newer log. `LocalRuntime`, `hud eval` and `DockerRuntime`
+  are safe; several concurrent rollouts against one `hud serve` are not.
+- **Docker hardening.** The image runs as the non-root user `app`, has a
+  `HEALTHCHECK` that sends a JSON-RPC `hello` to the control port 8765, and
+  `.dockerignore` keeps tests, docs, scripts, markdown, `demo.py` and `.room`
+  out of the build context.
+- **Tests.** `tests/test_env.py` no longer edits `sys.path`; pytest's
+  `pythonpath` setting puts the repo root on it. 248 tests pass.

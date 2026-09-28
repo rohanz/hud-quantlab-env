@@ -66,17 +66,45 @@ async def net_margin(ticker: str, period_end: str, as_of: str): ...
 
 1. `questions.build(ticker, period_end, as_of)` computes the gold from the
    point-in-time data and fails if the period was not filed by `as_of`.
-2. `EPISODE.reset()` clears the call log.
-3. It yields the prompt and receives the agent's final text.
-4. It yields an `EvaluationResult` with the reward, one `SubScore` per
+2. `EPISODE.begin()` clears the call log and returns a new generation.
+3. It yields the prompt (which asks for the `REVENUE:`, `NET_INCOME:` and
+   `ANSWER:` lines) and receives the agent's final text.
+4. If `EPISODE.generation` is no longer this episode's, a newer session
+   cleared the log, and it raises `OverlappingEpisodes` instead of grading
+   (see [concurrency](#concurrency)).
+5. It yields an `EvaluationResult` with the reward, one `SubScore` per
    component (weights from `grader.WEIGHTS`) and an `info` dict: gold, final
-   answer, cited numbers, ungrounded numbers, missing inputs, call counts.
+   answer, correct, the parsed citation block, cited numbers, ungrounded
+   numbers, missing inputs, whether the answer is derived, call counts
+   (total, malformed, future lookups).
 
 `tasks.py` binds the template to `questions.default_questions()`: 18 tasks, one
 per company and fiscal year ending 2022 to 2024, asked 30 days after the later
 of the first revenue and net income filings for that period. Where a period's
 revenue changed in a later filing, the period is asked again 30 days after the
 restatement. Task ids look like `net_margin-83d5f782`.
+
+## Concurrency
+
+One episode at a time per env process. The call log (`EPISODE`) is process
+state: HUD publishes the `tools` URL once per process, and an MCP tool call
+carries no session id, so calls cannot be split per session.
+
+- Safe: `LocalRuntime` (serialises acquisitions of an env instance),
+  and `hud eval` and `DockerRuntime`, which give each rollout its own process.
+- Unsafe to rely on: several concurrent rollouts against one `hud serve`
+  process, for example `hud eval --runtime tcp://...:8765` with the default
+  concurrency.
+
+For that case each episode takes a generation of the log when it starts, and
+the newest session wins: an older session whose log a newer one cleared fails
+at grade time with `OverlappingEpisodes` instead of being graded on the wrong
+log. What the guard cannot catch: if the older session keeps calling tools
+after the newer one started, those calls land in the newer session's log.
+
+An open-episode lock (refuse a new episode while one is open) was rejected:
+an abandoned or parked session, such as `hud task start` that is never
+graded, would block every later episode in the process.
 
 ## Fixture
 
@@ -171,7 +199,22 @@ layer and the project (non-editable, fixture included) in the next, and runs
 the venv's `hud serve env.py` on port 8765. Nothing is built or synced when
 the container starts.
 
+- It runs as the unprivileged user `app` (uid 1000). The code and `.venv`
+  stay root-owned and read-only to it; nothing is written under `/hud` at
+  runtime.
+- A `HEALTHCHECK` (every 30s) connects to port 8765, which is hud's
+  newline-delimited JSON-RPC control channel, not HTTP, and sends a `hello`.
+  That opens a session without starting a task, so the probe has no side
+  effects; it passes if the reply carries a `session_id`.
+- `.dockerignore` keeps `.git`, `.room/`, `.claude/`, `.venv/`, caches,
+  `tests/`, `docs/`, `scripts/`, `*.md`, `demo.py` and the Docker files
+  themselves out of the build context. The image needs only `pyproject.toml`,
+  `uv.lock`, `.python-version`, `env.py`, `tasks.py` and `src/`.
+
 ```bash
 docker build -f Dockerfile.hud -t hud-quantlab-env:local .
 docker run --rm -p 8765:8765 hud-quantlab-env:local
 ```
+
+Run one episode at a time against a served container (see
+[concurrency](#concurrency)).

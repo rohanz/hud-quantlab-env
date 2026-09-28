@@ -20,18 +20,22 @@ Public background:
 ## Layout
 
 ```
-env.py                         HUD Environment, FastMCP tool server, strict middleware, net_margin template
+env.py                         HUD Environment, FastMCP tool server, strict middleware, net_margin template,
+                               episode generation guard (OverlappingEpisodes)
 tasks.py                       the 18 concrete tasks (one per default question)
 demo.py                        six scripted HUD Agents run end to end over MCP, offline
-Dockerfile.hud                 image for hud serve / hud deploy (installs at build, telemetry off, port 8765)
+Dockerfile.hud                 image for hud serve / hud deploy (installs at build, telemetry off, port 8765,
+                               non-root user app, HEALTHCHECK); .dockerignore keeps dev files out
 src/quantlab_env/data.py       fixture loading (importlib.resources) and point-in-time lookup (facts_as_of)
-src/quantlab_env/tools.py      get_fundamentals, compute, strict validate/execute, Episode call log
-src/quantlab_env/grader.py     reward: answer, grounding (with calculator provenance), validity, efficiency
-src/quantlab_env/questions.py  Question, gold answers, prompt text, default_questions()
+src/quantlab_env/tools.py      get_fundamentals, compute, strict validate/execute, Episode call log and generation
+src/quantlab_env/grader.py     reward: answer, grounding (citation block, calculator provenance, prose check),
+                               validity, efficiency
+src/quantlab_env/questions.py  Question, gold answers, prompt text (with the citation block), default_questions()
 src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net income, 5 companies, 2021 to 2024
 scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, needs SEC_USER_AGENT)
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
-                               units), test_env.py (end to end, every task); 159 tests
+                               units), test_env.py (end to end, every task, two overlapping sessions);
+                               248 tests (187 in test_grader.py); pytest's pythonpath puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md
 ```
 
@@ -74,6 +78,16 @@ docker build -f Dockerfile.hud -t hud-quantlab-env:local .
 docker run --rm -p 8765:8765 hud-quantlab-env:local   # hud serve on port 8765
 ```
 
+The image runs as the non-root user `app` with a `HEALTHCHECK` (a JSON-RPC
+`hello` on port 8765). One episode at a time per process: tool calls carry no
+session id, so the call log is per process. `LocalRuntime`, `hud eval` (one
+process per rollout) and `DockerRuntime` are safe. Several concurrent rollouts
+against one `hud serve` (for example `--runtime tcp://...:8765` with the default
+concurrency) are not: each episode takes a generation of the log, the newest
+wins, and an older episode fails at grade with `OverlappingEpisodes`. Calls an
+older session makes after a newer one started land in the newer log, which
+the guard cannot catch.
+
 Regenerating the fixture (network, only when changing data):
 
 ```bash
@@ -92,14 +106,14 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 - **answer**: the first number on the last `ANSWER:` line is within 0.5% of the
   gold (as a percent or a fraction), and at least one admissible
   `get_fundamentals` call succeeded.
-- **grounding** (all or nothing): the final answer matches a calculator result
-  derived from the question's net income over its revenue, every other cited
-  number matches evidence from this episode, and the answer cites the exact
-  revenue and net income the gold used, as amounts (a percent never counts).
-  Matching is at the precision a number is written with; the 0.5% tolerance is
-  only for the answer against gold.
+- **grounding** (all or nothing): the citation block is correct, the final
+  answer matches a calculator result derived from the question's net income
+  over its revenue, and every other cited number matches evidence from this
+  episode (the prose check). Matching is at the precision a number is written
+  with; the 0.5% tolerance is only for the answer against gold.
 - **validity**: share of calls without a malformed error code (`bad_argument`,
-  `unknown_tool`, `unknown_ticker`, `unknown_concept`). 0 with no calls.
+  `unknown_tool`, `unknown_ticker`, `unknown_concept`), and 0 unless an
+  admissible lookup succeeded (so also 0 with no calls).
 - **efficiency**: `3 / max(3, calls)`, and 0 unless an admissible lookup
   succeeded.
 
@@ -109,6 +123,22 @@ keys, no missing keys, strings only, no coercion), runs the tool and logs the
 call. Bad calls come back as `{"error": {"code", "message"}}` and are counted,
 never repaired or dropped.
 
+Citation block: the prompt asks the answer to end with
+
+```
+REVENUE: <value>
+NET_INCOME: <value>
+ANSWER: <margin>%
+```
+
+with each value exactly as `get_fundamentals` returned it: whole USD with its
+sign, an optional leading `$` and thousands commas, no rounding and no units.
+`citations()` in `grader.py` reads the last line of each label (`_LABELS`), and
+each value must equal a row of its own concept, for the question's ticker and
+period, from an admissible lookup in this episode, and the value the gold
+used. A missing value, any other formatting, or a swapped value lands in
+`missing_inputs`.
+
 Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
 
 - Only `value` fields of successful lookups are evidence, and only from lookups
@@ -117,19 +147,29 @@ Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
 - Calculator provenance: each evidence item carries a formula over the
   looked-up values. A `compute` result is evidence only if every literal equals
   evidence at its written precision (bound to the closest match) or is a unit
-  constant (1, 100, 1e3, 1e6,
-  1e9), constants only scale evidence, both sides of `+` and `-` use evidence,
-  and the result depends on a looked-up value.
+  constant (1, 100, 1e3, 1e6, 1e9), constants only scale evidence, each side of
+  `+` and `-` itself depends on a looked-up value (`x / x` does not), and the
+  result depends on a looked-up value.
 - Error results never count.
 - Cited numbers match at their written precision (`$78.74 billion` matches
-  78,740 million; `$20.885 billion` does not match 20,878 million).
+  78,740 million; `$20.885 billion` does not match 20,878 million). A cited
+  zero matches only zero. A percent matches only a calculator result, never a
+  looked-up amount.
 - Cited numbers keep their sign, and a currency amount without a unit word
   (`$78.74`) means that many dollars. Only a bare number may be read as
-  thousands, millions, billions or a percent. A minus spaced off after a word
-  or `:` (`net income - $20.9 billion`) is a sign; after a digit, inside a
-  word or as a bullet opening a line, a hyphen is not.
+  thousands, millions, billions or a percent. Scale words: `trillion(s)`,
+  `tn`, `t`, `billion(s)`, `bn`, `bln`, `bil`, `b`, `million(s)`, `mn`, `mln`,
+  `mm`, `m`, `thousand(s)`, `k`; percent: `%`, `percent`, `pct`, `per cent`.
+- Signs: a dash attached to an amount, or after a currency sign, is a minus
+  for hyphen-minus, U+2010 to U+2015, U+2212, U+FE63 and U+FF0D. Spaced off
+  after a word or `:`, `=`, `(`, `,`, `;` (`net income - $20.9 billion`), only
+  a hyphen-minus or a true minus (U+2212, U+FE63, U+FF0D) is a sign; a spaced
+  en or em dash is punctuation. After a digit, inside a word or as a bullet
+  opening a line, a dash is not a sign.
 - Dates, FY and quarter labels, form names, list markers, a bare year and a
   single-digit count followed by a word are exempt by context, never by value.
+  A count or year followed by a scale or currency word (`7 hundred million`,
+  `2023 dollars`) is an amount, not exempt.
 
 Known limits (what the grader cannot catch) are listed in the README and in
 reward-design.md. Do not describe the grader as stronger than that.
@@ -140,8 +180,10 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 
 | case | reward |
 |---|---|
-| honest: looks up, computes, cites inputs | 1.00 |
-| dodge: cites only the final number | 0.70 |
+| honest: looks up, computes, cites the block | 1.00 |
+| dodge: cites only the final number, no block | 0.70 |
+| missing citation block (honest prose, no block) | 0.70 |
+| labels swapped in the block | 0.70 |
 | one malformed call (extra key), then recovers | 0.95 |
 | mental math: right number, not computed by a tool | 0.70 |
 | memorised number laundered through `compute("26.52 * 1")` | 0.70 |
@@ -149,11 +191,15 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 | right answer, no tool calls | 0.00 |
 | right margin from the wrong year (AAPL FY2022 vs FY2023) | 0.70 |
 | stale, pre-restatement answer | 0.20 |
-| wrong sign (attached or spaced) or dropped scale on an input | 0.70 |
+| wrong sign in prose (any attached dash, or a spaced hyphen-minus or true minus) | 0.70 |
+| dropped scale on an input in prose (`$78.74`) | 0.70 |
 | invented input within 0.5%, `compute("20885/78740*100")` (one extra call) | 0.675 |
+| `x/x*7e9 + NI/REV*1e6` computed, then `$7 billion` cited (one extra call) | 0.675 |
 | input cited as a percent (`net income 20,878,000,000%`) | 0.70 |
 | extra ungrounded amount (`debt $7`, `assets $2023`) | 0.70 |
-| both lookups past the question's date | 0.10 |
+| scale-word variants (`7 billions`, `9 mln`, `7 hundred million`, `9 pct`) | 0.70 |
+| a coarse zero (`$0 trillion`) | 0.70 |
+| both lookups past the question's date | 0.00 |
 | only malformed calls, then the right answer | 0.00 |
 
 `demo.py` runs honest, dodge, mental_math, laundered, memorised and malformed
@@ -173,14 +219,18 @@ for the honest agent on all 18 tasks.
    fields count as evidence.
 3. **Question.** In `src/quantlab_env/questions.py`, add a builder that computes
    the gold from `data.facts_as_of` (the same view the tools serve), the prompt
-   ending in the `ANSWER:` line, and a generator for the default set.
-4. **Grader.** In `src/quantlab_env/grader.py`, the required-inputs check,
-   `derived_from_inputs` (net income over revenue) and `PAR_CALLS` are
-   specific to net margin. Generalise them (for example, the
-   question exposes its required inputs and par call count) rather than
-   branching on type.
+   ending in the citation block and the `ANSWER:` line, and a generator for the
+   default set.
+4. **Grader.** In `src/quantlab_env/grader.py`, the citation block (`_LABELS`,
+   `_CITATION`, `citations()` and the `missing_inputs` check in `grade`, which
+   reads the gold inputs off `Question` by concept name), `derived_from_inputs`
+   (net income over revenue) and `PAR_CALLS` are specific to net margin.
+   Generalise them (for example, the question exposes its required inputs,
+   their labels and its par call count) rather than branching on type.
 5. **Template.** Add an `@env.template` in `env.py` that builds the question,
-   resets `EPISODE`, yields the prompt and grades, like `net_margin`.
+   takes a generation with `EPISODE.begin()`, yields the prompt, raises
+   `OverlappingEpisodes` if the generation changed, and grades, like
+   `net_margin`.
 6. **Tasks.** Bind the defaults in `tasks.py`.
 7. **Tests.** Add grader tests for the honest path and each relevant
    adversarial case in `tests/test_grader.py`, an answerability check in
