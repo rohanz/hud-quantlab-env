@@ -57,8 +57,19 @@ _UNITS = {
     "thousand": 1e3, "k": 1e3,
 }
 # fmt: on
-# Text that looks numeric but is not a claim: ISO dates, fiscal-year labels, form names.
-_NOT_CLAIMS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b|\bFY\s?\d{2,4}\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b", re.IGNORECASE)
+_MONTH = (
+    r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?"
+    r"|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b\.?"
+)
+# Text that looks numeric but is not a claim: dates, fiscal-year and quarter labels,
+# form names, and numbered-list markers at the start of a line.
+_NOT_CLAIMS = re.compile(
+    r"\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}/\d{1,2}/\d{4}\b"
+    rf"|\b{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,\s*\d{{4}})?\b|\b\d{{1,2}}\s+{_MONTH}(?:\s+\d{{4}})?\b"
+    r"|\bFY\s?\d{2,4}\b|\bQ[1-4]\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b"
+    r"|^\s*(?:[-*]\s*)?\(?\d{1,2}[.)](?=\s)",
+    re.IGNORECASE | re.MULTILINE,
+)
 # A sign is a minus sign attached to the amount ("-$20.9 billion", "$-20.9"); a
 # hyphen after a word or digit ("10-K", "2021-2022") is not. Parentheses are
 # read as prose, not as accounting negatives.
@@ -66,9 +77,10 @@ _NUMBER = re.compile(
     r"(?P<neg>(?<![\w.])[-−])?(?P<cur>(?:US)?\$|\bUSD\b)?\s*(?P<neg2>[-−])?"
     r"(?P<num>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
     r"\s*(?P<unit>%|percent\b|trillion\b|billion\b|million\b|thousand\b"
-    r"|tn\b|bn\b|mm\b|[tbmk]\b)?",
+    r"|tn\b|bn\b|mm\b|[tbmk]\b)?(?P<cur2>\s*(?:dollars|USD)\b)?",
     re.IGNORECASE,
 )
+_COUNTED = re.compile(r"\s*[a-z]", re.IGNORECASE)  # "3 filings": a small count of something named
 
 
 @dataclass(frozen=True)
@@ -76,6 +88,7 @@ class Cited:
     text: str
     value: float
     kind: str  # "percent", "scaled" (unit word applied), "currency" (a bare $ amount) or "plain"
+    exempt: bool = False  # a year or a small count, by context; never an amount with a unit or currency
 
     def readings(self) -> list[float]:
         """Signed values this citation may stand for.
@@ -91,13 +104,16 @@ class Cited:
             return [v]
         return [v, v * 1e3, v * 1e6, v * 1e9, v / 100]
 
-    @property
-    def exempt(self) -> bool:
-        """Bare years and list markers are not numeric claims."""
-        if self.kind != "plain" or not float(self.value).is_integer() or "." in self.text:
-            return False
-        v = abs(self.value)
-        return v < 10 or (1900 <= v <= 2100 and "," not in self.text)
+
+def _exempt(m: re.Match, kind: str, text: str) -> bool:
+    """A bare year ("in 2023") or a small count ("3 filings"). Context, not value alone,
+    decides: "$7", "7%", "debt 7," and "$2023" are claims."""
+    num = m["num"]
+    if kind != "plain" or m["neg"] or m["neg2"] or not num.isdigit():
+        return False
+    if len(num) == 4 and 1900 <= int(num) <= 2100:
+        return True
+    return int(num) < 10 and bool(_COUNTED.match(text, m.end("num")))
 
 
 def extract_numbers(text: str) -> list[Cited]:
@@ -113,8 +129,8 @@ def extract_numbers(text: str) -> list[Cited]:
         elif unit:
             kind, value = "scaled", value * _UNITS[unit]
         else:
-            kind = "currency" if m["cur"] else "plain"
-        cited.append(Cited(m.group(0).strip(), value, kind))
+            kind = "currency" if m["cur"] or m["cur2"] else "plain"
+        cited.append(Cited(m.group(0).strip(), value, kind, _exempt(m, kind, text)))
     return cited
 
 

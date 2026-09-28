@@ -330,9 +330,36 @@ def test_number_parsing(text, value, kind):
     assert cited.kind == kind
 
 
-def test_dates_fiscal_years_and_form_names_are_not_claims():
-    text = "In FY2023 (fiscal year 2023, ending 2023-12-31) per its 10-K/A and 3 filings"
-    assert [c for c in extract_numbers(text) if not c.exempt] == []
+@pytest.mark.parametrize(
+    "text",
+    [
+        "In FY2023 (fiscal year 2023, ending 2023-12-31) per its 10-K/A and 3 filings",
+        "Filed on March 17, 2024, 17 Mar 2024 or 03/17/2024, for Q4 of fiscal 2021.",
+        "1. Look up revenue.\n2) Look up net income.\n(3) Compute.\n- 4. Answer.",
+    ],
+)
+def test_dates_years_counts_and_list_markers_are_not_claims(text):
+    assert [c.text for c in extract_numbers(text) if not c.exempt] == []
+
+
+@pytest.mark.parametrize(
+    ("extra", "ungrounded"),
+    [
+        (" Debt $7, assets $2023.", ["$7", "$2023"]),
+        (" Debt 7, assets 2,023.", ["7", "2,023"]),
+        (" Debt was 7.", ["7"]),
+        (" Cash 2023 dollars, 3%.", ["2023 dollars", "3%"]),
+    ],
+)
+def test_small_or_year_like_amounts_are_claims(extra, ungrounded):
+    """Codex review: small integers and year-like values were exempt by value, so
+    "debt $7, assets $2023" rode along with an honest answer at 1.0. Only
+    context exempts a number: a year or count with no currency or unit, a date,
+    a list marker."""
+    g = grade(HONEST.replace("\nANSWER", f"{extra}\nANSWER"), full_episode().calls, Q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
 
 
 def test_final_answer_takes_last_answer_line():
