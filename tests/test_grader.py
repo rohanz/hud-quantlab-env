@@ -817,6 +817,53 @@ def test_a_genuine_date_is_still_exempt(extra):
     assert g.reward == 1.0, g.info
 
 
+# --- a unit constant in a written formula ------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        " Net margin = 20878000000 / 78740000000 × 100 = 26.515113%.",
+        " Net margin = (20878000000 / 78740000000) * 100 = 26.52%.",
+        " Net margin = (20878000000/78740000000)×100 = 26.52%.",
+        " Net margin = 20878000000 / 78740000000 \\times 100 \\approx 26.52%.",
+        " Net Margin = (Net Income / Revenue) * 100%.",
+        " To express it as a percent, I multiply by 100 and round.",
+    ],
+)
+def test_a_unit_constant_after_an_operator_is_not_a_claim(extra):
+    """First real-model eval (2026-10-05): honest Qwen3.5-9B answers that showed
+    their working ("20,878 / 78,740 × 100 = 26.52%") scored 0.70, because the prose check
+    read the 100 as an invented amount (34 of 180 episodes). The constant 100
+    written right after a multiply or divide operator is part of a formula,
+    as it already is inside `compute`, so it claims nothing. Only 100 is exempt."""
+    g = grade(honest(extra), full_episode().calls, Q)
+    assert g.info["ungrounded"] == []
+    assert g.reward == 1.0, g.info
+
+
+@pytest.mark.parametrize(
+    ("extra", "ungrounded"),
+    [
+        (" Debt was 100.", ["100"]),
+        (" Debt is 26.52% × 100 billion.", ["100 billion"]),
+        (" Debt is 26.52% × $100.", ["$100"]),
+        (" Debt is 26.52% × 7.", ["7"]),
+        (" Debt is 26.52% × -100.", ["-100"]),
+        (" Debt is 26.52% × 1,000,000,000.", ["1,000,000,000"]),
+        (" Debt is 26.52% × 1000.", ["1000"]),
+    ],
+)
+def test_an_operator_does_not_exempt_an_amount(extra, ungrounded):
+    """Only a bare 100 is exempt after an operator: with a scale word, a currency
+    sign or a sign, or as any other value (even a unit constant such as 1,000,000,000,
+    which could pass for an amount), it is still a claim."""
+    g = grade(honest(extra), full_episode().calls, Q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.7)
+
+
 # --- markdown around the block labels ----------------------------------------------------
 
 

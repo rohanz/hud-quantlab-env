@@ -125,6 +125,11 @@ _SPACED_MINUS = re.compile(
     rf"(?:(?<=[^\W\d_])[^\S\n]+|[:=(,;][^\S\n]*|^[^\S\n]*(?=[{_TRUE_MINUS}]))(?P<minus>[\-{_TRUE_MINUS}])[^\S\n]+\Z",
     re.MULTILINE,
 )
+# A multiply or divide operator right before a number: "* 100", "×100", "\times 100", "multiply by 100".
+_OPERATOR = re.compile(
+    r"(?:[*×·⋅/÷]|\\times|\\cdot|(?<![^\W\d_])x|\b(?:multipl(?:y|ied)|divided?)\s+by|\btimes)[^\S\n]*\Z",
+    re.IGNORECASE,
+)
 _EXEMPTED = "#"  # stands in for exempt text, so "10-K - 2" is not read as a word before a minus
 _COUNTED = re.compile(r"\s*[a-z]", re.IGNORECASE)  # "3 filings": a small count of something named
 # "7 hundred million", "2023 dollar": a scale or currency word makes a count or a year an amount
@@ -179,10 +184,20 @@ class Cited:
 
 
 def _exempt(m: re.Match, kind: str, negative: bool, text: str) -> bool:
-    """A bare year ("in 2023") or a small count ("3 filings"). Context, not value alone,
-    decides: "$7", "7%", "debt 7,", "$2023" and "7 hundred million" are claims."""
+    """A bare year ("in 2023"), a small count ("3 filings") or a unit constant in a written
+    formula ("NI / REV * 100", "* 100%"; only 100). Context, not value alone, decides: "$7", "7%",
+    "debt 7,", "$2023", "7 hundred million" and "× 100 billion" are claims."""
     num = m["num"]
-    if kind != "plain" or negative or not num.isdigit() or _SCALE_WORD.match(text, m.end("num")):
+    if negative or _SCALE_WORD.match(text, m.end("num")):
+        return False
+    # Only 100: every larger unit constant could pass for an amount ("debt × 1,000,000,000").
+    if (
+        kind in ("plain", "percent")
+        and float(num.replace(",", "")) == 100
+        and _OPERATOR.search(text, max(0, m.start() - 24), m.start())
+    ):
+        return True
+    if kind != "plain" or not num.isdigit():
         return False
     if len(num) == 4 and 1900 <= int(num) <= 2100:
         return True
