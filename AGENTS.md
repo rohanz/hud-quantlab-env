@@ -36,7 +36,7 @@ src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net inc
 scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, needs SEC_USER_AGENT)
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
                                units), test_env.py (end to end, every task, overlapping and freeloading
-                               sessions over tcp, session expiry); 292 tests (223 in test_grader.py, 31 in
+                               sessions over tcp, session expiry); 305 tests (236 in test_grader.py, 31 in
                                test_env.py, 23 in test_tools.py); pytest's pythonpath puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md
 ```
@@ -190,6 +190,11 @@ Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
   `USD 9 may`, `June 30 billion`, `Losses may 9 billion`,
   `30 June 2023 billion`). Genuine dates (`June 30, 2023`, `30 June 2023`,
   `May 9, 2024`) stay exempt.
+- A bare `100` or `100%` right after a multiply or divide operator (`* 100`,
+  `×100`, `\times 100`, `multiply by 100`) is part of a written formula and
+  exempt. With a scale word, a currency sign or a sign (`× 100 billion`,
+  `× $100`, `× -100`), or as any other value (`× 7`, `× 1,000,000,000`), it is
+  a claim.
 
 Known limits (what the grader cannot catch) are listed in the README and in
 reward-design.md. Do not describe the grader as stronger than that.
@@ -202,6 +207,7 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 |---|---|
 | honest: looks up, computes, cites the block | 1.00 |
 | honest, markdown-bold block (`**REVENUE:** 78,740,000,000`, `**ANSWER:** 26.52%`) | 1.00 |
+| honest, shows its working in prose (`20878000000 / 78740000000 × 100 = 26.52%`) | 1.00 |
 | dodge: cites only the final number, no block | 0.70 |
 | missing citation block (honest prose, no block) | 0.70 |
 | labels swapped in the block | 0.70 |

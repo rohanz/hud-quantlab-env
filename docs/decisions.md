@@ -314,3 +314,43 @@ Found by the final Opus review, fixed with tests.
   digit (`9 euros`, `3x`) is exempt as a count, superscript digits are not
   read, and number words ("seven billion") are not read.
 - **Tests.** 292 tests pass (223 in `tests/test_grader.py`).
+
+## 2026-10-05: First real-model eval; a bare 100 in a written formula is not a claim
+
+Until now every score came from scripted agents. This was the first run with
+real models: Qwen3.5-9B base and the QuantLab agentic-analyst SFT adapter
+(trained on QuantLab's own tools and answer format, not this environment's),
+served on a local RTX 4090 through QuantLab's transformers + PEFT server
+(the path QuantLab trusts over vLLM for its adapters). Same server, same
+sampling (temperature 0.9), all 18 tasks, 5 runs each, 180 episodes. The server's
+parser was switched to keep unknown argument keys, so the strict validator
+judges them, and tool properties were rendered alphabetically for both models,
+as the adapter saw in training. A greedy differential check confirmed the
+adapter was applied.
+
+- **Grader false negative found.** Honest answers that computed the margin
+  with the tool and then showed the working in prose
+  (`0.2652 × 100 = 26.52%`, `(NI / REV) * 100%`, `multiply by 100`) scored
+  0.70: the prose check read the `100` as an invented amount. This hit 34 of
+  180 episodes (7 base, 27 SFT), so it penalised showing work. A bare `100`
+  or `100%` right after a multiply or divide operator is now exempt as part
+  of a formula, matching how `compute` already treats unit constants. Only
+  100: larger unit constants after an operator (`× 1,000,000,000`) could pass
+  for amounts and stay claims, as do `× 100 billion`, `× $100` and `× -100`.
+  Replaying all 180 recorded episodes offline, the old grader reproduced
+  every recorded reward exactly, and the new one changed only these 34.
+- **Results after the fix** (mean reward, 95% bootstrap CI): base 0.982
+  (0.968 to 0.993), SFT 0.968 (0.950 to 0.983); SFT minus base -0.014
+  (-0.034 to +0.007, bootstrap over tasks), so no measurable difference.
+  Before the fix the same episodes read base 0.959, SFT 0.877. Neither model
+  gave a wrong answer in 180 episodes. The remaining losses are conventions
+  carried over from training: two `compute` calls (fraction, then `× 100`;
+  27 SFT and 13 base episodes, efficiency 0.75) and decimals on whole-dollar
+  block values (`78740000000.0`, 7 SFT episodes). Both are scored as designed.
+- **What it shows.** On these 18 questions base is near the ceiling, so the
+  set cannot separate the models or give a training signal: GRPO needs
+  questions some rollouts fail. Training on this environment needs more and
+  harder questions with a held-out split first.
+- **Known limit added.** LaTeX math delimiters read as dollar signs
+  (`$$ 35.96\% $$`), once in 180 episodes.
+- **Tests.** 305 tests pass (236 in `tests/test_grader.py`).

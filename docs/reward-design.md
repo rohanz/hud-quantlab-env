@@ -212,7 +212,10 @@ before grounding by context, never by value alone:
 - numbered-list markers at the start of a line (`1.`, `2)`, `(3)`),
 - a bare four-digit year from 1900 to 2100 with no sign, currency or unit
   (`fiscal 2021`),
-- a single-digit count followed by a word (`3 filings`).
+- a single-digit count followed by a word (`3 filings`),
+- a bare `100` or `100%` right after a multiply or divide operator, as part
+  of a written formula (`20,878 / 78,740 * 100`, `0.2652×100`,
+  `\times 100`, `multiply by 100`, `(NI / REV) * 100%`).
 
 Anything with a currency sign, `dollars` or `USD`, a unit word or a percent is
 always a claim. A count or year followed by a scale or currency word
@@ -220,6 +223,11 @@ always a claim. A count or year followed by a scale or currency word
 exempt. So `$7`, `7%`, `$2023`, `2023 dollars`, the `7` in
 `7 hundred million` and the `2050` in `2050 hundred` must be grounded, and so
 must `7` in `debt was 7` and `2,023`.
+
+The formula exemption is narrow: only 100, and only bare. `× 100 billion`,
+`× $100` and `× -100` are claims, and so are other constants after an
+operator (`× 7`, `× 1,000,000,000`), since a larger unit constant could pass
+for an amount.
 
 The same rule covers date forms. A number right after a currency sign is an
 amount even if a month name follows (`$9 may be refinanced`,
@@ -501,7 +509,11 @@ other numbers the answer cites in prose.
   `assets $2023`, `assets 2,023` and `assets 2023 dollars` are. Only scale,
   percent and dollar words turn a count into an amount, so a foreign currency
   or any other word after a single digit (`9 euros`, `3x`) is exempt as a
-  count.
+  count. A bare `100` after a multiply or divide operator is exempt as part
+  of a written formula, so `debt × 100` is not checked.
+- LaTeX math delimiters are read as dollar signs: in `$$ 35.96\% $$` the
+  `$` makes 35.96 a dollar amount, so an honest answer written in LaTeX can
+  lose grounding (a false negative; seen once in 180 real-model episodes).
 - The provenance check is numeric, not symbolic: it evaluates each formula at
   the looked-up values and at 1% nudges of them, and nowhere else.
 - The grader cannot tell whether the agent understood the point-in-time trap,

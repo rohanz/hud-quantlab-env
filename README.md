@@ -189,7 +189,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 292 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 305 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -363,4 +363,8 @@ limits apply to the other numbers the answer cites in prose:
   a word are exempt, even if meant as amounts (so `assets 2023` is not
   checked, while `assets $2023` and `assets 2023 dollars` are). A foreign
   currency or any other word after a single digit (`9 euros`, `3x`) leaves it
-  exempt as a count.
+  exempt as a count. A bare `100` right after a multiply or divide operator
+  (`× 100`) is exempt as part of a written formula.
+- LaTeX math delimiters are read as dollar signs: `$$ 35.96\% $$` reads as a
+  dollar amount of 35.96, so an honest answer written in LaTeX can lose
+  grounding.
