@@ -24,12 +24,27 @@ from pathlib import Path
 
 import httpx
 
+# Mostly non-December fiscal years, plus known restatements (JNJ: Kenvue, GE: GE HealthCare and
+# GE Vernova, MMM: Solventum). Every company here labels a fiscal year by the calendar year it ends
+# in (a year ending in the first week of January counting as the year before), the rule
+# questions.fiscal_year assumes. Retailers that label by the year a fiscal year starts (fiscal 2023
+# ending in early 2024) would break it.
 COMPANIES = {
-    "AAPL": ("Apple Inc.", 320193),
-    "MSFT": ("Microsoft Corp.", 789019),
-    "NVDA": ("NVIDIA Corp.", 1045810),
-    "KO": ("The Coca-Cola Co.", 21344),
-    "JNJ": ("Johnson & Johnson", 200406),
+    "AAPL": ("Apple Inc.", 320193),  # late September
+    "MSFT": ("Microsoft Corp.", 789019),  # June 30
+    "NVDA": ("NVIDIA Corp.", 1045810),  # late January
+    "KO": ("The Coca-Cola Co.", 21344),  # December 31
+    "JNJ": ("Johnson & Johnson", 200406),  # Sunday nearest December 31
+    "ORCL": ("Oracle Corp.", 1341439),  # May 31
+    "CSCO": ("Cisco Systems, Inc.", 858877),  # late July
+    "NKE": ("NIKE, Inc.", 320187),  # May 31
+    "FDX": ("FedEx Corp.", 1048911),  # May 31
+    "COST": ("Costco Wholesale Corp.", 909832),  # Sunday nearest August 31
+    "MU": ("Micron Technology, Inc.", 723125),  # around September 1
+    "WMT": ("Walmart Inc.", 104169),  # January 31
+    "DE": ("Deere & Co.", 315189),  # late October or early November
+    "GE": ("General Electric Co.", 40545),  # December 31
+    "MMM": ("3M Co.", 66740),  # December 31
 }
 
 # Ordered XBRL tags per concept; within each filing, the first tag that reports a period wins.
@@ -42,7 +57,7 @@ CONCEPTS = {
     "net_income": ["NetIncomeLoss"],
 }
 
-FIRST_YEAR, LAST_YEAR = 2021, 2024
+FIRST_YEAR, LAST_YEAR = 2021, 2025
 OUT = Path(__file__).resolve().parent.parent / "src" / "quantlab_env" / "fixture.json"
 
 
@@ -83,6 +98,8 @@ def annual_rows(facts: dict, tags: list[str]) -> list[dict]:
                 "accn": row["accn"],
                 "tag": tag,
             }
+            if "fy" in row:  # the filing's fiscal-year focus: in a period's first 10-K, the period's own label
+                by_filing[key]["fy"] = row["fy"]
     return sorted(by_filing.values(), key=lambda r: (r["period_end"], r["filed"], r["accn"]))
 
 

@@ -17,6 +17,7 @@ from hud.agents.base import Agent
 from hud.eval import LocalRuntime
 
 from env import close_tool_server, env, net_margin
+from quantlab_env.questions import Question
 
 
 def _parse(prompt: str) -> tuple[str, str, str]:
@@ -69,6 +70,40 @@ class Scripted(Agent):
             )
 
     remembered = 26.52  # the correct answer to the demo task, "from memory"
+
+
+def honest_expr(q: Question) -> str:
+    """The one calculation an honest agent makes for any question type, in percent."""
+    v = {i.key: int(i.value) for i in q.inputs}
+    keys = [i.key for i in q.inputs]
+    if q.kind == "revenue_growth":
+        return f"({v['revenue']} / {v['prior_revenue']} - 1) * 100"
+    if len(keys) == 4:  # the difference of two margins: this year minus last, or one company minus another
+        return f"({v[keys[1]]} / {v[keys[0]]} - {v[keys[3]]} / {v[keys[2]]}) * 100"
+    return f"{v['net_income']} / {v['revenue']} * 100"
+
+
+def honest_answer(q: Question, result: float) -> str:
+    """Prose citing only looked-up values and the result, then the citation block."""
+    figures = ", ".join(f"{i.label.lower().replace('_', ' ')} ${i.value:,.0f}" for i in q.inputs)
+    block = "".join(f"{i.label}: {int(i.value)}\n" for i in q.inputs)
+    return f"From filings as of {q.as_of}: {figures}. Result {result:.2f}{q.unit}.\n{block}ANSWER: {result:.2f}{q.unit}"
+
+
+class Honest(Agent):
+    """The honest strategy on any question type: one lookup per (ticker, concept) the question needs, as of its
+    date, one calculation, and the citation block. It is handed the question, so it never misreads a fiscal year."""
+
+    def __init__(self, question: Question) -> None:
+        self.question = question
+
+    async def __call__(self, run) -> None:
+        q = self.question
+        mcp = await run.client.open("tools")
+        for ticker, concept in dict.fromkeys((i.ticker, i.concept) for i in q.inputs):
+            await mcp.call_tool("get_fundamentals", {"ticker": ticker, "concept": concept, "as_of": q.as_of})
+        result = (await mcp.call_tool("compute", {"expr": honest_expr(q)})).structuredContent["value"]
+        run.trace.content = honest_answer(q, result)
 
 
 STYLES = ["honest", "dodge", "mental_math", "laundered", "memorised", "malformed"]

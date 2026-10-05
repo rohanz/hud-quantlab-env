@@ -15,11 +15,17 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 
 `final_answer` takes the last line that starts with `ANSWER:` (any case, after
 any markdown list, quote, heading or emphasis markers, as in
-`**ANSWER:** 26.52%`) and reads the first number on it. It is correct if it is within `REL_TOL` (0.5%) of the gold
-margin, read either way: `26.52%` or `26.52` as a percent, `0.2652` as a
-fraction. The gold is `net_income / revenue` from `data.facts_as_of` on the
+`**ANSWER:** 26.52%`) and reads the first number on it. It is correct if it is within `REL_TOL` (0.5%) of the gold,
+read either way: `26.52%` or `26.52` as a percent, `0.2652` as a fraction, or
+within `ABS_TOL` (0.005 percentage points) of it, the rounding of an answer
+given to the two decimals the prompt asks for. The absolute tolerance only
+matters for golds under 1%: a 0.234 pp change in margin answered `0.23 pp` is
+1.8% off in relative terms but is the right two-decimal answer. `pp` is not a
+unit the parser knows, so `0.23 pp` reads as a bare 0.23, which may be a
+percent. The gold is the question's formula (for net margin,
+`net_income / revenue`) over its inputs from `data.facts_as_of` on the
 question's `as_of` date, which is exactly what the tools return on that date.
-The 0.5% tolerance is used only here, to judge the answer against gold.
+The tolerances are used only here, to judge the answer against gold.
 Everything else (evidence, provenance, grounding) matches at the precision a
 number is written with; see [signs, scale and precision](#signs-scale-and-precision).
 
@@ -34,7 +40,7 @@ Three conditions, all required:
 1. The citation block is correct (`missing_inputs` lists the inputs that are
    not; see [the citation block](#the-citation-block)).
 2. The final answer matches an evidence item that is derived from the
-   question's net income over its revenue
+   question's inputs by its formula (net income over revenue, for net margin)
    (`answer_derived` in the grade info; see [calculator provenance](#calculator-provenance)).
 3. Every other number cited anywhere in the text (the prose check) matches
    some evidence value (`ungrounded` lists the ones that do not). A percent
@@ -43,7 +49,14 @@ Three conditions, all required:
 
 ### The citation block
 
-The prompt asks the answer to end with exactly three lines:
+Every question exposes its inputs (`Question.inputs`): a key, a ticker, a
+concept, a fiscal period and the value the gold used. Each input is cited on
+its own line under its label, the key in upper case. Net margin's are
+`REVENUE` and `NET_INCOME`; the probe set adds `PRIOR_REVENUE` and
+`PRIOR_NET_INCOME` (the prior fiscal year) and `<TICKER>_REVENUE` and
+`<TICKER>_NET_INCOME` (each company of a gap question). Everything below
+applies to every label. For net margin, the prompt asks the answer to end with
+exactly three lines:
 
 ```
 REVENUE: <revenue value>
@@ -57,8 +70,8 @@ formatting is allowed: an optional leading `$` and thousands commas
 (`REVENUE: $78,740,000,000`). No rounding, no scale words, no decimals, no
 parentheses, no trailing text. The digits must be ASCII: a value in fullwidth
 or Arabic-Indic digits is missing. `citations()` reads the last line of each
-label (`_LABELS`), so a later line overrides an earlier one, and the order of
-the two lines does not matter.
+label (`_LABELS` for net margin, `Question.labels` in general), so a later line
+overrides an earlier one, and the order of the lines does not matter.
 
 Labels are case-insensitive and must open their line, after any markdown list,
 quote, heading or emphasis markers: `**REVENUE:** 78,740,000,000`,
@@ -75,7 +88,8 @@ way.
 Each value is checked by label: `REVENUE:` must equal the question's revenue
 (the value the gold used) and a `revenue` row for the question's ticker and
 period from an admissible lookup in this episode; `NET_INCOME:` likewise for
-`net_income`. Revenue and net income cited under each other's labels fail
+`net_income`, and every other label for its own input's ticker, concept and
+period. Revenue and net income cited under each other's labels fail
 both. This replaces an earlier free-text check that looked for the inputs
 anywhere in the answer, by value only.
 
@@ -89,8 +103,11 @@ unless an admissible lookup succeeded, so it is also 0 with no calls.
 
 ### efficiency (0.1)
 
-`PAR_CALLS / max(PAR_CALLS, calls)` with `PAR_CALLS = 3` (revenue lookup, net
-income lookup, one compute). Every call counts, including failed and
+`par / max(par, calls)`, where par (`Question.par_calls`) is one lookup per
+(ticker, concept) the question needs plus one compute: `PAR_CALLS = 3` for net
+margin (revenue lookup, net income lookup, one compute), and in the probe set
+3 for a change in margin (one lookup returns both years), 2 for revenue
+growth and 5 for a gap between two companies. Every call counts, including failed and
 inadmissible ones. It is 0 unless an admissible lookup succeeded, so failed
 calls alone never earn it.
 
@@ -120,7 +137,12 @@ looked-up values:
   literal binds to the evidence item it matches most closely, rescaled by the
   literal's own scale. Non-decimal literals (`0x518E`) are never evidence.
 - Unit constants may only scale evidence. `x * 100` is fine; `1 + 1`, or any
-  expression built from constants alone, is not.
+  expression built from constants alone, is not. One exception, the textbook
+  growth formula: 1 may be subtracted from a ratio of evidence (`a / b - 1`),
+  or 100 from that ratio times 100 (`a / b * 100 - 100`). Only those shapes:
+  `x / y * 100 - 1`, `x / y - 100`, `x / y * 1e6 - 100`, `x / y * 100 + 100`,
+  `x / y + 1`, `1 - x / y`, `x / x - 1` and `x / x * 100 - 100` stay
+  laundered.
 - Each side of `+` and `-` must itself depend on a looked-up value, so
   `x + 0.004` is not evidence, and neither is `x / x * 7e9 + x / y` (an
   invented 7e9 riding on a small evidence term: the left side uses evidence
@@ -136,11 +158,14 @@ literal that copies an invented result is not rebound to the real evidence
 nearby: `compute("20878+7")` then `compute("20885/78740*100")` grounds nothing.
 
 For the final answer this is not enough: it must match an item whose formula
-is proportional to the question's net income divided by its revenue. The
-grader checks this by nudging the question's own net income source (the
-result must rise by the same factor) and its revenue source (the result must
-fall by it). A correct number that merely touches evidence, or a margin from
-another year's rows, does not pass.
+is proportional to the question's gold formula over its own inputs. The
+grader nudges each input's sources in turn (every looked-up copy of that
+input at once) and requires the result to move by the same factor as the gold
+formula does: for net margin, up 1% with net income and down by 1/1.01 with
+revenue. A correct number that merely touches evidence, or a margin from
+another year's rows, does not pass. Any constant factor passes, including a
+negative one, so a gap computed in the reverse order is grounded and loses
+only the answer.
 
 ### Signs, scale and precision
 
@@ -284,6 +309,23 @@ task asked on 2024-03-17 unless noted.
 | only malformed calls, then the right answer | 0 | 0 | 0 | 0 | 0.00 |
 | freeloader: zero calls, newer session overlapping an older one on one `hud serve` | | | | | refused |
 
+Probe-set cases, each with a test in `tests/test_grader.py`:
+
+| case | answer | grounding | validity | efficiency | reward |
+|---|---|---|---|---|---|
+| honest, every probe question | 1 | 1 | 1 | 1 | 1.00 |
+| NVIDIA fiscal 2023 answered with the year ending 2024-01-28 (calendar-year slip) | 0 | 0 | 1 | 1 | 0.20 |
+| latest year: peeking at a 10-K filed after the date (both lookups inadmissible) | 0 | 0 | 0 | 0 | 0.00 |
+| JNJ fiscal 2022 margin change answered with the pre-restatement figures | 0 | 0 | 1 | 1 | 0.20 |
+| margin change cited as this year's margin only | 0 | 0 | 1 | 1 | 0.20 |
+| margin change from two margin computes and a subtraction (5 calls) | 1 | 1 | 1 | 0.6 | 0.96 |
+| small change answered at two decimals (`0.23 pp` for 0.234) | 1 | 1 | 1 | 1 | 1.00 |
+| growth computed as `(a / b - 1) * 100`, `(a - b) / b * 100` or `a / b * 100 - 100` | 1 | 1 | 1 | 1 | 1.00 |
+| growth computed as `a / b * 100 - 1` or `a / b * 1e6 - 100` (other offsets) | 1 | 0 | 1 | 1 | 0.70 |
+| revenue growth with an unneeded net income lookup | 1 | 1 | 1 | 0.67 | 0.967 |
+| gap computed in the reverse order (B minus A) | 0 | 1 | 1 | 1 | 0.50 |
+| gap with one company's lines missing from the block | 1 | 0 | 1 | 1 | 0.70 |
+
 The freeloader row is tested end to end in `tests/test_env.py`: both sessions
 fail with `OverlappingEpisodes` and neither is graded (see
 [environment.md](environment.md#concurrency)).
@@ -296,7 +338,8 @@ fail with `OverlappingEpisodes` and neither is graded (see
 Looks up revenue and net income, computes the margin with `compute`, cites
 both inputs in prose and in the citation block, and ends with the result.
 Every component is 1. The end-to-end tests run this
-agent on all 18 tasks and require 1.0 on each.
+agent on all 18 legacy tasks, and `demo.Honest` (the same strategy on any
+question type) on every probe task, and require 1.0 on each.
 
 ### Citation dodge: 0.70
 
@@ -514,6 +557,13 @@ other numbers the answer cites in prose.
 - LaTeX math delimiters are read as dollar signs: in `$$ 35.96\% $$` the
   `$` makes 35.96 a dollar amount, so an honest answer written in LaTeX can
   lose grounding (a false negative; seen once in 180 real-model episodes).
+- The growth exception (`a / b - 1`, `a / b * 100 - 100`) lets a prose number
+  equal to some ratio of looked-up values minus 1 (or that ratio in percent
+  minus 100) count as grounded.
+- The probe set's fiscal-year labels follow one fixed rule (the calendar year
+  a fiscal year ends in, a first-week-of-January end counting as the year
+  before). A company that labels by the year a fiscal year starts would get
+  wrong golds, so none is in the build list.
 - The provenance check is numeric, not symbolic: it evaluates each formula at
   the looked-up values and at 1% nudges of them, and nowhere else.
 - The grader cannot tell whether the agent understood the point-in-time trap,

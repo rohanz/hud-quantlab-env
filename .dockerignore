@@ -1,4 +1,4 @@
-# The image needs only pyproject.toml, uv.lock, .python-version, env.py, tasks.py
+# The image needs only pyproject.toml, uv.lock, .python-version, env.py, tasks*.py
 # and src/ (fixture.json ships inside the package). pyproject has no readme field,
 # so the build does not need README.md.
 

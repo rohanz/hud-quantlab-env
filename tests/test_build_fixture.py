@@ -72,6 +72,11 @@ def test_restatement_adds_a_row_per_filing():
     ]
 
 
+def test_fiscal_year_focus_is_kept():
+    facts = companyfacts({PREFERRED: [fact(*FY21, 100, "A-22", "2022-02-15")]})
+    assert build_fixture.annual_rows(facts, REVENUE_TAGS)[0]["fy"] == 2022
+
+
 def test_duplicate_facts_collapse_to_one_row_per_filing():
     # companyfacts repeats a fact once per frame it is assigned to.
     facts = companyfacts(
@@ -103,9 +108,11 @@ def fixture_as_companyfacts(rows_by_concept: dict[str, list[dict]]) -> dict:
     by_tag: dict[str, list[dict]] = {}
     for rows in rows_by_concept.values():
         for r in rows:
-            by_tag.setdefault(r["tag"], []).append(
-                fact(r["period_start"], r["period_end"], r["value"], r["accn"], r["filed"], r["form"])
-            )
+            f = fact(r["period_start"], r["period_end"], r["value"], r["accn"], r["filed"], r["form"])
+            f.pop("fy")
+            if "fy" in r:  # fixtures built before the fy field have none
+                f["fy"] = r["fy"]
+            by_tag.setdefault(r["tag"], []).append(f)
     return companyfacts(by_tag)
 
 

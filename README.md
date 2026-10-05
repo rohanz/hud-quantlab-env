@@ -9,13 +9,14 @@ tools during the episode.
 
 ## The task
 
-One question type, point-in-time net margin:
+Point-in-time ratios over annual revenue and net income, in two task sets. The
+legacy set asks one question type, point-in-time net margin:
 
 > What was Johnson & Johnson (JNJ)'s net margin for the fiscal year ending
 > 2022-01-02, using only filings available on 2024-03-17?
 
 To answer it, the agent makes two lookups and one calculation. The gold answer is
-computed from the same data the tools serve. There are 18 tasks (`tasks.py`): five
+computed from the same data the tools serve. There are 18 legacy tasks (`tasks.py`): five
 companies, fiscal years 2022 to 2024, each asked 30 days after the 10-K came out.
 Two extra JNJ tasks re-ask a year after JNJ restated its revenue (its 2024 10-K
 recast earlier years after the Kenvue separation). Asked on 2022-03-19, the FY2021
@@ -34,6 +35,49 @@ REVENUE: 78740000000
 NET_INCOME: 20878000000
 ANSWER: 26.52%
 ```
+
+### The probe set
+
+The legacy set is too easy to separate models: base Qwen3.5-9B scored 0.982
+on it (see [docs/decisions.md](docs/decisions.md)). The probe set is a
+harder, larger, held-out set built from the same tools and grader, with its
+difficulty coming from the questions themselves:
+
+| type | asks for | inputs | par calls |
+|---|---|---|---|
+| `fy_net_margin` | net margin for "fiscal 2023", named by label, not end date | 2 | 3 |
+| `latest_net_margin` | net margin for the latest fiscal year with a 10-K filed by a date | 2 | 3 |
+| `net_margin_change` | change in net margin over the prior fiscal year, in percentage points | 4 | 3 |
+| `revenue_growth` | revenue growth over the prior fiscal year, in percent | 2 | 2 |
+| `net_margin_gap` | one company's net margin minus another's for the same fiscal-year label, in pp | 4 | 5 |
+
+- **Fiscal-year labels.** A fiscal year is labelled by the calendar year it
+  ends in, except that a 52/53-week year ending in the first week of January
+  belongs to the year before: NVIDIA's fiscal 2024 ends 2024-01-28, Apple's
+  fiscal 2023 ends 2023-09-30, JNJ's fiscal 2021 ends 2022-01-02. That is how
+  every company in the fixture names its own years, and the prompt says only
+  that fiscal years are named as the company names them; the tools return
+  period end dates, not labels.
+- **Latest year by a date.** Asked the day before each 10-K, so the latest
+  fiscal year filed is the previous one even when the calendar suggests a
+  newer one has ended (NVIDIA on 2024-02-20: fiscal 2023, not 2024).
+- **Restatements.** Every question whose inputs a later filing changed is
+  asked both before and after the change (JNJ's Kenvue recast). Year-over-year
+  questions are never asked across bases: a restated year is compared only
+  with a prior year from the same filing.
+- **Two-year and two-company arithmetic.** Four inputs, one calculation, and a
+  sign that matters. Changes, growth rates and gaps under 0.1 percentage
+  points are not asked, since they round to nothing at two decimals.
+
+The set is derived from the fixture (`questions.probe_questions`), so it grows
+when the fixture does: 96 tasks with the current five companies (23
+`fy_net_margin`, 21 `latest_net_margin`, 16 `net_margin_change`,
+17 `revenue_growth`, 19 `net_margin_gap`). `scripts/build_fixture.py` now
+lists 15 companies, mostly with non-December fiscal years, and periods ending
+2021 to 2025; the checked-in fixture still has the original five until it is
+regenerated. Each type has its own template; the grader reads the inputs,
+citation labels, gold formula and par call count off the question, so the
+reward is the same formula for every type.
 
 ## Tools (MCP)
 
@@ -189,7 +233,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 305 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 524 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -218,7 +262,7 @@ To try the task lifecycle by hand with the HUD CLI:
 
 ```bash
 export HUD_TELEMETRY_ENABLED=false
-uv run hud task list --source tasks.py
+uv run hud task list --source tasks.py        # both sets; tasks_legacy.py or tasks_probe.py for one
 uv run hud task start net_margin-83d5f782 --source tasks.py
 uv run hud task grade net_margin-83d5f782 --source tasks.py --answer "ANSWER: 26.52%" --json
 ```
@@ -229,7 +273,8 @@ To run a real model (this needs a provider key and costs money):
 export HUD_TELEMETRY_ENABLED=false
 export ANTHROPIC_API_KEY=...        # or HUD_API_KEY with --gateway
 uv run hud eval tasks.py claude --task-ids net_margin-83d5f782 --max-steps 10
-uv run hud eval tasks.py claude --all --max-steps 10   # all 18 tasks
+uv run hud eval tasks_legacy.py claude --all --max-steps 10   # the 18 legacy tasks
+uv run hud eval tasks_probe.py claude --all --max-steps 10    # the probe set
 ```
 
 ### Docker
@@ -264,8 +309,12 @@ deployed there yet.
 ## Data
 
 `src/quantlab_env/fixture.json` (29 KB) holds annual revenue and net income for
-AAPL, MSFT, NVDA, KO and JNJ, periods ending 2021 to 2024. It ships as package
-data and is loaded with `importlib.resources`, so an installed wheel works
+AAPL, MSFT, NVDA, KO and JNJ, periods ending 2021 to 2024. The build script
+now lists 15 companies (adding ORCL, CSCO, NKE, FDX, COST, MU, WMT, DE, GE and
+MMM) and periods ending 2021 to 2025, and records each filing's fiscal-year
+focus (`fy`), which a test checks against the fiscal-year labelling rule; the
+checked-in fixture is the five-company one until it is regenerated. It ships
+as package data and is loaded with `importlib.resources`, so an installed wheel works
 without the source checkout. It keeps every 10-K filing that reported each
 period, which is what makes point-in-time queries work. The data comes from the
 SEC's public XBRL `companyfacts` API. To regenerate it (this is the only step
@@ -280,14 +329,15 @@ The environment never touches the network.
 ## Layout
 
 ```
-env.py                         HUD Environment, MCP tool server, net_margin template, session guard
-tasks.py                       the 18 concrete tasks
+env.py                         HUD Environment, MCP tool server, one template per question type, session guard
+tasks.py                       the two named task sets: legacy (18) and probe (derived from the fixture)
+tasks_legacy.py, tasks_probe.py  one set each, for hud --source
 demo.py                        scripted agents, end to end
 Dockerfile.hud                 container image for hud serve / hud deploy
 src/quantlab_env/data.py       point-in-time fixture access
 src/quantlab_env/tools.py      tools, strict argument checks, episode call log and open episodes
 src/quantlab_env/grader.py     reward
-src/quantlab_env/questions.py  question template and gold answers
+src/quantlab_env/questions.py  question types, fiscal-year labels, gold answers, the legacy and probe sets
 src/quantlab_env/fixture.json  the SEC data the tools serve (package data)
 scripts/build_fixture.py       regenerate the fixture from EDGAR
 tests/                         grader, tools, fixture, fixture builder and end-to-end tests
@@ -322,13 +372,13 @@ docs/                          design notes (see below)
   After it expires, a newer episode is graded normally, and if the abandoned
   session comes back after that newer one began, it is refused; any tool
   calls it makes in the meantime land in the newer episode's log.
-- Compared with QuantLab this has one question type and two tools, not many
-  question types and six tools. Grounding here checks every cited number, not
+- Compared with QuantLab this has six question types over two concepts and
+  two tools, not many question types and six tools. Grounding here checks every cited number, not
   only the final answer. That idea comes from the earlier memo writer's checker.
 - The checked-in fixture is missing three NVIDIA revenue rows (FY2021 and
   FY2022 as re-reported in its 2023 and 2024 10-Ks), dropped by the old
-  per-period tag precedence. No default question can see them, so no gold
-  changes. The fixed builder should add them when the fixture is regenerated;
+  per-period tag precedence. They repeat values already in the fixture, so no
+  gold changes. The fixed builder should add them when the fixture is regenerated;
   `tests/test_build_fixture.py` pins the gap until then.
 
 ## Known limits
@@ -339,6 +389,23 @@ What the grader still cannot catch (details in
 The two inputs are checked exactly, by label, in the citation block. These
 limits apply to the other numbers the answer cites in prose:
 
+- The probe set's difficulty is by design, not calibrated on a model yet: no
+  real model has been run on it, so its target band (base mean reward 0.55 to
+  0.80, reward variance across rollouts on at least 30% of tasks) is untested.
+- The fiscal-year labelling rule is one fixed rule. A company that labels a
+  year by the calendar year it starts in would get wrong golds, so none is in
+  the build list; after regenerating, `tests/test_tools.py` checks the rule
+  against each filing's recorded fiscal-year focus. Revenue is the first
+  matching XBRL tag in `CONCEPTS`; for a newly added company that tag may
+  cover only part of total revenue, so check the new companies' values
+  against their 10-Ks after regenerating.
+- The answer must be proportional to the question's formula, so a negated
+  result (a gap in the reverse order, B minus A) is grounded; the answer
+  subscore is what catches its sign (0.50).
+- Subtracting 1 from a ratio of evidence (`a / b - 1`), or 100 from it in
+  percent (`a / b * 100 - 100`), is allowed for growth, so a prose number
+  equal to some ratio of looked-up values minus 1 (or in percent, minus 100)
+  counts as grounded.
 - Claims written in words ("twenty billion", "seven billion") are not
   extracted or checked, and superscript digits are not read (`7³ billion`
   reads as a bare 7).

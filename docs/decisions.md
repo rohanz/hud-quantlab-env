@@ -354,3 +354,76 @@ adapter was applied.
 - **Known limit added.** LaTeX math delimiters read as dollar signs
   (`$$ 35.96\% $$`), once in 180 episodes.
 - **Tests.** 305 tests pass (236 in `tests/test_grader.py`).
+
+## 2026-10-06: A probe set, and a grader generalised over question types
+
+The 2026-10-05 eval showed the 18 legacy tasks cannot separate models (base
+0.982, SFT 0.968). The target for a held-out "unseen environment" probe is a
+base mean reward of roughly 0.55 to 0.80, reward variance across rollouts on
+at least 30% of tasks, at least 60 tasks over at least 10 companies, with the
+task set and grader version hashed and frozen later. Difficulty must come
+from the design of the questions, not from keeping tasks a model happened to
+fail.
+
+- **Two named sets.** `tasks.py` now holds two HUD `Taskset`s: `legacy`, the
+  18 net-margin tasks, pinned in `questions.LEGACY` so they do not grow with
+  the fixture (prompts, golds and slugs unchanged), and `probe`, derived from
+  the fixture by `questions.probe_questions()`. HUD refuses a source module
+  that exposes a task twice, so `tasks_legacy.py` and `tasks_probe.py` expose
+  one set each for `--source`.
+- **Probe question types**, each its own template: `fy_net_margin` (fiscal
+  year named by label), `latest_net_margin` (the latest fiscal year with a
+  10-K filed by the date, asked the day before each 10-K),
+  `net_margin_change` (percentage points over the prior year),
+  `revenue_growth` and `net_margin_gap` (one company minus another for the
+  same fiscal-year label). Every restatement of a question's inputs is asked
+  both before and after. 96 tasks with the current five companies: 23, 21,
+  16, 17 and 19 of each type.
+- **Fiscal-year labelling rule.** A fiscal year is labelled by the calendar
+  year it ends in, except that a 52/53-week year ending in the first week of
+  January belongs to the year before (`questions.fiscal_year`). This matches
+  how NVIDIA, Apple, Microsoft, Coca-Cola and J&J label their years. The
+  prompt says only that fiscal years are named as the company names them, as
+  an analyst would know; the tools still return end dates, not labels.
+  Retailers that label by the start year (fiscal 2023 ending in early 2024)
+  break the rule and are kept out of the build list.
+- **No mixed bases, no rounding-to-nothing.** A year-over-year question with
+  a restated current year is asked only if the prior year comes from the same
+  filing (JNJ's 2024 10-K restated fiscal 2021 but not 2020, so that pair is
+  not asked as of 2024). Changes, growth and gaps under 0.1 percentage points
+  are not asked (Apple's fiscal 2023 margin change was -0.004 pp).
+- **Grader generalisation, not branching.** A `Question` now exposes its
+  `inputs` (key, ticker, concept, period, value; the citation label is the key
+  in upper case), a gold `formula` and `par_calls` (one lookup per ticker and
+  concept, plus one compute). `citations`, `missing_inputs`,
+  `derived_from_inputs` and efficiency read these. Derivation nudges each
+  input in turn and requires the answer's formula to move as the gold formula
+  does; for net margin that is the old check exactly. All existing tests and
+  scores are unchanged, and the six demo scores are the same.
+- **Two grading changes, each with tests.** (1) The answer is also correct
+  within 0.005 percentage points of gold, the rounding of a two-decimal
+  answer. Without it, MSFT's 0.234 pp margin change answered `0.23 pp` was
+  wrong (1.8% off). For golds above 1%, including every legacy task, the 0.5%
+  relative tolerance is already wider, so nothing changes there. (2) `compute`
+  may subtract 1 from a ratio of evidence (`a / b - 1`), or 100 from that
+  ratio times 100 (`a / b * 100 - 100`), the textbook growth formula in its
+  two common forms, which the "constants only scale evidence" rule rejected.
+  Rejecting the percent form would fail honest answers, a false negative of
+  the same kind as the 2026-10-05 `× 100` one. Only those shapes:
+  `x / y * 100 - 1`, `x / y - 100`, `x / y * 1e6 - 100`, `x / y * 100 + 100`,
+  `x / y * 100 - 99`, `x / y + 1`, `1 - x / y`, `x / x - 1` and
+  `x / x * 100 - 100` stay laundered (tested). Known limit: a prose number
+  equal to a ratio of looked-up values minus 1 (or, in percent, minus 100) is
+  now grounded.
+- **More companies.** `scripts/build_fixture.py` lists 15 companies (adding
+  ORCL, CSCO, NKE, FDX, COST, MU, WMT, DE, GE and MMM; mostly non-December
+  fiscal years, and GE and MMM for spin-off restatements), periods ending
+  2021 to 2025, and records each filing's fiscal-year focus (`fy`). A test
+  checks every period's first 10-K `fy` against the labelling rule once the
+  fixture has it. The fixture was not regenerated here (it needs the network
+  and a contact User-Agent); the probe set grows when it is.
+- **Not calibrated.** No model has been run on the probe set, so whether it
+  lands in the target band is unknown. The honest scripted strategy
+  (`demo.Honest`) scores 1.00 on every probe task end to end.
+- **Tests.** 524 tests pass (353 in `tests/test_grader.py`, 129 in
+  `tests/test_env.py`, 26 in `tests/test_tools.py`).

@@ -2,6 +2,7 @@
 
 import pytest
 
+from demo import honest_answer, honest_expr
 from quantlab_env import questions
 from quantlab_env.grader import admissible_lookup, build_evidence, citations, extract_numbers, final_answer, grade
 from quantlab_env.tools import Episode, execute
@@ -939,3 +940,187 @@ def test_block_values_must_be_ascii_digits(revenue):
     g = grade(answer(PROSE, block=f"REVENUE: {revenue}\nNET_INCOME: {NI}\n"), full_episode().calls, Q)
     assert g.info["missing_inputs"] == ["revenue"]
     assert g.reward == pytest.approx(0.7)
+
+
+# --- the probe set: generalised inputs, labels, formulas and par calls ---------
+
+
+def solve(q: questions.Question, expr: str | None = None, extra: tuple = ()) -> tuple[str, list]:
+    """The honest strategy on any question: one lookup per (ticker, concept), one calculation."""
+    calls = [lookup(c, q.as_of, t) for t, c in dict.fromkeys((i.ticker, i.concept) for i in q.inputs)]
+    ep = episode(*extra, *calls, ("compute", {"expr": expr or honest_expr(q)}))
+    return honest_answer(q, ep.calls[-1].result["value"]), ep.calls
+
+
+@pytest.mark.parametrize("q", questions.probe_questions(), ids=lambda q: f"{q.kind}-{q.ticker}-{q.as_of}")
+def test_honest_agent_scores_full_marks_on_every_probe_question(q):
+    text, calls = solve(q)
+    g = grade(text, calls, q)
+    assert g.reward == 1.0, g.info
+
+
+def test_generic_par_calls_and_labels():
+    change = questions.net_margin_change("JNJ", "2022", "2024-03-17")
+    assert change.par_calls == 3 and Q.par_calls == 3
+    assert questions.revenue_growth("JNJ", "2022", "2024-03-17").par_calls == 2
+    gap = questions.net_margin_gap("NVDA", "AAPL", "2024", "2024-12-01")
+    assert gap.par_calls == 5
+    assert list(gap.labels.values()) == ["NVDA_REVENUE", "NVDA_NET_INCOME", "AAPL_REVENUE", "AAPL_NET_INCOME"]
+    assert gap.prompt.endswith("AAPL_NET_INCOME: <AAPL net income value>\nANSWER: <difference> pp")
+
+
+def test_fiscal_year_labels():
+    """NVIDIA's fiscal 2024 ends in January 2024; JNJ's fiscal 2021 ends on 2022-01-02."""
+    assert questions.fiscal_year("2024-01-28") == 2024
+    assert questions.fiscal_year("2023-09-30") == 2023
+    assert questions.fiscal_year("2022-01-02") == 2021
+    assert questions.fiscal_year("2023-12-31") == 2023
+    assert questions.fy_net_margin("NVDA", "2024", "2025-03-28").period_end == "2024-01-28"
+    assert questions.fy_net_margin("JNJ", "2021", "2024-03-17").period_end == "2022-01-02"
+
+
+def test_wrong_fiscal_year_label_is_caught_by_the_block():
+    """Reading NVIDIA's fiscal 2024 as the year ending in January 2025 is impossible here (not filed by
+    the date), so the common slip is the calendar year: fiscal 2023 read as the year ending 2024-01-28."""
+    q = questions.fy_net_margin("NVDA", "2023", "2024-03-22")
+    assert q.period_end == "2023-01-29"
+    wrong = questions.fy_net_margin("NVDA", "2024", "2024-03-22")
+    text, calls = solve(wrong)
+    g = grade(text, calls, q)
+    assert g.subscores["answer"] == 0.0 and g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.2)
+
+
+def test_latest_year_is_the_one_filed_by_the_date():
+    """The day before NVIDIA's fiscal 2024 10-K, the latest fiscal year is 2023. Peeking at the
+    later filing is a lookup past the date: ignored, so no evidence and no answer credit."""
+    q = questions.latest_net_margin("NVDA", "2024-02-20")
+    assert q.period_end == "2023-01-29"
+    text, calls = solve(q)
+    assert grade(text, calls, q).reward == 1.0
+    peek = questions.latest_net_margin("NVDA", "2024-02-21")
+    text, calls = solve(peek)
+    g = grade(text, calls, q)
+    assert g.info["future_lookups"] == 2 and g.reward == 0.0
+
+
+def test_restatement_straddle_on_margin_change():
+    """JNJ fiscal 2022 vs 2021: before the Kenvue restatement -3.37 pp, after it -4.09 pp."""
+    before = questions.net_margin_change("JNJ", "2022", "2023-03-18")
+    after = questions.net_margin_change("JNJ", "2022", "2024-03-17")
+    assert round(before.gold * 100, 2) == -3.37 and round(after.gold * 100, 2) == -4.09
+    stale, calls = solve(before, extra=())
+    stale_calls = [*calls]
+    text, calls = solve(after)
+    assert grade(text, calls, after).reward == 1.0
+    # the pre-restatement answer, with its own (admissible, earlier) lookups, is wrong and its block is stale
+    g = grade(stale, stale_calls, after)
+    assert g.subscores["answer"] == 0.0 and g.info["missing_inputs"] == ["revenue", "prior_revenue"]
+    assert g.reward == pytest.approx(0.2)
+
+
+def test_mixed_bases_are_not_asked():
+    """As of 2024, JNJ fiscal 2021 is restated but 2020 is not: no question compares them."""
+    asked = {(q.kind, q.ticker, q.period_end, q.as_of) for q in questions.probe_questions()}
+    assert ("net_margin_change", "JNJ", "2022-01-02", "2022-03-19") in asked
+    assert not any(k[1:3] == ("JNJ", "2022-01-02") and k[3] >= "2024-02-16" and k[0] != "fy_net_margin" for k in asked)
+
+
+def test_small_change_is_judged_at_two_decimals():
+    """MSFT's margin rose 0.234 pp in fiscal 2022. "0.23 pp" is 1.8% off in relative terms but
+    is the two-decimal answer; "0.22 pp" is not."""
+    q = questions.net_margin_change("MSFT", "2022", "2022-08-27")
+    assert round(q.gold * 100, 2) == 0.23
+    text, calls = solve(q)
+    assert "ANSWER: 0.23 pp" in text and grade(text, calls, q).reward == 1.0
+    assert grade(text.replace("ANSWER: 0.23 pp", "ANSWER: 0.22 pp"), calls, q).subscores["answer"] == 0.0
+    assert grade(text.replace("ANSWER: 0.23 pp", "ANSWER: 0.23%"), calls, q).subscores["answer"] == 1.0
+
+
+def test_margin_change_needs_both_years_in_one_calculation_chain():
+    """Computing only this year's margin and citing it as the change is wrong; computing both
+    margins separately and subtracting them in a third call is honest, at an efficiency cost."""
+    q = questions.net_margin_change("KO", "2023", "2024-03-21")
+    v = {i.key: int(i.value) for i in q.inputs}
+    text, calls = solve(q, expr=f"{v['net_income']} / {v['revenue']} * 100")
+    g = grade(text, calls, q)
+    assert g.subscores["answer"] == 0.0 and not g.info["answer_derived"]
+    assert g.reward == pytest.approx(0.2)
+    ep = episode(
+        lookup("revenue", q.as_of, "KO"),
+        lookup("net_income", q.as_of, "KO"),
+        ("compute", {"expr": f"{v['net_income']} / {v['revenue']} * 100"}),
+        ("compute", {"expr": f"{v['prior_net_income']} / {v['prior_revenue']} * 100"}),
+    )
+    a, b = ep.calls[2].result["value"], ep.calls[3].result["value"]
+    execute("compute", {"expr": f"{a} - {b}"}, ep)
+    g = grade(honest_answer(q, a - b), ep.calls, q)
+    assert g.subscores["grounding"] == 1.0 and g.subscores["efficiency"] == 0.6
+    assert g.reward == pytest.approx(0.96)
+
+
+def test_growth_as_ratio_minus_one_is_grounded():
+    """`a / b - 1` subtracts a unit constant, which the calculator rules allowed only as a scale.
+    It is the textbook growth formula, so it and its percent form (`a / b * 100 - 100`) are the
+    only allowed offsets. Rejecting the percent form failed honest answers, like the "× 100" bug."""
+    q = questions.revenue_growth("AAPL", "2023", "2023-12-03")
+    v = {i.key: int(i.value) for i in q.inputs}
+    for expr in (
+        f"({v['revenue']} / {v['prior_revenue']} - 1) * 100",
+        f"({v['revenue']} - {v['prior_revenue']}) / {v['prior_revenue']} * 100",
+        f"{v['revenue']} / {v['prior_revenue']} * 100 - 100",
+        f"({v['revenue']} / {v['prior_revenue']}) * 100 - 100",
+    ):
+        text, calls = solve(q, expr=expr)
+        g = grade(text, calls, q)
+        assert g.reward == 1.0, (expr, g.info)
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        f"{NI} / {REV} * 100 - 1",  # a scaled ratio minus 1: not a ratio
+        f"{NI} / {REV} + 1",  # adding is not allowed
+        f"1 - {NI} / {REV}",  # nor 1 minus a ratio
+        f"{NI} / {NI} - 1",  # a ratio that does not depend on evidence
+        f"{NI} / {NI} * 100 - 100",  # nor in percent
+        f"{NI} / {REV} - 100",  # 100 only off a ratio in percent
+        f"{NI} / {REV} * 1e6 - 100",  # scaled by anything but 100
+        f"{NI} / {REV} * 100 + 100",  # adding is not allowed
+        f"{NI} / {REV} * 100 - 99",  # any other offset
+    ],
+)
+def test_other_constant_offsets_stay_laundered(expr):
+    ep = episode(lookup("revenue"), lookup("net_income"), ("compute", {"expr": expr}))
+    assert ep.calls[-1].result["value"] not in build_evidence(ep.calls, Q.as_of).computed
+
+
+def test_gap_sign_and_order_matter():
+    """NVDA minus AAPL for fiscal 2024 is +24.88 pp. The reverse order is honestly looked up,
+    cited and computed (grounded), but the answer has the wrong sign: 0.50."""
+    q = questions.net_margin_gap("NVDA", "AAPL", "2024", "2024-12-01")
+    text, calls = solve(q)
+    assert grade(text, calls, q).reward == 1.0
+    reverse = questions.net_margin_gap("AAPL", "NVDA", "2024", "2024-12-01")
+    text, calls = solve(reverse)
+    g = grade(text, calls, q)
+    assert g.subscores["answer"] == 0.0 and g.subscores["grounding"] == 1.0
+    assert g.reward == pytest.approx(0.5)
+
+
+def test_gap_block_with_one_company_missing_is_ungrounded():
+    q = questions.net_margin_gap("NVDA", "AAPL", "2024", "2024-12-01")
+    text, calls = solve(q)
+    text = "\n".join(line for line in text.splitlines() if not line.startswith("AAPL_"))
+    g = grade(text, calls, q)
+    assert g.info["missing_inputs"] == ["aapl_revenue", "aapl_net_income"]
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_growth_efficiency_counts_an_unneeded_lookup():
+    """Revenue growth needs one lookup; also fetching net income costs efficiency."""
+    q = questions.revenue_growth("KO", "2023", "2024-03-21")
+    text, calls = solve(q, extra=(lookup("net_income", "2024-03-21", "KO"),))
+    g = grade(text, calls, q)
+    assert g.subscores["efficiency"] == pytest.approx(2 / 3)
+    assert g.reward == pytest.approx(0.9 + 0.1 * 2 / 3)

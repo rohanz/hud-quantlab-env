@@ -3,26 +3,30 @@
     reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 
 answer     The number on the final `ANSWER:` line is within 0.5% of the gold
-           margin (as a fraction or a percent), and the episode made at least
-           one successful data lookup. No evidence, no credit.
-grounding  All or nothing. The answer's citation block gives the revenue and
-           net income exactly as a lookup returned them, each under its own
-           label, the final answer is a calculator result derived from them,
-           and every other number cited in the answer traces to a successful
-           tool result from this episode.
+           (as a fraction or a percent), or within 0.005 percentage points of
+           it (the two decimals the prompt asks for), and the episode made at
+           least one successful data lookup. No evidence, no credit.
+grounding  All or nothing. The answer's citation block gives each of the
+           question's inputs exactly as a lookup returned them, each under its
+           own label, the final answer is a calculator result derived from
+           them by the question's formula, and every other number cited in the
+           answer traces to a successful tool result from this episode.
 validity   Share of tool calls that were well formed, and 0 unless a lookup
            succeeded (so also 0 with no calls).
-efficiency PAR_CALLS / max(PAR_CALLS, calls), and 0 unless a lookup
-           succeeded, so a burst of failed calls earns nothing.
+efficiency par / max(par, calls), and 0 unless a lookup succeeded, so a
+           burst of failed calls earns nothing. Par is one lookup per
+           (ticker, concept) the question needs plus one calculation
+           (PAR_CALLS = 3 for net margin).
 
-The citation block is two labelled lines before the `ANSWER:` line:
+The citation block is one labelled line per input before the `ANSWER:` line;
+for net margin:
 
     REVENUE: 78740000000
     NET_INCOME: 20878000000
 
-Each value must equal the question's period row of an admissible lookup of that
-concept for the question's ticker, and the value the gold used. Only formatting
-is allowed: a leading `$` and thousands commas. No rounding, no scale words.
+Each value must equal the input's row (its ticker, concept and period) of an
+admissible lookup, and the value the gold used. Only formatting is allowed: a
+leading `$` and thousands commas. No rounding, no scale words.
 
 Evidence is built from the episode log in call order:
 - `value` fields of successful `get_fundamentals` rows from lookups as of the
@@ -32,8 +36,9 @@ Evidence is built from the episode log in call order:
 - the `value` of a successful `compute` call, if the expression is built from
   evidence: every literal equals evidence at its written precision or is a
   unit constant (1, 100, 1e3, 1e6, 1e9), a unit constant only scales evidence (`x * 100`, never `1 + 1`), both
-  sides of `+` and `-` depend on a looked-up value (`x / x` does not), and so
-  does the result. A memorised number passed through the
+  sides of `+` and `-` depend on a looked-up value (`x / x` does not), except
+  growth: 1 may be subtracted from a ratio (`a / b - 1`), or 100 from it in
+  percent (`a / b * 100 - 100`), and so does the result. A memorised number passed through the
   calculator, or rebuilt from unit constants, stays ungrounded.
 - error results are never evidence, even if they echo the arguments.
 
@@ -45,8 +50,9 @@ correctness uses the 0.5% tolerance, against gold.
 
 Each evidence item keeps its provenance: a formula over the looked-up values.
 The final answer is grounded only if it matches an item whose formula is
-proportional to net income over revenue for the question's own period, so a
-correct number merely touched by evidence does not pass.
+proportional to the question's gold formula over its own inputs (net income
+over revenue for the question's period, for net margin), so a correct number
+merely touched by evidence does not pass.
 """
 
 from __future__ import annotations
@@ -56,12 +62,14 @@ import math
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
+from functools import cache
 
-from .questions import Question
+from .questions import Input, Question
 from .tools import BINOPS, ToolCall
 
 REL_TOL = 0.005
-PAR_CALLS = 3  # revenue lookup, net income lookup, one compute
+ABS_TOL = 0.00005  # 0.005 percentage points: the rounding of an answer given to two decimals
+PAR_CALLS = 3  # net margin: revenue lookup, net income lookup, one compute
 WEIGHTS = {"answer": 0.5, "grounding": 0.3, "validity": 0.1, "efficiency": 0.1}
 UNIT_CONSTANTS = {1.0, 100.0, 1e3, 1e6, 1e9}
 MALFORMED_CODES = {"bad_argument", "unknown_tool", "unknown_ticker", "unknown_concept"}
@@ -142,9 +150,8 @@ _SCALE_WORD = re.compile(
 # commas. Labels (these and ANSWER) are case-insensitive and open their line, after
 # any markdown list, quote, heading or emphasis markers ("> - **REVENUE:** x"); the
 # value may only be wrapped in * or _ emphasis ("**78,740,000,000**").
-_LABELS = {"revenue": "REVENUE", "net_income": "NET_INCOME"}
+_LABELS = {"revenue": "REVENUE", "net_income": "NET_INCOME"}  # net margin's; other questions bring their own
 _LABEL_LINE = r"^(?:[^\S\n]|[*_+>#\-])*({labels})[*_]*[^\S\n]*:[^\S\n]*[*_]*([^\n]*)$"
-_CITATION = re.compile(_LABEL_LINE.format(labels="|".join(_LABELS.values())), re.IGNORECASE | re.MULTILINE)
 _ANSWER = re.compile(_LABEL_LINE.format(labels="ANSWER"), re.IGNORECASE | re.MULTILINE)
 _TOOL_VALUE = re.compile(
     rf"[\s*_]*(?P<sign>[{_DASH}]?)\s*\$?\s*(?P<sign2>[{_DASH}]?)\s*(?P<num>[0-9]{{1,3}}(?:,[0-9]{{3}})+|[0-9]+)[\s*_]*"
@@ -236,12 +243,21 @@ def final_answer(text: str) -> Cited | None:
     return nums[0] if nums else None
 
 
-def citations(text: str) -> dict[str, int | None]:
-    """The citation block: the last `REVENUE:` and `NET_INCOME:` lines, each read as a
-    whole tool value, or None if the line is missing or holds anything else."""
-    lines = {label.upper(): value for label, value in _CITATION.findall(text)}  # the last line of each label wins
+@cache
+def _citation(labels: tuple[str, ...]) -> re.Pattern:
+    alternatives = "|".join(sorted(labels, key=len, reverse=True))
+    return re.compile(_LABEL_LINE.format(labels=alternatives), re.IGNORECASE | re.MULTILINE)
+
+
+def citations(text: str, labels: dict[str, str] | None = None) -> dict[str, int | None]:
+    """The citation block: the last line of each label (by default `REVENUE:` and
+    `NET_INCOME:`), each read as a whole tool value, or None if the line is missing or
+    holds anything else. Keyed by input key."""
+    labels = labels or _LABELS
+    # the last line of each label wins
+    lines = {label.upper(): value for label, value in _citation(tuple(labels.values())).findall(text)}
     cited = {}
-    for concept, label in _LABELS.items():
+    for concept, label in labels.items():
         m = _TOOL_VALUE.fullmatch(lines.get(label, ""))
         if not m or (m["sign"] and m["sign2"]):
             cited[concept] = None
@@ -254,6 +270,16 @@ def citations(text: str) -> dict[str, int | None]:
 def _close(a: float, b: float) -> bool:
     """Within the answer tolerance. Used only to judge the final answer against gold."""
     return math.isclose(a, b, rel_tol=REL_TOL) if b else a == 0
+
+
+def _correct(final: Cited, gold: float) -> bool:
+    """The answer as a percent, or a bare fraction or percent, within 0.5% of gold or
+    within 0.005 percentage points (an answer rounded to two decimals; this only
+    matters for golds under 1%, such as a small change in margin)."""
+    readings = [final.value / 100] if final.kind == "percent" else [final.value]
+    if final.kind == "plain":
+        readings.append(final.value / 100)
+    return any(_close(r, gold) or abs(r - gold) <= ABS_TOL + 1e-12 for r in readings)
 
 
 def _rounds_to(reading: float, half: float, e: float) -> bool:
@@ -341,6 +367,31 @@ class Evidence:
         return lambda v: item.formula(v) * ratio
 
 
+def _is_constant(node: ast.AST, value: float) -> bool:
+    return isinstance(node, ast.Constant) and type(node.value) in (int, float) and node.value == value
+
+
+def _is_ratio(node: ast.AST) -> bool:
+    return isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div)
+
+
+def _growth_offset(node: ast.BinOp) -> bool:
+    """Growth, the only offset by a constant: a ratio minus 1 ("a / b - 1"), or the ratio
+    in percent minus 100 ("a / b * 100 - 100"). The caller checks the left side uses evidence."""
+    if not isinstance(node.op, ast.Sub):
+        return False
+    left = node.left
+    if _is_constant(node.right, 1):
+        return _is_ratio(left)
+    return (
+        _is_constant(node.right, 100)
+        and isinstance(left, ast.BinOp)
+        and isinstance(left.op, ast.Mult)
+        and _is_ratio(left.left)
+        and _is_constant(left.right, 100)
+    )
+
+
 def _formula(node: ast.AST, expr: str, evidence: Evidence) -> tuple[Formula, bool]:
     """A compute expression as a formula over looked-up values, and whether it uses evidence.
 
@@ -359,7 +410,7 @@ def _formula(node: ast.AST, expr: str, evidence: Evidence) -> tuple[Formula, boo
         (left, lused), (right, rused) = _formula(node.left, expr, evidence), _formula(node.right, expr, evidence)
         lused, rused = lused and _depends(left, evidence.base), rused and _depends(right, evidence.base)
         additive = isinstance(node.op, (ast.Add, ast.Sub))
-        if (additive and not (lused and rused)) or not (lused or rused):
+        if (additive and not (lused and rused) and not (lused and _growth_offset(node))) or not (lused or rused):
             raise Laundered("unit constants may only scale evidence")
         op = BINOPS[type(node.op)]
         return (lambda v: op(left(v), right(v))), True
@@ -404,25 +455,32 @@ def build_evidence(calls: list[ToolCall], cutoff: str) -> Evidence:
     return evidence
 
 
-def _input_ids(evidence: Evidence, question: Question, concept: str, value: float) -> set[int]:
+def _input_ids(evidence: Evidence, inp: Input, value: float) -> set[int]:
     return {
         i
         for i, s in enumerate(evidence.sources)
-        if (s.ticker, s.concept, s.period_end, s.value) == (question.ticker, concept, question.period_end, value)
+        if (s.ticker, s.concept, s.period_end, s.value) == (inp.ticker, inp.concept, inp.period_end, value)
     }
 
 
 def derived_from_inputs(item: Item, evidence: Evidence, question: Question) -> bool:
-    """Whether the item is proportional to net income / revenue for the question's period."""
-    ni = _input_ids(evidence, question, "net_income", question.net_income)
-    rev = _input_ids(evidence, question, "revenue", question.revenue)
-    if not (ni and rev):
+    """Whether the item is proportional to the question's gold formula over its inputs.
+
+    Each input is nudged in turn (every looked-up copy of it at once), and the
+    item must respond as the gold formula does: for net margin, up 1% with net
+    income and down by 1/1.01 with revenue.
+    """
+    ids = [_input_ids(evidence, inp, inp.value) for inp in question.inputs]
+    if not all(ids):
         return False
-    base = evidence.base
-    at_base = item.formula(base)
-    return math.isclose(_nudged(item.formula, base, ni), at_base * (1 + _NUDGE), rel_tol=1e-9) and math.isclose(
-        _nudged(item.formula, base, rev), at_base / (1 + _NUDGE), rel_tol=1e-9
-    )
+    base, values = evidence.base, [inp.value for inp in question.inputs]
+    at_base, gold = item.formula(base), question.formula(values)
+    for k, inp_ids in enumerate(ids):
+        nudged = [v * (1 + _NUDGE) if j == k else v for j, v in enumerate(values)]
+        expected = at_base * question.formula(nudged) / gold if gold else 0.0
+        if not math.isclose(_nudged(item.formula, base, inp_ids), expected, rel_tol=1e-9):
+            return False
+    return True
 
 
 @dataclass
@@ -439,23 +497,18 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
     future = sum(1 for c in calls if c.ok and c.name == "get_fundamentals" and not admissible_lookup(c, question.as_of))
 
     final = final_answer(answer)
-    correct = final is not None and (
-        _close(final.value / 100 if final.kind == "percent" else final.value, question.gold)
-        or (final.kind == "plain" and _close(final.value, question.gold * 100))
-    )
+    correct = final is not None and _correct(final, question.gold)
 
     claims = [c for c in extract_numbers(answer) if not c.exempt]
     # a percent is a ratio the calculator produced, never a looked-up amount
     ungrounded = [
         c.text for c in claims if not _matches(c, evidence.computed if c.kind == "percent" else evidence.values)
     ]
-    cited = citations(answer)
+    cited = citations(answer, question.labels)
     missing_inputs = [
-        concept
-        for concept, value in cited.items()
-        if value is None
-        or value != getattr(question, concept)
-        or not _input_ids(evidence, question, concept, float(value))
+        inp.key
+        for inp in question.inputs
+        if (value := cited[inp.key]) is None or value != inp.value or not _input_ids(evidence, inp, float(value))
     ]
     answer_derived = final is not None and any(
         _matches(final, [item.value]) and derived_from_inputs(item, evidence, question) for item in evidence.items
@@ -468,7 +521,7 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         "answer": float(correct and looked_up),
         "grounding": float(grounded),
         "validity": (n - malformed) / n if looked_up else 0.0,
-        "efficiency": PAR_CALLS / max(PAR_CALLS, n) if looked_up else 0.0,
+        "efficiency": question.par_calls / max(question.par_calls, n) if looked_up else 0.0,
     }
     reward = sum(WEIGHTS[k] * v for k, v in subscores.items())
     info = {

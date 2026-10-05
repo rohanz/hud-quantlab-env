@@ -1,4 +1,8 @@
-"""HUD environment: point-in-time net margin from SEC filings, graded on evidence.
+"""HUD environment: point-in-time ratios from SEC filings, graded on evidence.
+
+One template per question type (`quantlab_env.questions`): the legacy
+`net_margin`, and the probe set's `fy_net_margin`, `latest_net_margin`,
+`net_margin_change`, `revenue_growth` and `net_margin_gap`.
 
 The tools are served over MCP by a FastMCP server that an `@env.initialize`
 hook starts and publishes as the `tools` capability. A middleware routes every
@@ -103,9 +107,8 @@ async def close_tool_server() -> None:
         _http = None
 
 
-@env.template(id="net_margin", description="Point-in-time net margin, graded on correctness and evidence")
-async def net_margin(ticker: str, period_end: str, as_of: str):
-    question = questions.build(ticker, period_end, as_of)
+async def _episode(question: questions.Question):
+    """Open an episode, yield the prompt, take the answer, close it and yield the grade."""
     generation = EPISODE.begin()
     try:  # close on grade, on error, and when HUD closes an abandoned generator
         answer = yield question.prompt
@@ -123,3 +126,73 @@ async def net_margin(ticker: str, period_end: str, as_of: str):
         info=result.info,
         subscores=[SubScore(name=k, weight=grader.WEIGHTS[k], value=v) for k, v in result.subscores.items()],
     )
+
+
+# Each template builds its question first (a bad one fails before an episode opens), then
+# relays the prompt, the answer and the grade through `_episode`.
+
+
+@env.template(id="net_margin", description="Point-in-time net margin, graded on correctness and evidence")
+async def net_margin(ticker: str, period_end: str, as_of: str):
+    episode = _episode(questions.build(ticker, period_end, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="fy_net_margin", description="Probe: net margin for a fiscal year named by its label")
+async def fy_net_margin(ticker: str, fiscal_year: str, as_of: str):
+    episode = _episode(questions.fy_net_margin(ticker, fiscal_year, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="latest_net_margin", description="Probe: net margin for the latest fiscal year filed by a date")
+async def latest_net_margin(ticker: str, as_of: str):
+    episode = _episode(questions.latest_net_margin(ticker, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="net_margin_change", description="Probe: change in net margin over the prior fiscal year, in pp")
+async def net_margin_change(ticker: str, fiscal_year: str, as_of: str):
+    episode = _episode(questions.net_margin_change(ticker, fiscal_year, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="revenue_growth", description="Probe: revenue growth over the prior fiscal year")
+async def revenue_growth(ticker: str, fiscal_year: str, as_of: str):
+    episode = _episode(questions.revenue_growth(ticker, fiscal_year, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="net_margin_gap", description="Probe: one company's net margin minus another's, in pp")
+async def net_margin_gap(ticker: str, other: str, fiscal_year: str, as_of: str):
+    episode = _episode(questions.net_margin_gap(ticker, other, fiscal_year, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+TEMPLATES = {
+    t.__name__: t
+    for t in (net_margin, fy_net_margin, latest_net_margin, net_margin_change, revenue_growth, net_margin_gap)
+}

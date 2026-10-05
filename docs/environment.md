@@ -57,19 +57,30 @@ next handler. It returns `tools.execute(...)` as structured content, so every
 call is validated strictly and logged, and FastMCP's own argument validation
 (which coerces values and rejects bad calls before the tool runs) is bypassed.
 
-## Task template
+## Task templates
 
 ```python
 @env.template(id="net_margin", ...)
 async def net_margin(ticker: str, period_end: str, as_of: str): ...
+# the probe set
+async def fy_net_margin(ticker: str, fiscal_year: str, as_of: str): ...
+async def latest_net_margin(ticker: str, as_of: str): ...
+async def net_margin_change(ticker: str, fiscal_year: str, as_of: str): ...
+async def revenue_growth(ticker: str, fiscal_year: str, as_of: str): ...
+async def net_margin_gap(ticker: str, other: str, fiscal_year: str, as_of: str): ...
 ```
 
-1. `questions.build(ticker, period_end, as_of)` computes the gold from the
-   point-in-time data and fails if the period was not filed by `as_of`.
+Each template builds its question and relays it through `_episode`:
+
+1. The question builder (`questions.build` for `net_margin`, the function of
+   the same name for the others) computes the gold from the point-in-time
+   data and fails if a period was not filed by `as_of` (or, for a fiscal-year
+   label, if no single filed period carries it).
 2. `EPISODE.begin()` clears the call log, opens the episode and returns its
    generation.
-3. It yields the prompt (which asks for the `REVENUE:`, `NET_INCOME:` and
-   `ANSWER:` lines) and receives the agent's final text.
+3. It yields the prompt (which asks for one labelled line per input, for net
+   margin `REVENUE:` and `NET_INCOME:`, and the `ANSWER:` line) and receives
+   the agent's final text.
 4. If `EPISODE.overlapped(generation)` (another episode was open at the same
    time), it raises `OverlappingEpisodes` instead of grading (see
    [concurrency](#concurrency)). A `finally` calls `EPISODE.close(generation)`
@@ -80,11 +91,34 @@ async def net_margin(ticker: str, period_end: str, as_of: str): ...
    numbers, missing inputs, whether the answer is derived, call counts
    (total, malformed, future lookups).
 
-`tasks.py` binds the template to `questions.default_questions()`: 18 tasks, one
-per company and fiscal year ending 2022 to 2024, asked 30 days after the later
-of the first revenue and net income filings for that period. Where a period's
-revenue changed in a later filing, the period is asked again 30 days after the
-restatement. Task ids look like `net_margin-83d5f782`.
+`tasks.py` holds two named sets (HUD `Taskset`s); `tasks_legacy.py` and
+`tasks_probe.py` expose one each for `--source`.
+
+- `legacy`: `net_margin` bound to `questions.default_questions()`, 18 tasks
+  pinned in `questions.LEGACY`: one per company and fiscal year ending 2022 to
+  2024, asked 30 days after the later of the first revenue and net income
+  filings for that period, plus JNJ's restatement re-asks. Pinned so the set
+  does not grow with the fixture. Task ids look like `net_margin-83d5f782`.
+- `probe`: each probe template bound to `questions.probe_questions()`,
+  derived from the fixture (96 tasks with the current five companies):
+  - `fy_net_margin`: every company and fiscal-year label, 30 days after the
+    next year's 10-K (so later rows are there to confuse), or after its own
+    if there is none; plus 30 days after every restatement of its inputs and
+    the view before the first one.
+  - `latest_net_margin`: the day before each 10-K after a company's first,
+    when the fixture holds the year that 10-K's predecessor reported.
+  - `net_margin_change` and `revenue_growth`: each fiscal year against the
+    one before, 30 days after its 10-K and around restatements, skipped when
+    a restated year would be compared with a prior year from another filing,
+    or when the result is under 0.1 percentage points.
+  - `net_margin_gap`: for each fiscal-year label, each company (alphabetical)
+    against the next, wrapping round, 30 days after the later 10-K; skipped
+    under 0.1 percentage points.
+
+Fiscal-year labels (`questions.fiscal_year`): the calendar year a fiscal year
+ends in, except that a 52/53-week year ending in the first week of January
+belongs to the year before. NVIDIA's fiscal 2024 ends 2024-01-28 and JNJ's
+fiscal 2021 ends 2022-01-02.
 
 ## Concurrency
 
@@ -149,7 +183,7 @@ Schema:
       "cik": 123456,
       "facts": {
         "<concept>": [
-          {"period_start", "period_end", "value", "form", "filed", "accn", "tag"}
+          {"period_start", "period_end", "value", "form", "filed", "accn", "tag", "fy"}
         ]
       }
     }
@@ -157,7 +191,10 @@ Schema:
 }
 ```
 
-Rows are sorted by `(period_end, filed, accn)`. A period appears once per
+`fy` is the filing's fiscal-year focus as companyfacts reports it (in a
+period's first 10-K, that period's own label); fixtures built before
+2026-10-06, including the checked-in one, have no `fy`. Rows are sorted by
+`(period_end, filed, accn)`. A period appears once per
 10-K that reported it, so a restatement adds a second row for the same period
 with a later `filed` date. The tools expose only `period_end`, `value`,
 `filed` and `form`.
@@ -176,7 +213,7 @@ with a later `filed` date. The tools expose only `period_end`, `value`,
   were dropped and point-in-time history was lost,
 - USD values from `10-K` and `10-K/A` forms only,
 - durations of 350 to 380 days (annual periods),
-- periods ending in 2021 to 2024,
+- periods ending in 2021 to 2025 (2021 to 2024 in the checked-in fixture),
 - one row per `(period_end, accn)`; companyfacts repeats a fact once per
   frame, and the duplicates collapse here.
 

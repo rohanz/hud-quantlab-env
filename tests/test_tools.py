@@ -1,6 +1,6 @@
 import pytest
 
-from quantlab_env import questions
+from quantlab_env import data, questions
 from quantlab_env.tools import Episode, compute, execute, get_fundamentals
 
 
@@ -131,3 +131,49 @@ def test_every_default_question_is_answerable_from_the_tools():
     for q in qs:
         rows = {r["period_end"]: r["value"] for r in get_fundamentals(q.ticker, "revenue", q.as_of)["rows"]}
         assert rows[q.period_end] == q.revenue
+
+
+def test_every_probe_question_is_answerable_from_the_tools():
+    qs = questions.probe_questions()
+    assert len(qs) >= 60
+    assert {q.kind for q in qs} == {
+        "fy_net_margin",
+        "latest_net_margin",
+        "net_margin_change",
+        "revenue_growth",
+        "net_margin_gap",
+    }
+    assert len({(q.kind, tuple(sorted(questions.template_args(q).items()))) for q in qs}) == len(qs)
+    for q in qs:
+        for i in q.inputs:
+            rows = {r["period_end"]: r["value"] for r in get_fundamentals(i.ticker, i.concept, q.as_of)["rows"]}
+            assert rows[i.period_end] == i.value
+        assert abs(q.gold) >= questions.MIN_CHANGE
+
+
+def test_probe_questions_are_posed_by_their_template_args():
+    for q in questions.probe_questions():
+        args = questions.template_args(q)
+        builder = getattr(questions, q.kind)
+        args = {"fiscal": args.pop("fiscal_year"), **args} if "fiscal_year" in args else args
+        assert builder(**args) == q
+
+
+def test_fiscal_year_labels_are_unambiguous_and_match_the_filings():
+    """Each company's periods have distinct labels under the rule, and where the fixture records the
+    filing's fiscal-year focus (fixtures built after 2026-10-06), a period's first 10-K agrees with it."""
+    for company in data.companies().values():
+        facts = company["facts"]
+        periods = sorted({r["period_end"] for r in facts["revenue"]})
+        labels = [questions.fiscal_year(p) for p in periods]
+        assert len(set(labels)) == len(labels), (company["name"], periods)
+        for p in periods:
+            first = min((r for r in facts["revenue"] if r["period_end"] == p), key=lambda r: r["filed"])
+            if first.get("fy") is not None and first["filed"] < _next_period_filed(facts, p):
+                assert first["fy"] == questions.fiscal_year(p), (company["name"], p, first)
+
+
+def _next_period_filed(facts: dict, period_end: str) -> str:
+    """When any later period was first filed: a period's own 10-K comes before it."""
+    own = [r["filed"] for r in facts["revenue"] if r["period_end"] > period_end]
+    return min(own, default="9999-12-31")

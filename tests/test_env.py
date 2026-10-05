@@ -8,9 +8,10 @@ from hud.agents.base import Agent
 from hud.environment.server import TaskRunner, bind
 from hud.eval import LocalRuntime, Runtime
 
-from demo import Scripted
+from demo import Honest, Scripted
 from env import EPISODE, close_tool_server, env, net_margin
-from tasks import tasks
+from quantlab_env.questions import probe_questions
+from tasks import as_tasks, legacy, probe
 
 TASK = net_margin(ticker="JNJ", period_end="2022-01-02", as_of="2024-03-17")
 
@@ -44,10 +45,37 @@ async def test_scripted_agents(style, reward):
     assert names == ["answer", "grounding", "validity", "efficiency"]
 
 
-@pytest.mark.parametrize("task", tasks, ids=lambda t: t.slug)
-async def test_honest_agent_scores_full_marks_on_every_task(task):
+@pytest.mark.parametrize("task", list(legacy), ids=lambda t: t.slug)
+async def test_honest_agent_scores_full_marks_on_every_legacy_task(task):
     r = await run(Scripted("honest"), task)
     assert r.reward == 1.0, r.evaluation
+
+
+PROBE = probe_questions()
+
+
+def test_probe_taskset_binds_every_probe_question():
+    assert [t.slug for t in probe] == [t.slug for t in as_tasks(PROBE)]
+    assert not {t.slug for t in probe} & {t.slug for t in legacy}
+
+
+@pytest.mark.parametrize(
+    ("question", "task"), list(zip(PROBE, probe, strict=True)), ids=lambda x: getattr(x, "slug", "")
+)
+async def test_honest_agent_scores_full_marks_on_every_probe_task(question, task):
+    r = await run(Honest(question), task)
+    assert r.reward == 1.0, r.evaluation
+    assert r.evaluation["info"]["tool_calls"] == question.par_calls
+
+
+async def test_a_probe_task_grades_a_wrong_fiscal_year():
+    """End to end: NVIDIA fiscal 2023 answered with the year ending 2024-01-28 (the calendar-year slip)."""
+    from env import fy_net_margin
+    from quantlab_env.questions import fy_net_margin as build_fy
+
+    task = fy_net_margin(ticker="NVDA", fiscal_year="2023", as_of="2024-03-22")
+    r = await run(Honest(build_fy("NVDA", "2024", "2024-03-22")), task)
+    assert r.reward == pytest.approx(0.2), r.evaluation
 
 
 # Arguments FastMCP's validator would coerce ("2024" -> 2024), repair or reject
