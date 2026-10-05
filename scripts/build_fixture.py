@@ -57,6 +57,13 @@ CONCEPTS = {
     "net_income": ["NetIncomeLoss"],
 }
 
+# Per-company tag order where the default's first tag is a partial line. Walmart reports net sales
+# under RevenueFromContractWithCustomerExcludingAssessedTax and total revenues (net sales plus
+# membership and other income, the line its income statement nets against) under Revenues.
+TAG_OVERRIDES = {
+    "WMT": {"revenue": ["Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet"]},
+}
+
 FIRST_YEAR, LAST_YEAR = 2021, 2025
 OUT = Path(__file__).resolve().parent.parent / "src" / "quantlab_env" / "fixture.json"
 
@@ -114,11 +121,14 @@ def main() -> None:
     }
     for ticker, (name, cik) in COMPANIES.items():
         facts = fetch_companyfacts(cik, user_agent)
+        tags_by_concept = {**CONCEPTS, **TAG_OVERRIDES.get(ticker, {})}
         fixture["companies"][ticker] = {
             "name": name,
             "cik": cik,
-            "facts": {concept: annual_rows(facts, tags) for concept, tags in CONCEPTS.items()},
+            "facts": {concept: annual_rows(facts, tags) for concept, tags in tags_by_concept.items()},
         }
+        if ticker in TAG_OVERRIDES:  # recorded so the fixture stays a fixed point of the builder
+            fixture["companies"][ticker]["concepts"] = tags_by_concept
         print(ticker, {c: len(r) for c, r in fixture["companies"][ticker]["facts"].items()})
     OUT.write_text(json.dumps(fixture, indent=1) + "\n")
     print(f"wrote {OUT}")

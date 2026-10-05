@@ -23,7 +23,8 @@
       "form": "10-K",
       "filed": "2021-10-29",
       "accn": "0000320193-21-000105",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
      },
      {
       "period_start": "2020-09-27",
@@ -32,7 +33,8 @@
       "form": "10-K",
       "filed": "2022-10-28",
       "accn": "0000320193-22-000108",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2020-09-27",
@@ -41,7 +43,8 @@
       "form": "10-K",
       "filed": "2023-11-03",
       "accn": "0000320193-23-000106",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2021-09-26",
@@ -50,7 +53,8 @@
       "form": "10-K",
       "filed": "2022-10-28",
       "accn": "0000320193-22-000108",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2021-09-26",
@@ -59,7 +63,8 @@
       "form": "10-K",
       "filed": "2023-11-03",
       "accn": "0000320193-23-000106",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2021-09-26",
@@ -68,7 +73,8 @@
       "form": "10-K",
       "filed": "2024-11-01",
       "accn": "0000320193-24-000123",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2022-09-25",
@@ -77,7 +83,8 @@
       "form": "10-K",
       "filed": "2023-11-03",
       "accn": "0000320193-23-000106",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2022-09-25",
@@ -86,7 +93,8 @@
       "form": "10-K",
       "filed": "2024-11-01",
       "accn": "0000320193-24-000123",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2022-09-25",
@@ -95,7 +103,8 @@
       "form": "10-K",
       "filed": "2025-10-31",
       "accn": "0000320193-25-000079",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
      },
      {
       "period_start": "2023-10-01",
@@ -104,7 +113,8 @@
       "form": "10-K",
       "filed": "2024-11-01",
       "accn": "0000320193-24-000123",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2023-10-01",
@@ -113,7 +123,18 @@
       "form": "10-K",
       "filed": "2025-10-31",
       "accn": "0000320193-25-000079",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-09-29",
+      "period_end": "2025-09-27",
+      "value": 416161000000,
+      "form": "10-K",
+      "filed": "2025-10-31",
+      "accn": "0000320193-25-000079",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
      }
     ],
     "net_income": [
@@ -124,7 +145,8 @@
       "form": "10-K",
       "filed": "2021-10-29",
       "accn": "0000320193-21-000105",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2021
      },
      {
       "period_start": "2020-09-27",
@@ -133,7 +155,8 @@
       "form": "10-K",
       "filed": "2022-10-28",
       "accn": "0000320193-22-000108",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2020-09-27",
@@ -142,7 +165,8 @@
       "form": "10-K",
       "filed": "2023-11-03",
       "accn": "0000320193-23-000106",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2021-09-26",
@@ -151,7 +175,8 @@
       "form": "10-K",
       "filed": "2022-10-28",
       "accn": "0000320193-22-000108",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2021-09-26",
@@ -160,7 +185,8 @@
       "form": "10-K",
       "filed": "2023-11-03",
       "accn": "0000320193-23-000106",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2021-09-26",
@@ -169,7 +195,8 @@
       "form": "10-K",
       "filed": "2024-11-01",
       "accn": "0000320193-24-000123",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2022-09-25",
@@ -178,7 +205,8 @@
       "form": "10-K",
       "filed": "2023-11-03",
       "accn": "0000320193-23-000106",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-09-25",
@@ -187,7 +215,8 @@
       "form": "10-K",
       "filed": "2024-11-01",
       "accn": "0000320193-24-000123",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2022-09-25",
@@ -196,7 +225,8 @@
       "form": "10-K",
       "filed": "2025-10-31",
       "accn": "0000320193-25-000079",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2023-10-01",
@@ -205,7 +235,8 @@
       "form": "10-K",
       "filed": "2024-11-01",
       "accn": "0000320193-24-000123",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-10-01",
@@ -214,7 +245,18 @@
       "form": "10-K",
       "filed": "2025-10-31",
       "accn": "0000320193-25-000079",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-09-29",
+      "period_end": "2025-09-27",
+      "value": 112010000000,
+      "form": "10-K",
+      "filed": "2025-10-31",
+      "accn": "0000320193-25-000079",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      }
     ]
    }
@@ -231,7 +273,8 @@
       "form": "10-K",
       "filed": "2021-07-29",
       "accn": "0001564590-21-039151",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
      },
      {
       "period_start": "2020-07-01",
@@ -240,7 +283,8 @@
       "form": "10-K",
       "filed": "2022-07-28",
       "accn": "0001564590-22-026876",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2020-07-01",
@@ -249,7 +293,8 @@
       "form": "10-K",
       "filed": "2023-07-27",
       "accn": "0000950170-23-035122",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2021-07-01",
@@ -258,7 +303,8 @@
       "form": "10-K",
       "filed": "2022-07-28",
       "accn": "0001564590-22-026876",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2021-07-01",
@@ -267,7 +313,8 @@
       "form": "10-K",
       "filed": "2023-07-27",
       "accn": "0000950170-23-035122",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2021-07-01",
@@ -276,7 +323,8 @@
       "form": "10-K",
       "filed": "2024-07-30",
       "accn": "0000950170-24-087843",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2022-07-01",
@@ -285,7 +333,8 @@
       "form": "10-K",
       "filed": "2023-07-27",
       "accn": "0000950170-23-035122",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2022-07-01",
@@ -294,7 +343,8 @@
       "form": "10-K",
       "filed": "2024-07-30",
       "accn": "0000950170-24-087843",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2022-07-01",
@@ -303,7 +353,8 @@
       "form": "10-K",
       "filed": "2025-07-30",
       "accn": "0000950170-25-100235",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
      },
      {
       "period_start": "2023-07-01",
@@ -312,7 +363,8 @@
       "form": "10-K",
       "filed": "2024-07-30",
       "accn": "0000950170-24-087843",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2023-07-01",
@@ -321,7 +373,8 @@
       "form": "10-K",
       "filed": "2025-07-30",
       "accn": "0000950170-25-100235",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
      },
      {
       "period_start": "2023-07-01",
@@ -330,7 +383,28 @@
       "form": "10-K",
       "filed": "2026-07-29",
       "accn": "0001193125-26-323660",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-07-01",
+      "period_end": "2025-06-30",
+      "value": 281724000000,
+      "form": "10-K",
+      "filed": "2025-07-30",
+      "accn": "0000950170-25-100235",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-07-01",
+      "period_end": "2025-06-30",
+      "value": 281724000000,
+      "form": "10-K",
+      "filed": "2026-07-29",
+      "accn": "0001193125-26-323660",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
      }
     ],
     "net_income": [
@@ -341,7 +415,8 @@
       "form": "10-K",
       "filed": "2021-07-29",
       "accn": "0001564590-21-039151",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2021
      },
      {
       "period_start": "2020-07-01",
@@ -350,7 +425,8 @@
       "form": "10-K",
       "filed": "2022-07-28",
       "accn": "0001564590-22-026876",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2020-07-01",
@@ -359,7 +435,8 @@
       "form": "10-K",
       "filed": "2023-07-27",
       "accn": "0000950170-23-035122",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2021-07-01",
@@ -368,7 +445,8 @@
       "form": "10-K",
       "filed": "2022-07-28",
       "accn": "0001564590-22-026876",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2021-07-01",
@@ -377,7 +455,8 @@
       "form": "10-K",
       "filed": "2023-07-27",
       "accn": "0000950170-23-035122",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2021-07-01",
@@ -386,7 +465,8 @@
       "form": "10-K",
       "filed": "2024-07-30",
       "accn": "0000950170-24-087843",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2022-07-01",
@@ -395,7 +475,8 @@
       "form": "10-K",
       "filed": "2023-07-27",
       "accn": "0000950170-23-035122",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-07-01",
@@ -404,7 +485,8 @@
       "form": "10-K",
       "filed": "2024-07-30",
       "accn": "0000950170-24-087843",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2022-07-01",
@@ -413,7 +495,8 @@
       "form": "10-K",
       "filed": "2025-07-30",
       "accn": "0000950170-25-100235",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2023-07-01",
@@ -422,7 +505,8 @@
       "form": "10-K",
       "filed": "2024-07-30",
       "accn": "0000950170-24-087843",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-07-01",
@@ -431,7 +515,8 @@
       "form": "10-K",
       "filed": "2025-07-30",
       "accn": "0000950170-25-100235",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2023-07-01",
@@ -440,7 +525,28 @@
       "form": "10-K",
       "filed": "2026-07-29",
       "accn": "0001193125-26-323660",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-07-01",
+      "period_end": "2025-06-30",
+      "value": 101832000000,
+      "form": "10-K",
+      "filed": "2025-07-30",
+      "accn": "0000950170-25-100235",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-07-01",
+      "period_end": "2025-06-30",
+      "value": 101832000000,
+      "form": "10-K",
+      "filed": "2026-07-29",
+      "accn": "0001193125-26-323660",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
      }
     ]
    }
@@ -457,7 +563,8 @@
       "form": "10-K",
       "filed": "2021-02-26",
       "accn": "0001045810-21-000010",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
      },
      {
       "period_start": "2020-01-27",
@@ -466,7 +573,18 @@
       "form": "10-K",
       "filed": "2022-03-18",
       "accn": "0001045810-22-000036",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-01-27",
+      "period_end": "2021-01-31",
+      "value": 16675000000,
+      "form": "10-K",
+      "filed": "2023-02-24",
+      "accn": "0001045810-23-000017",
+      "tag": "Revenues",
+      "fy": 2023
      },
      {
       "period_start": "2021-02-01",
@@ -475,7 +593,28 @@
       "form": "10-K",
       "filed": "2022-03-18",
       "accn": "0001045810-22-000036",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-30",
+      "value": 26914000000,
+      "form": "10-K",
+      "filed": "2023-02-24",
+      "accn": "0001045810-23-000017",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-30",
+      "value": 26914000000,
+      "form": "10-K",
+      "filed": "2024-02-21",
+      "accn": "0001045810-24-000029",
+      "tag": "Revenues",
+      "fy": 2024
      },
      {
       "period_start": "2022-01-31",
@@ -484,7 +623,8 @@
       "form": "10-K",
       "filed": "2023-02-24",
       "accn": "0001045810-23-000017",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-31",
@@ -493,7 +633,8 @@
       "form": "10-K",
       "filed": "2024-02-21",
       "accn": "0001045810-24-000029",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2024
      },
      {
       "period_start": "2022-01-31",
@@ -502,7 +643,8 @@
       "form": "10-K",
       "filed": "2025-02-26",
       "accn": "0001045810-25-000023",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2025
      },
      {
       "period_start": "2023-01-30",
@@ -511,7 +653,8 @@
       "form": "10-K",
       "filed": "2024-02-21",
       "accn": "0001045810-24-000029",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-30",
@@ -520,7 +663,8 @@
       "form": "10-K",
       "filed": "2025-02-26",
       "accn": "0001045810-25-000023",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2025
      },
      {
       "period_start": "2023-01-30",
@@ -529,7 +673,28 @@
       "form": "10-K",
       "filed": "2026-02-25",
       "accn": "0001045810-26-000021",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-01-29",
+      "period_end": "2025-01-26",
+      "value": 130497000000,
+      "form": "10-K",
+      "filed": "2025-02-26",
+      "accn": "0001045810-25-000023",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-01-29",
+      "period_end": "2025-01-26",
+      "value": 130497000000,
+      "form": "10-K",
+      "filed": "2026-02-25",
+      "accn": "0001045810-26-000021",
+      "tag": "Revenues",
+      "fy": 2026
      }
     ],
     "net_income": [
@@ -540,7 +705,8 @@
       "form": "10-K",
       "filed": "2021-02-26",
       "accn": "0001045810-21-000010",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2021
      },
      {
       "period_start": "2020-01-27",
@@ -549,7 +715,8 @@
       "form": "10-K",
       "filed": "2022-03-18",
       "accn": "0001045810-22-000036",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2020-01-27",
@@ -558,7 +725,8 @@
       "form": "10-K",
       "filed": "2023-02-24",
       "accn": "0001045810-23-000017",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2021-02-01",
@@ -567,7 +735,8 @@
       "form": "10-K",
       "filed": "2022-03-18",
       "accn": "0001045810-22-000036",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2021-02-01",
@@ -576,7 +745,8 @@
       "form": "10-K",
       "filed": "2023-02-24",
       "accn": "0001045810-23-000017",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2021-02-01",
@@ -585,7 +755,8 @@
       "form": "10-K",
       "filed": "2024-02-21",
       "accn": "0001045810-24-000029",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2022-01-31",
@@ -594,7 +765,8 @@
       "form": "10-K",
       "filed": "2023-02-24",
       "accn": "0001045810-23-000017",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-31",
@@ -603,7 +775,8 @@
       "form": "10-K",
       "filed": "2024-02-21",
       "accn": "0001045810-24-000029",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2022-01-31",
@@ -612,7 +785,8 @@
       "form": "10-K",
       "filed": "2025-02-26",
       "accn": "0001045810-25-000023",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2023-01-30",
@@ -621,7 +795,8 @@
       "form": "10-K",
       "filed": "2024-02-21",
       "accn": "0001045810-24-000029",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-30",
@@ -630,7 +805,8 @@
       "form": "10-K",
       "filed": "2025-02-26",
       "accn": "0001045810-25-000023",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2023-01-30",
@@ -639,7 +815,28 @@
       "form": "10-K",
       "filed": "2026-02-25",
       "accn": "0001045810-26-000021",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-01-29",
+      "period_end": "2025-01-26",
+      "value": 72880000000,
+      "form": "10-K",
+      "filed": "2025-02-26",
+      "accn": "0001045810-25-000023",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-01-29",
+      "period_end": "2025-01-26",
+      "value": 72880000000,
+      "form": "10-K",
+      "filed": "2026-02-25",
+      "accn": "0001045810-26-000021",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
      }
     ]
    }
@@ -656,7 +853,8 @@
       "form": "10-K",
       "filed": "2022-02-22",
       "accn": "0000021344-22-000009",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2021
      },
      {
       "period_start": "2021-01-01",
@@ -665,7 +863,8 @@
       "form": "10-K",
       "filed": "2023-02-21",
       "accn": "0000021344-23-000011",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2022
      },
      {
       "period_start": "2021-01-01",
@@ -674,7 +873,8 @@
       "form": "10-K",
       "filed": "2024-02-20",
       "accn": "0000021344-24-000009",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-01",
@@ -683,7 +883,8 @@
       "form": "10-K",
       "filed": "2023-02-21",
       "accn": "0000021344-23-000011",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2022
      },
      {
       "period_start": "2022-01-01",
@@ -692,7 +893,8 @@
       "form": "10-K",
       "filed": "2024-02-20",
       "accn": "0000021344-24-000009",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-01",
@@ -701,7 +903,8 @@
       "form": "10-K",
       "filed": "2025-02-20",
       "accn": "0000021344-25-000011",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-01",
@@ -710,7 +913,8 @@
       "form": "10-K",
       "filed": "2024-02-20",
       "accn": "0000021344-24-000009",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2023
      },
      {
       "period_start": "2023-01-01",
@@ -719,7 +923,8 @@
       "form": "10-K",
       "filed": "2025-02-20",
       "accn": "0000021344-25-000011",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-01",
@@ -728,7 +933,8 @@
       "form": "10-K",
       "filed": "2026-02-20",
       "accn": "0001628280-26-010047",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2025
      },
      {
       "period_start": "2024-01-01",
@@ -737,7 +943,8 @@
       "form": "10-K",
       "filed": "2025-02-20",
       "accn": "0000021344-25-000011",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2024
      },
      {
       "period_start": "2024-01-01",
@@ -746,7 +953,18 @@
       "form": "10-K",
       "filed": "2026-02-20",
       "accn": "0001628280-26-010047",
-      "tag": "Revenues"
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "value": 47941000000,
+      "form": "10-K",
+      "filed": "2026-02-20",
+      "accn": "0001628280-26-010047",
+      "tag": "Revenues",
+      "fy": 2025
      }
     ],
     "net_income": [
@@ -757,7 +975,8 @@
       "form": "10-K",
       "filed": "2022-02-22",
       "accn": "0000021344-22-000009",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2021
      },
      {
       "period_start": "2021-01-01",
@@ -766,7 +985,8 @@
       "form": "10-K",
       "filed": "2023-02-21",
       "accn": "0000021344-23-000011",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2021-01-01",
@@ -775,7 +995,8 @@
       "form": "10-K",
       "filed": "2024-02-20",
       "accn": "0000021344-24-000009",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-01",
@@ -784,7 +1005,8 @@
       "form": "10-K",
       "filed": "2023-02-21",
       "accn": "0000021344-23-000011",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2022-01-01",
@@ -793,7 +1015,8 @@
       "form": "10-K",
       "filed": "2024-02-20",
       "accn": "0000021344-24-000009",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-01",
@@ -802,7 +1025,8 @@
       "form": "10-K",
       "filed": "2025-02-20",
       "accn": "0000021344-25-000011",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-01",
@@ -811,7 +1035,8 @@
       "form": "10-K",
       "filed": "2024-02-20",
       "accn": "0000021344-24-000009",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2023-01-01",
@@ -820,7 +1045,8 @@
       "form": "10-K",
       "filed": "2025-02-20",
       "accn": "0000021344-25-000011",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-01",
@@ -829,7 +1055,8 @@
       "form": "10-K",
       "filed": "2026-02-20",
       "accn": "0001628280-26-010047",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2024-01-01",
@@ -838,7 +1065,8 @@
       "form": "10-K",
       "filed": "2025-02-20",
       "accn": "0000021344-25-000011",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2024-01-01",
@@ -847,7 +1075,18 @@
       "form": "10-K",
       "filed": "2026-02-20",
       "accn": "0001628280-26-010047",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "value": 13107000000,
+      "form": "10-K",
+      "filed": "2026-02-20",
+      "accn": "0001628280-26-010047",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      }
     ]
    }
@@ -864,7 +1103,8 @@
       "form": "10-K",
       "filed": "2021-02-22",
       "accn": "0000200406-21-000008",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2020
      },
      {
       "period_start": "2019-12-30",
@@ -873,7 +1113,8 @@
       "form": "10-K",
       "filed": "2022-02-17",
       "accn": "0000200406-22-000022",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
      },
      {
       "period_start": "2019-12-30",
@@ -882,7 +1123,8 @@
       "form": "10-K",
       "filed": "2023-02-16",
       "accn": "0000200406-23-000016",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2021-01-04",
@@ -891,7 +1133,8 @@
       "form": "10-K",
       "filed": "2022-02-17",
       "accn": "0000200406-22-000022",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
      },
      {
       "period_start": "2021-01-04",
@@ -900,7 +1143,8 @@
       "form": "10-K",
       "filed": "2023-02-16",
       "accn": "0000200406-23-000016",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2021-01-04",
@@ -909,7 +1153,8 @@
       "form": "10-K",
       "filed": "2024-02-16",
       "accn": "0000200406-24-000013",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-03",
@@ -918,7 +1163,8 @@
       "form": "10-K",
       "filed": "2023-02-16",
       "accn": "0000200406-23-000016",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
      },
      {
       "period_start": "2022-01-03",
@@ -927,7 +1173,8 @@
       "form": "10-K",
       "filed": "2024-02-16",
       "accn": "0000200406-24-000013",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-03",
@@ -936,7 +1183,8 @@
       "form": "10-K",
       "filed": "2025-02-13",
       "accn": "0000200406-25-000038",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-02",
@@ -945,7 +1193,8 @@
       "form": "10-K",
       "filed": "2024-02-16",
       "accn": "0000200406-24-000013",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
      },
      {
       "period_start": "2023-01-02",
@@ -954,7 +1203,8 @@
       "form": "10-K",
       "filed": "2025-02-13",
       "accn": "0000200406-25-000038",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-02",
@@ -963,7 +1213,8 @@
       "form": "10-K",
       "filed": "2026-02-11",
       "accn": "0000200406-26-000016",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
      },
      {
       "period_start": "2024-01-01",
@@ -972,7 +1223,8 @@
       "form": "10-K",
       "filed": "2025-02-13",
       "accn": "0000200406-25-000038",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
      },
      {
       "period_start": "2024-01-01",
@@ -981,7 +1233,18 @@
       "form": "10-K",
       "filed": "2026-02-11",
       "accn": "0000200406-26-000016",
-      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-12-30",
+      "period_end": "2025-12-28",
+      "value": 94193000000,
+      "form": "10-K",
+      "filed": "2026-02-11",
+      "accn": "0000200406-26-000016",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
      }
     ],
     "net_income": [
@@ -992,7 +1255,8 @@
       "form": "10-K",
       "filed": "2021-02-22",
       "accn": "0000200406-21-000008",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2020
      },
      {
       "period_start": "2019-12-30",
@@ -1001,7 +1265,8 @@
       "form": "10-K",
       "filed": "2022-02-17",
       "accn": "0000200406-22-000022",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2021
      },
      {
       "period_start": "2019-12-30",
@@ -1010,7 +1275,8 @@
       "form": "10-K",
       "filed": "2023-02-16",
       "accn": "0000200406-23-000016",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2021-01-04",
@@ -1019,7 +1285,8 @@
       "form": "10-K",
       "filed": "2022-02-17",
       "accn": "0000200406-22-000022",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2021
      },
      {
       "period_start": "2021-01-04",
@@ -1028,7 +1295,8 @@
       "form": "10-K",
       "filed": "2023-02-16",
       "accn": "0000200406-23-000016",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2021-01-04",
@@ -1037,7 +1305,8 @@
       "form": "10-K",
       "filed": "2024-02-16",
       "accn": "0000200406-24-000013",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-03",
@@ -1046,7 +1315,8 @@
       "form": "10-K",
       "filed": "2023-02-16",
       "accn": "0000200406-23-000016",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2022
      },
      {
       "period_start": "2022-01-03",
@@ -1055,7 +1325,8 @@
       "form": "10-K",
       "filed": "2024-02-16",
       "accn": "0000200406-24-000013",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2022-01-03",
@@ -1064,7 +1335,8 @@
       "form": "10-K",
       "filed": "2025-02-13",
       "accn": "0000200406-25-000038",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-02",
@@ -1073,7 +1345,8 @@
       "form": "10-K",
       "filed": "2024-02-16",
       "accn": "0000200406-24-000013",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2023
      },
      {
       "period_start": "2023-01-02",
@@ -1082,7 +1355,8 @@
       "form": "10-K",
       "filed": "2025-02-13",
       "accn": "0000200406-25-000038",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2023-01-02",
@@ -1091,7 +1365,8 @@
       "form": "10-K",
       "filed": "2026-02-11",
       "accn": "0000200406-26-000016",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      },
      {
       "period_start": "2024-01-01",
@@ -1100,7 +1375,8 @@
       "form": "10-K",
       "filed": "2025-02-13",
       "accn": "0000200406-25-000038",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2024
      },
      {
       "period_start": "2024-01-01",
@@ -1109,7 +1385,2728 @@
       "form": "10-K",
       "filed": "2026-02-11",
       "accn": "0000200406-26-000016",
-      "tag": "NetIncomeLoss"
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-12-30",
+      "period_end": "2025-12-28",
+      "value": 26804000000,
+      "form": "10-K",
+      "filed": "2026-02-11",
+      "accn": "0000200406-26-000016",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     }
+    ]
+   }
+  },
+  "ORCL": {
+   "name": "Oracle Corp.",
+   "cik": 1341439,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 40479000000,
+      "form": "10-K",
+      "filed": "2021-06-21",
+      "accn": "0001564590-21-033616",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 40479000000,
+      "form": "10-K",
+      "filed": "2022-06-21",
+      "accn": "0001564590-22-023675",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 40479000000,
+      "form": "10-K",
+      "filed": "2023-06-20",
+      "accn": "0000950170-23-028914",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 42440000000,
+      "form": "10-K",
+      "filed": "2022-06-21",
+      "accn": "0001564590-22-023675",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 42440000000,
+      "form": "10-K",
+      "filed": "2023-06-20",
+      "accn": "0000950170-23-028914",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 42440000000,
+      "form": "10-K",
+      "filed": "2024-06-20",
+      "accn": "0000950170-24-075605",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 49954000000,
+      "form": "10-K",
+      "filed": "2023-06-20",
+      "accn": "0000950170-23-028914",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 49954000000,
+      "form": "10-K",
+      "filed": "2024-06-20",
+      "accn": "0000950170-24-075605",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 49954000000,
+      "form": "10-K",
+      "filed": "2025-06-18",
+      "accn": "0000950170-25-087926",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 52961000000,
+      "form": "10-K",
+      "filed": "2024-06-20",
+      "accn": "0000950170-24-075605",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 52961000000,
+      "form": "10-K",
+      "filed": "2025-06-18",
+      "accn": "0000950170-25-087926",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 52961000000,
+      "form": "10-K",
+      "filed": "2026-06-22",
+      "accn": "0001193125-26-277521",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 57399000000,
+      "form": "10-K",
+      "filed": "2025-06-18",
+      "accn": "0000950170-25-087926",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 57399000000,
+      "form": "10-K",
+      "filed": "2026-06-22",
+      "accn": "0001193125-26-277521",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 13746000000,
+      "form": "10-K",
+      "filed": "2021-06-21",
+      "accn": "0001564590-21-033616",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 13746000000,
+      "form": "10-K",
+      "filed": "2022-06-21",
+      "accn": "0001564590-22-023675",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 13746000000,
+      "form": "10-K",
+      "filed": "2023-06-20",
+      "accn": "0000950170-23-028914",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 6717000000,
+      "form": "10-K",
+      "filed": "2022-06-21",
+      "accn": "0001564590-22-023675",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 6717000000,
+      "form": "10-K",
+      "filed": "2023-06-20",
+      "accn": "0000950170-23-028914",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 6717000000,
+      "form": "10-K",
+      "filed": "2024-06-20",
+      "accn": "0000950170-24-075605",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 8503000000,
+      "form": "10-K",
+      "filed": "2023-06-20",
+      "accn": "0000950170-23-028914",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 8503000000,
+      "form": "10-K",
+      "filed": "2024-06-20",
+      "accn": "0000950170-24-075605",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 8503000000,
+      "form": "10-K",
+      "filed": "2025-06-18",
+      "accn": "0000950170-25-087926",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 10467000000,
+      "form": "10-K",
+      "filed": "2024-06-20",
+      "accn": "0000950170-24-075605",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 10467000000,
+      "form": "10-K",
+      "filed": "2025-06-18",
+      "accn": "0000950170-25-087926",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 10467000000,
+      "form": "10-K",
+      "filed": "2026-06-22",
+      "accn": "0001193125-26-277521",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 12443000000,
+      "form": "10-K",
+      "filed": "2025-06-18",
+      "accn": "0000950170-25-087926",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 12443000000,
+      "form": "10-K",
+      "filed": "2026-06-22",
+      "accn": "0001193125-26-277521",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     }
+    ]
+   }
+  },
+  "CSCO": {
+   "name": "Cisco Systems, Inc.",
+   "cik": 858877,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-07-26",
+      "period_end": "2021-07-31",
+      "value": 49818000000,
+      "form": "10-K",
+      "filed": "2021-09-09",
+      "accn": "0000858877-21-000013",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-07-26",
+      "period_end": "2021-07-31",
+      "value": 49818000000,
+      "form": "10-K",
+      "filed": "2022-09-08",
+      "accn": "0000858877-22-000013",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-07-26",
+      "period_end": "2021-07-31",
+      "value": 49818000000,
+      "form": "10-K",
+      "filed": "2023-09-07",
+      "accn": "0000858877-23-000023",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-01",
+      "period_end": "2022-07-30",
+      "value": 51557000000,
+      "form": "10-K",
+      "filed": "2022-09-08",
+      "accn": "0000858877-22-000013",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-08-01",
+      "period_end": "2022-07-30",
+      "value": 51557000000,
+      "form": "10-K",
+      "filed": "2023-09-07",
+      "accn": "0000858877-23-000023",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-01",
+      "period_end": "2022-07-30",
+      "value": 51557000000,
+      "form": "10-K",
+      "filed": "2024-09-05",
+      "accn": "0000858877-24-000017",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-07-31",
+      "period_end": "2023-07-29",
+      "value": 56998000000,
+      "form": "10-K",
+      "filed": "2023-09-07",
+      "accn": "0000858877-23-000023",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-07-31",
+      "period_end": "2023-07-29",
+      "value": 56998000000,
+      "form": "10-K",
+      "filed": "2024-09-05",
+      "accn": "0000858877-24-000017",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-07-31",
+      "period_end": "2023-07-29",
+      "value": 56998000000,
+      "form": "10-K",
+      "filed": "2025-09-03",
+      "accn": "0000858877-25-000111",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-07-30",
+      "period_end": "2024-07-27",
+      "value": 53803000000,
+      "form": "10-K",
+      "filed": "2024-09-05",
+      "accn": "0000858877-24-000017",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-07-30",
+      "period_end": "2024-07-27",
+      "value": 53803000000,
+      "form": "10-K",
+      "filed": "2025-09-03",
+      "accn": "0000858877-25-000111",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-07-30",
+      "period_end": "2024-07-27",
+      "value": 53803000000,
+      "form": "10-K",
+      "filed": "2026-09-02",
+      "accn": "0000858877-26-000132",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-07-28",
+      "period_end": "2025-07-26",
+      "value": 56654000000,
+      "form": "10-K",
+      "filed": "2025-09-03",
+      "accn": "0000858877-25-000111",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-07-28",
+      "period_end": "2025-07-26",
+      "value": 56654000000,
+      "form": "10-K",
+      "filed": "2026-09-02",
+      "accn": "0000858877-26-000132",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-07-26",
+      "period_end": "2021-07-31",
+      "value": 10591000000,
+      "form": "10-K",
+      "filed": "2021-09-09",
+      "accn": "0000858877-21-000013",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-07-26",
+      "period_end": "2021-07-31",
+      "value": 10591000000,
+      "form": "10-K",
+      "filed": "2022-09-08",
+      "accn": "0000858877-22-000013",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-07-26",
+      "period_end": "2021-07-31",
+      "value": 10591000000,
+      "form": "10-K",
+      "filed": "2023-09-07",
+      "accn": "0000858877-23-000023",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-01",
+      "period_end": "2022-07-30",
+      "value": 11812000000,
+      "form": "10-K",
+      "filed": "2022-09-08",
+      "accn": "0000858877-22-000013",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-08-01",
+      "period_end": "2022-07-30",
+      "value": 11812000000,
+      "form": "10-K",
+      "filed": "2023-09-07",
+      "accn": "0000858877-23-000023",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-01",
+      "period_end": "2022-07-30",
+      "value": 11812000000,
+      "form": "10-K",
+      "filed": "2024-09-05",
+      "accn": "0000858877-24-000017",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-07-31",
+      "period_end": "2023-07-29",
+      "value": 12613000000,
+      "form": "10-K",
+      "filed": "2023-09-07",
+      "accn": "0000858877-23-000023",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-07-31",
+      "period_end": "2023-07-29",
+      "value": 12613000000,
+      "form": "10-K",
+      "filed": "2024-09-05",
+      "accn": "0000858877-24-000017",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-07-31",
+      "period_end": "2023-07-29",
+      "value": 12613000000,
+      "form": "10-K",
+      "filed": "2025-09-03",
+      "accn": "0000858877-25-000111",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-07-30",
+      "period_end": "2024-07-27",
+      "value": 10320000000,
+      "form": "10-K",
+      "filed": "2024-09-05",
+      "accn": "0000858877-24-000017",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-07-30",
+      "period_end": "2024-07-27",
+      "value": 10320000000,
+      "form": "10-K",
+      "filed": "2025-09-03",
+      "accn": "0000858877-25-000111",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-07-30",
+      "period_end": "2024-07-27",
+      "value": 10320000000,
+      "form": "10-K",
+      "filed": "2026-09-02",
+      "accn": "0000858877-26-000132",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-07-28",
+      "period_end": "2025-07-26",
+      "value": 10180000000,
+      "form": "10-K",
+      "filed": "2025-09-03",
+      "accn": "0000858877-25-000111",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-07-28",
+      "period_end": "2025-07-26",
+      "value": 10180000000,
+      "form": "10-K",
+      "filed": "2026-09-02",
+      "accn": "0000858877-26-000132",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     }
+    ]
+   }
+  },
+  "NKE": {
+   "name": "NIKE, Inc.",
+   "cik": 320187,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 44538000000,
+      "form": "10-K",
+      "filed": "2021-07-20",
+      "accn": "0000320187-21-000028",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 44538000000,
+      "form": "10-K",
+      "filed": "2022-07-21",
+      "accn": "0000320187-22-000038",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 44538000000,
+      "form": "10-K",
+      "filed": "2023-07-20",
+      "accn": "0000320187-23-000039",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 46710000000,
+      "form": "10-K",
+      "filed": "2022-07-21",
+      "accn": "0000320187-22-000038",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 46710000000,
+      "form": "10-K",
+      "filed": "2023-07-20",
+      "accn": "0000320187-23-000039",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 46710000000,
+      "form": "10-K",
+      "filed": "2024-07-25",
+      "accn": "0000320187-24-000044",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 51217000000,
+      "form": "10-K",
+      "filed": "2023-07-20",
+      "accn": "0000320187-23-000039",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 51217000000,
+      "form": "10-K",
+      "filed": "2024-07-25",
+      "accn": "0000320187-24-000044",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 51217000000,
+      "form": "10-K",
+      "filed": "2025-07-17",
+      "accn": "0000320187-25-000047",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 51362000000,
+      "form": "10-K",
+      "filed": "2024-07-25",
+      "accn": "0000320187-24-000044",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 51362000000,
+      "form": "10-K",
+      "filed": "2025-07-17",
+      "accn": "0000320187-25-000047",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 51362000000,
+      "form": "10-K",
+      "filed": "2026-07-15",
+      "accn": "0000320187-26-000088",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 46309000000,
+      "form": "10-K",
+      "filed": "2025-07-17",
+      "accn": "0000320187-25-000047",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 46309000000,
+      "form": "10-K",
+      "filed": "2026-07-15",
+      "accn": "0000320187-26-000088",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 5727000000,
+      "form": "10-K",
+      "filed": "2021-07-20",
+      "accn": "0000320187-21-000028",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 5727000000,
+      "form": "10-K",
+      "filed": "2022-07-21",
+      "accn": "0000320187-22-000038",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 5727000000,
+      "form": "10-K",
+      "filed": "2023-07-20",
+      "accn": "0000320187-23-000039",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 6046000000,
+      "form": "10-K",
+      "filed": "2022-07-21",
+      "accn": "0000320187-22-000038",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 6046000000,
+      "form": "10-K",
+      "filed": "2023-07-20",
+      "accn": "0000320187-23-000039",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 6046000000,
+      "form": "10-K",
+      "filed": "2024-07-25",
+      "accn": "0000320187-24-000044",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 5070000000,
+      "form": "10-K",
+      "filed": "2023-07-20",
+      "accn": "0000320187-23-000039",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 5070000000,
+      "form": "10-K",
+      "filed": "2024-07-25",
+      "accn": "0000320187-24-000044",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 5070000000,
+      "form": "10-K",
+      "filed": "2025-07-17",
+      "accn": "0000320187-25-000047",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 5700000000,
+      "form": "10-K",
+      "filed": "2024-07-25",
+      "accn": "0000320187-24-000044",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 5700000000,
+      "form": "10-K",
+      "filed": "2025-07-17",
+      "accn": "0000320187-25-000047",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 5700000000,
+      "form": "10-K",
+      "filed": "2026-07-15",
+      "accn": "0000320187-26-000088",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 3219000000,
+      "form": "10-K",
+      "filed": "2025-07-17",
+      "accn": "0000320187-25-000047",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 3219000000,
+      "form": "10-K",
+      "filed": "2026-07-15",
+      "accn": "0000320187-26-000088",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     }
+    ]
+   }
+  },
+  "FDX": {
+   "name": "FedEx Corp.",
+   "cik": 1048911,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 83959000000,
+      "form": "10-K",
+      "filed": "2021-07-19",
+      "accn": "0001564590-21-037031",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 83959000000,
+      "form": "10-K",
+      "filed": "2022-07-18",
+      "accn": "0000950170-22-012762",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 83959000000,
+      "form": "10-K",
+      "filed": "2023-07-17",
+      "accn": "0000950170-23-033201",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 93512000000,
+      "form": "10-K",
+      "filed": "2022-07-18",
+      "accn": "0000950170-22-012762",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 93512000000,
+      "form": "10-K",
+      "filed": "2023-07-17",
+      "accn": "0000950170-23-033201",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 93512000000,
+      "form": "10-K",
+      "filed": "2024-07-15",
+      "accn": "0000950170-24-083577",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 90155000000,
+      "form": "10-K",
+      "filed": "2023-07-17",
+      "accn": "0000950170-23-033201",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 90155000000,
+      "form": "10-K",
+      "filed": "2024-07-15",
+      "accn": "0000950170-24-083577",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 90155000000,
+      "form": "10-K",
+      "filed": "2025-07-21",
+      "accn": "0001048911-25-000011",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 87693000000,
+      "form": "10-K",
+      "filed": "2024-07-15",
+      "accn": "0000950170-24-083577",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 87693000000,
+      "form": "10-K",
+      "filed": "2025-07-21",
+      "accn": "0001048911-25-000011",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 87693000000,
+      "form": "10-K",
+      "filed": "2026-07-20",
+      "accn": "0001048911-26-000105",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 87926000000,
+      "form": "10-K",
+      "filed": "2025-07-21",
+      "accn": "0001048911-25-000011",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 87926000000,
+      "form": "10-K",
+      "filed": "2026-07-20",
+      "accn": "0001048911-26-000105",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2026
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 5231000000,
+      "form": "10-K",
+      "filed": "2021-07-19",
+      "accn": "0001564590-21-037031",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 5231000000,
+      "form": "10-K",
+      "filed": "2022-07-18",
+      "accn": "0000950170-22-012762",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-06-01",
+      "period_end": "2021-05-31",
+      "value": 5231000000,
+      "form": "10-K",
+      "filed": "2023-07-17",
+      "accn": "0000950170-23-033201",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 3826000000,
+      "form": "10-K",
+      "filed": "2022-07-18",
+      "accn": "0000950170-22-012762",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 3826000000,
+      "form": "10-K",
+      "filed": "2023-07-17",
+      "accn": "0000950170-23-033201",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-06-01",
+      "period_end": "2022-05-31",
+      "value": 3826000000,
+      "form": "10-K",
+      "filed": "2024-07-15",
+      "accn": "0000950170-24-083577",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 3972000000,
+      "form": "10-K",
+      "filed": "2023-07-17",
+      "accn": "0000950170-23-033201",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 3972000000,
+      "form": "10-K",
+      "filed": "2024-07-15",
+      "accn": "0000950170-24-083577",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-06-01",
+      "period_end": "2023-05-31",
+      "value": 3972000000,
+      "form": "10-K",
+      "filed": "2025-07-21",
+      "accn": "0001048911-25-000011",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 4331000000,
+      "form": "10-K",
+      "filed": "2024-07-15",
+      "accn": "0000950170-24-083577",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 4331000000,
+      "form": "10-K",
+      "filed": "2025-07-21",
+      "accn": "0001048911-25-000011",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-06-01",
+      "period_end": "2024-05-31",
+      "value": 4331000000,
+      "form": "10-K",
+      "filed": "2026-07-20",
+      "accn": "0001048911-26-000105",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 4092000000,
+      "form": "10-K",
+      "filed": "2025-07-21",
+      "accn": "0001048911-25-000011",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-06-01",
+      "period_end": "2025-05-31",
+      "value": 4092000000,
+      "form": "10-K",
+      "filed": "2026-07-20",
+      "accn": "0001048911-26-000105",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     }
+    ]
+   }
+  },
+  "COST": {
+   "name": "Costco Wholesale Corp.",
+   "cik": 909832,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-08-31",
+      "period_end": "2021-08-29",
+      "value": 195929000000,
+      "form": "10-K",
+      "filed": "2021-10-06",
+      "accn": "0000909832-21-000014",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-08-31",
+      "period_end": "2021-08-29",
+      "value": 195929000000,
+      "form": "10-K",
+      "filed": "2022-10-05",
+      "accn": "0000909832-22-000021",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-08-31",
+      "period_end": "2021-08-29",
+      "value": 195929000000,
+      "form": "10-K",
+      "filed": "2023-10-11",
+      "accn": "0000909832-23-000042",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-30",
+      "period_end": "2022-08-28",
+      "value": 226954000000,
+      "form": "10-K",
+      "filed": "2022-10-05",
+      "accn": "0000909832-22-000021",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-08-30",
+      "period_end": "2022-08-28",
+      "value": 226954000000,
+      "form": "10-K",
+      "filed": "2023-10-11",
+      "accn": "0000909832-23-000042",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-30",
+      "period_end": "2022-08-28",
+      "value": 226954000000,
+      "form": "10-K",
+      "filed": "2024-10-09",
+      "accn": "0000909832-24-000049",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-08-29",
+      "period_end": "2023-09-03",
+      "value": 242290000000,
+      "form": "10-K",
+      "filed": "2023-10-11",
+      "accn": "0000909832-23-000042",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-08-29",
+      "period_end": "2023-09-03",
+      "value": 242290000000,
+      "form": "10-K",
+      "filed": "2024-10-09",
+      "accn": "0000909832-24-000049",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-08-29",
+      "period_end": "2023-09-03",
+      "value": 242290000000,
+      "form": "10-K",
+      "filed": "2025-10-08",
+      "accn": "0000909832-25-000101",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-09-04",
+      "period_end": "2024-09-01",
+      "value": 254453000000,
+      "form": "10-K",
+      "filed": "2024-10-09",
+      "accn": "0000909832-24-000049",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-09-04",
+      "period_end": "2024-09-01",
+      "value": 254453000000,
+      "form": "10-K",
+      "filed": "2025-10-08",
+      "accn": "0000909832-25-000101",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-09-02",
+      "period_end": "2025-08-31",
+      "value": 275235000000,
+      "form": "10-K",
+      "filed": "2025-10-08",
+      "accn": "0000909832-25-000101",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-08-31",
+      "period_end": "2021-08-29",
+      "value": 5007000000,
+      "form": "10-K",
+      "filed": "2021-10-06",
+      "accn": "0000909832-21-000014",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-08-31",
+      "period_end": "2021-08-29",
+      "value": 5007000000,
+      "form": "10-K",
+      "filed": "2022-10-05",
+      "accn": "0000909832-22-000021",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-08-31",
+      "period_end": "2021-08-29",
+      "value": 5007000000,
+      "form": "10-K",
+      "filed": "2023-10-11",
+      "accn": "0000909832-23-000042",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-30",
+      "period_end": "2022-08-28",
+      "value": 5844000000,
+      "form": "10-K",
+      "filed": "2022-10-05",
+      "accn": "0000909832-22-000021",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-08-30",
+      "period_end": "2022-08-28",
+      "value": 5844000000,
+      "form": "10-K",
+      "filed": "2023-10-11",
+      "accn": "0000909832-23-000042",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-08-30",
+      "period_end": "2022-08-28",
+      "value": 5844000000,
+      "form": "10-K",
+      "filed": "2024-10-09",
+      "accn": "0000909832-24-000049",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-08-29",
+      "period_end": "2023-09-03",
+      "value": 6292000000,
+      "form": "10-K",
+      "filed": "2023-10-11",
+      "accn": "0000909832-23-000042",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-08-29",
+      "period_end": "2023-09-03",
+      "value": 6292000000,
+      "form": "10-K",
+      "filed": "2024-10-09",
+      "accn": "0000909832-24-000049",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-08-29",
+      "period_end": "2023-09-03",
+      "value": 6292000000,
+      "form": "10-K",
+      "filed": "2025-10-08",
+      "accn": "0000909832-25-000101",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-09-04",
+      "period_end": "2024-09-01",
+      "value": 7367000000,
+      "form": "10-K",
+      "filed": "2024-10-09",
+      "accn": "0000909832-24-000049",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-09-04",
+      "period_end": "2024-09-01",
+      "value": 7367000000,
+      "form": "10-K",
+      "filed": "2025-10-08",
+      "accn": "0000909832-25-000101",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-09-02",
+      "period_end": "2025-08-31",
+      "value": 8099000000,
+      "form": "10-K",
+      "filed": "2025-10-08",
+      "accn": "0000909832-25-000101",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     }
+    ]
+   }
+  },
+  "MU": {
+   "name": "Micron Technology, Inc.",
+   "cik": 723125,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-09-04",
+      "period_end": "2021-09-02",
+      "value": 27705000000,
+      "form": "10-K",
+      "filed": "2021-10-08",
+      "accn": "0000723125-21-000065",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-09-04",
+      "period_end": "2021-09-02",
+      "value": 27705000000,
+      "form": "10-K",
+      "filed": "2022-10-07",
+      "accn": "0000723125-22-000048",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-09-04",
+      "period_end": "2021-09-02",
+      "value": 27705000000,
+      "form": "10-K",
+      "filed": "2023-10-06",
+      "accn": "0000723125-23-000054",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-09-03",
+      "period_end": "2022-09-01",
+      "value": 30758000000,
+      "form": "10-K",
+      "filed": "2022-10-07",
+      "accn": "0000723125-22-000048",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-09-03",
+      "period_end": "2022-09-01",
+      "value": 30758000000,
+      "form": "10-K",
+      "filed": "2023-10-06",
+      "accn": "0000723125-23-000054",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-09-03",
+      "period_end": "2022-09-01",
+      "value": 30758000000,
+      "form": "10-K",
+      "filed": "2024-10-04",
+      "accn": "0000723125-24-000027",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-09-02",
+      "period_end": "2023-08-31",
+      "value": 15540000000,
+      "form": "10-K",
+      "filed": "2023-10-06",
+      "accn": "0000723125-23-000054",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-09-02",
+      "period_end": "2023-08-31",
+      "value": 15540000000,
+      "form": "10-K",
+      "filed": "2024-10-04",
+      "accn": "0000723125-24-000027",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-09-02",
+      "period_end": "2023-08-31",
+      "value": 15540000000,
+      "form": "10-K",
+      "filed": "2025-10-03",
+      "accn": "0000723125-25-000028",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-09-01",
+      "period_end": "2024-08-29",
+      "value": 25111000000,
+      "form": "10-K",
+      "filed": "2024-10-04",
+      "accn": "0000723125-24-000027",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-09-01",
+      "period_end": "2024-08-29",
+      "value": 25111000000,
+      "form": "10-K",
+      "filed": "2025-10-03",
+      "accn": "0000723125-25-000028",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-08-30",
+      "period_end": "2025-08-28",
+      "value": 37378000000,
+      "form": "10-K",
+      "filed": "2025-10-03",
+      "accn": "0000723125-25-000028",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-09-04",
+      "period_end": "2021-09-02",
+      "value": 5861000000,
+      "form": "10-K",
+      "filed": "2021-10-08",
+      "accn": "0000723125-21-000065",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-09-04",
+      "period_end": "2021-09-02",
+      "value": 5861000000,
+      "form": "10-K",
+      "filed": "2022-10-07",
+      "accn": "0000723125-22-000048",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-09-04",
+      "period_end": "2021-09-02",
+      "value": 5861000000,
+      "form": "10-K",
+      "filed": "2023-10-06",
+      "accn": "0000723125-23-000054",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-09-03",
+      "period_end": "2022-09-01",
+      "value": 8687000000,
+      "form": "10-K",
+      "filed": "2022-10-07",
+      "accn": "0000723125-22-000048",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-09-03",
+      "period_end": "2022-09-01",
+      "value": 8687000000,
+      "form": "10-K",
+      "filed": "2023-10-06",
+      "accn": "0000723125-23-000054",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-09-03",
+      "period_end": "2022-09-01",
+      "value": 8687000000,
+      "form": "10-K",
+      "filed": "2024-10-04",
+      "accn": "0000723125-24-000027",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-09-02",
+      "period_end": "2023-08-31",
+      "value": -5833000000,
+      "form": "10-K",
+      "filed": "2023-10-06",
+      "accn": "0000723125-23-000054",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-09-02",
+      "period_end": "2023-08-31",
+      "value": -5833000000,
+      "form": "10-K",
+      "filed": "2024-10-04",
+      "accn": "0000723125-24-000027",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-09-02",
+      "period_end": "2023-08-31",
+      "value": -5833000000,
+      "form": "10-K",
+      "filed": "2025-10-03",
+      "accn": "0000723125-25-000028",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-09-01",
+      "period_end": "2024-08-29",
+      "value": 778000000,
+      "form": "10-K",
+      "filed": "2024-10-04",
+      "accn": "0000723125-24-000027",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-09-01",
+      "period_end": "2024-08-29",
+      "value": 778000000,
+      "form": "10-K",
+      "filed": "2025-10-03",
+      "accn": "0000723125-25-000028",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-08-30",
+      "period_end": "2025-08-28",
+      "value": 8539000000,
+      "form": "10-K",
+      "filed": "2025-10-03",
+      "accn": "0000723125-25-000028",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     }
+    ]
+   }
+  },
+  "WMT": {
+   "name": "Walmart Inc.",
+   "cik": 104169,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-02-01",
+      "period_end": "2021-01-31",
+      "value": 559151000000,
+      "form": "10-K",
+      "filed": "2021-03-19",
+      "accn": "0000104169-21-000033",
+      "tag": "Revenues",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-02-01",
+      "period_end": "2021-01-31",
+      "value": 559151000000,
+      "form": "10-K",
+      "filed": "2022-03-18",
+      "accn": "0000104169-22-000012",
+      "tag": "Revenues",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-02-01",
+      "period_end": "2021-01-31",
+      "value": 559151000000,
+      "form": "10-K",
+      "filed": "2023-03-17",
+      "accn": "0000104169-23-000020",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-31",
+      "value": 572754000000,
+      "form": "10-K",
+      "filed": "2022-03-18",
+      "accn": "0000104169-22-000012",
+      "tag": "Revenues",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-31",
+      "value": 572754000000,
+      "form": "10-K",
+      "filed": "2023-03-17",
+      "accn": "0000104169-23-000020",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-31",
+      "value": 572754000000,
+      "form": "10-K",
+      "filed": "2024-03-15",
+      "accn": "0000104169-24-000056",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-02-01",
+      "period_end": "2023-01-31",
+      "value": 611289000000,
+      "form": "10-K",
+      "filed": "2023-03-17",
+      "accn": "0000104169-23-000020",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-02-01",
+      "period_end": "2023-01-31",
+      "value": 611289000000,
+      "form": "10-K",
+      "filed": "2024-03-15",
+      "accn": "0000104169-24-000056",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-02-01",
+      "period_end": "2023-01-31",
+      "value": 611289000000,
+      "form": "10-K",
+      "filed": "2025-03-14",
+      "accn": "0000104169-25-000021",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-02-01",
+      "period_end": "2024-01-31",
+      "value": 648125000000,
+      "form": "10-K",
+      "filed": "2024-03-15",
+      "accn": "0000104169-24-000056",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-02-01",
+      "period_end": "2024-01-31",
+      "value": 648125000000,
+      "form": "10-K",
+      "filed": "2025-03-14",
+      "accn": "0000104169-25-000021",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-02-01",
+      "period_end": "2024-01-31",
+      "value": 648125000000,
+      "form": "10-K",
+      "filed": "2026-03-13",
+      "accn": "0000104169-26-000055",
+      "tag": "Revenues",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-02-01",
+      "period_end": "2025-01-31",
+      "value": 680985000000,
+      "form": "10-K",
+      "filed": "2025-03-14",
+      "accn": "0000104169-25-000021",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-02-01",
+      "period_end": "2025-01-31",
+      "value": 680985000000,
+      "form": "10-K",
+      "filed": "2026-03-13",
+      "accn": "0000104169-26-000055",
+      "tag": "Revenues",
+      "fy": 2026
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-02-01",
+      "period_end": "2021-01-31",
+      "value": 13510000000,
+      "form": "10-K",
+      "filed": "2021-03-19",
+      "accn": "0000104169-21-000033",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-02-01",
+      "period_end": "2021-01-31",
+      "value": 13510000000,
+      "form": "10-K",
+      "filed": "2022-03-18",
+      "accn": "0000104169-22-000012",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-02-01",
+      "period_end": "2021-01-31",
+      "value": 13510000000,
+      "form": "10-K",
+      "filed": "2023-03-17",
+      "accn": "0000104169-23-000020",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-31",
+      "value": 13673000000,
+      "form": "10-K",
+      "filed": "2022-03-18",
+      "accn": "0000104169-22-000012",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-31",
+      "value": 13673000000,
+      "form": "10-K",
+      "filed": "2023-03-17",
+      "accn": "0000104169-23-000020",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-02-01",
+      "period_end": "2022-01-31",
+      "value": 13673000000,
+      "form": "10-K",
+      "filed": "2024-03-15",
+      "accn": "0000104169-24-000056",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-02-01",
+      "period_end": "2023-01-31",
+      "value": 11680000000,
+      "form": "10-K",
+      "filed": "2023-03-17",
+      "accn": "0000104169-23-000020",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-02-01",
+      "period_end": "2023-01-31",
+      "value": 11680000000,
+      "form": "10-K",
+      "filed": "2024-03-15",
+      "accn": "0000104169-24-000056",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-02-01",
+      "period_end": "2023-01-31",
+      "value": 11680000000,
+      "form": "10-K",
+      "filed": "2025-03-14",
+      "accn": "0000104169-25-000021",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-02-01",
+      "period_end": "2024-01-31",
+      "value": 15511000000,
+      "form": "10-K",
+      "filed": "2024-03-15",
+      "accn": "0000104169-24-000056",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-02-01",
+      "period_end": "2024-01-31",
+      "value": 15511000000,
+      "form": "10-K",
+      "filed": "2025-03-14",
+      "accn": "0000104169-25-000021",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-02-01",
+      "period_end": "2024-01-31",
+      "value": 15511000000,
+      "form": "10-K",
+      "filed": "2026-03-13",
+      "accn": "0000104169-26-000055",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     },
+     {
+      "period_start": "2024-02-01",
+      "period_end": "2025-01-31",
+      "value": 19436000000,
+      "form": "10-K",
+      "filed": "2025-03-14",
+      "accn": "0000104169-25-000021",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-02-01",
+      "period_end": "2025-01-31",
+      "value": 19436000000,
+      "form": "10-K",
+      "filed": "2026-03-13",
+      "accn": "0000104169-26-000055",
+      "tag": "NetIncomeLoss",
+      "fy": 2026
+     }
+    ]
+   },
+   "concepts": {
+    "revenue": [
+     "Revenues",
+     "RevenueFromContractWithCustomerExcludingAssessedTax",
+     "SalesRevenueNet"
+    ],
+    "net_income": [
+     "NetIncomeLoss"
+    ]
+   }
+  },
+  "DE": {
+   "name": "Deere & Co.",
+   "cik": 315189,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2020-11-02",
+      "period_end": "2021-10-31",
+      "value": 44024000000,
+      "form": "10-K",
+      "filed": "2021-12-16",
+      "accn": "0001558370-21-016864",
+      "tag": "Revenues",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-11-02",
+      "period_end": "2021-10-31",
+      "value": 44024000000,
+      "form": "10-K",
+      "filed": "2022-12-15",
+      "accn": "0001558370-22-018703",
+      "tag": "Revenues",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-11-02",
+      "period_end": "2021-10-31",
+      "value": 44024000000,
+      "form": "10-K",
+      "filed": "2023-12-15",
+      "accn": "0001558370-23-019812",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-11-01",
+      "period_end": "2022-10-30",
+      "value": 52577000000,
+      "form": "10-K",
+      "filed": "2022-12-15",
+      "accn": "0001558370-22-018703",
+      "tag": "Revenues",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-11-01",
+      "period_end": "2022-10-30",
+      "value": 52577000000,
+      "form": "10-K",
+      "filed": "2023-12-15",
+      "accn": "0001558370-23-019812",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-11-01",
+      "period_end": "2022-10-30",
+      "value": 52577000000,
+      "form": "10-K",
+      "filed": "2024-12-12",
+      "accn": "0001558370-24-016169",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-10-31",
+      "period_end": "2023-10-29",
+      "value": 61251000000,
+      "form": "10-K",
+      "filed": "2023-12-15",
+      "accn": "0001558370-23-019812",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-10-31",
+      "period_end": "2023-10-29",
+      "value": 61251000000,
+      "form": "10-K",
+      "filed": "2024-12-12",
+      "accn": "0001558370-24-016169",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-10-31",
+      "period_end": "2023-10-29",
+      "value": 61251000000,
+      "form": "10-K",
+      "filed": "2025-12-18",
+      "accn": "0001104659-25-122321",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-10-30",
+      "period_end": "2024-10-27",
+      "value": 51716000000,
+      "form": "10-K",
+      "filed": "2024-12-12",
+      "accn": "0001558370-24-016169",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-10-30",
+      "period_end": "2024-10-27",
+      "value": 51716000000,
+      "form": "10-K",
+      "filed": "2025-12-18",
+      "accn": "0001104659-25-122321",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-10-28",
+      "period_end": "2025-11-02",
+      "value": 45684000000,
+      "form": "10-K",
+      "filed": "2025-12-18",
+      "accn": "0001104659-25-122321",
+      "tag": "Revenues",
+      "fy": 2025
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2020-11-02",
+      "period_end": "2021-10-31",
+      "value": 5963000000,
+      "form": "10-K",
+      "filed": "2021-12-16",
+      "accn": "0001558370-21-016864",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2020-11-02",
+      "period_end": "2021-10-31",
+      "value": 5963000000,
+      "form": "10-K",
+      "filed": "2022-12-15",
+      "accn": "0001558370-22-018703",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2020-11-02",
+      "period_end": "2021-10-31",
+      "value": 5963000000,
+      "form": "10-K",
+      "filed": "2023-12-15",
+      "accn": "0001558370-23-019812",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-11-01",
+      "period_end": "2022-10-30",
+      "value": 7131000000,
+      "form": "10-K",
+      "filed": "2022-12-15",
+      "accn": "0001558370-22-018703",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-11-01",
+      "period_end": "2022-10-30",
+      "value": 7131000000,
+      "form": "10-K",
+      "filed": "2023-12-15",
+      "accn": "0001558370-23-019812",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2021-11-01",
+      "period_end": "2022-10-30",
+      "value": 7131000000,
+      "form": "10-K",
+      "filed": "2024-12-12",
+      "accn": "0001558370-24-016169",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-10-31",
+      "period_end": "2023-10-29",
+      "value": 10166000000,
+      "form": "10-K",
+      "filed": "2023-12-15",
+      "accn": "0001558370-23-019812",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-10-31",
+      "period_end": "2023-10-29",
+      "value": 10166000000,
+      "form": "10-K",
+      "filed": "2024-12-12",
+      "accn": "0001558370-24-016169",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2022-10-31",
+      "period_end": "2023-10-29",
+      "value": 10166000000,
+      "form": "10-K",
+      "filed": "2025-12-18",
+      "accn": "0001104659-25-122321",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2023-10-30",
+      "period_end": "2024-10-27",
+      "value": 7100000000,
+      "form": "10-K",
+      "filed": "2024-12-12",
+      "accn": "0001558370-24-016169",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-10-30",
+      "period_end": "2024-10-27",
+      "value": 7100000000,
+      "form": "10-K",
+      "filed": "2025-12-18",
+      "accn": "0001104659-25-122321",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-10-28",
+      "period_end": "2025-11-02",
+      "value": 5027000000,
+      "form": "10-K",
+      "filed": "2025-12-18",
+      "accn": "0001104659-25-122321",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     }
+    ]
+   }
+  },
+  "GE": {
+   "name": "General Electric Co.",
+   "cik": 40545,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 74196000000,
+      "form": "10-K",
+      "filed": "2022-02-11",
+      "accn": "0000040545-22-000008",
+      "tag": "Revenues",
+      "fy": 2021
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 74196000000,
+      "form": "10-K",
+      "filed": "2023-02-10",
+      "accn": "0000040545-23-000023",
+      "tag": "Revenues",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 56469000000,
+      "form": "10-K",
+      "filed": "2024-02-02",
+      "accn": "0000040545-24-000027",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 76555000000,
+      "form": "10-K",
+      "filed": "2023-02-10",
+      "accn": "0000040545-23-000023",
+      "tag": "Revenues",
+      "fy": 2022
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 58100000000,
+      "form": "10-K",
+      "filed": "2024-02-02",
+      "accn": "0000040545-24-000027",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 29139000000,
+      "form": "10-K",
+      "filed": "2025-02-03",
+      "accn": "0000040545-25-000015",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 67954000000,
+      "form": "10-K",
+      "filed": "2024-02-02",
+      "accn": "0000040545-24-000027",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 35348000000,
+      "form": "10-K",
+      "filed": "2025-02-03",
+      "accn": "0000040545-25-000015",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 35348000000,
+      "form": "10-K",
+      "filed": "2026-01-29",
+      "accn": "0000040545-26-000008",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 38702000000,
+      "form": "10-K",
+      "filed": "2025-02-03",
+      "accn": "0000040545-25-000015",
+      "tag": "Revenues",
+      "fy": 2024
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 38702000000,
+      "form": "10-K",
+      "filed": "2026-01-29",
+      "accn": "0000040545-26-000008",
+      "tag": "Revenues",
+      "fy": 2025
+     },
+     {
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "value": 45855000000,
+      "form": "10-K",
+      "filed": "2026-01-29",
+      "accn": "0000040545-26-000008",
+      "tag": "Revenues",
+      "fy": 2025
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": -6520000000,
+      "form": "10-K",
+      "filed": "2022-02-11",
+      "accn": "0000040545-22-000008",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": -6520000000,
+      "form": "10-K",
+      "filed": "2023-02-10",
+      "accn": "0000040545-23-000023",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": -6337000000,
+      "form": "10-K",
+      "filed": "2024-02-02",
+      "accn": "0000040545-24-000027",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 225000000,
+      "form": "10-K",
+      "filed": "2023-02-10",
+      "accn": "0000040545-23-000023",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 339000000,
+      "form": "10-K",
+      "filed": "2024-02-02",
+      "accn": "0000040545-24-000027",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 336000000,
+      "form": "10-K",
+      "filed": "2025-02-03",
+      "accn": "0000040545-25-000015",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 9481000000,
+      "form": "10-K",
+      "filed": "2024-02-02",
+      "accn": "0000040545-24-000027",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 9482000000,
+      "form": "10-K",
+      "filed": "2025-02-03",
+      "accn": "0000040545-25-000015",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 9482000000,
+      "form": "10-K",
+      "filed": "2026-01-29",
+      "accn": "0000040545-26-000008",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 6556000000,
+      "form": "10-K",
+      "filed": "2025-02-03",
+      "accn": "0000040545-25-000015",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 6556000000,
+      "form": "10-K",
+      "filed": "2026-01-29",
+      "accn": "0000040545-26-000008",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "value": 8704000000,
+      "form": "10-K",
+      "filed": "2026-01-29",
+      "accn": "0000040545-26-000008",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     }
+    ]
+   }
+  },
+  "MMM": {
+   "name": "3M Co.",
+   "cik": 66740,
+   "facts": {
+    "revenue": [
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 35355000000,
+      "form": "10-K",
+      "filed": "2022-02-09",
+      "accn": "0000066740-22-000010",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2021
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 35355000000,
+      "form": "10-K",
+      "filed": "2023-02-08",
+      "accn": "0000066740-23-000014",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 35355000000,
+      "form": "10-K",
+      "filed": "2024-02-07",
+      "accn": "0000066740-24-000016",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 34229000000,
+      "form": "10-K",
+      "filed": "2023-02-08",
+      "accn": "0000066740-23-000014",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2022
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 34229000000,
+      "form": "10-K",
+      "filed": "2024-02-07",
+      "accn": "0000066740-24-000016",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 26161000000,
+      "form": "10-K",
+      "filed": "2025-02-05",
+      "accn": "0000066740-25-000006",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 32681000000,
+      "form": "10-K",
+      "filed": "2024-02-07",
+      "accn": "0000066740-24-000016",
+      "tag": "Revenues",
+      "fy": 2023
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 24610000000,
+      "form": "10-K",
+      "filed": "2025-02-05",
+      "accn": "0000066740-25-000006",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": 24610000000,
+      "form": "10-K",
+      "filed": "2026-02-03",
+      "accn": "0000066740-26-000014",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 24575000000,
+      "form": "10-K",
+      "filed": "2025-02-05",
+      "accn": "0000066740-25-000006",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2024
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 24575000000,
+      "form": "10-K",
+      "filed": "2026-02-03",
+      "accn": "0000066740-26-000014",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     },
+     {
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "value": 24948000000,
+      "form": "10-K",
+      "filed": "2026-02-03",
+      "accn": "0000066740-26-000014",
+      "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "fy": 2025
+     }
+    ],
+    "net_income": [
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 5921000000,
+      "form": "10-K",
+      "filed": "2022-02-09",
+      "accn": "0000066740-22-000010",
+      "tag": "NetIncomeLoss",
+      "fy": 2021
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 5921000000,
+      "form": "10-K",
+      "filed": "2023-02-08",
+      "accn": "0000066740-23-000014",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2021-01-01",
+      "period_end": "2021-12-31",
+      "value": 5921000000,
+      "form": "10-K",
+      "filed": "2024-02-07",
+      "accn": "0000066740-24-000016",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 5777000000,
+      "form": "10-K",
+      "filed": "2023-02-08",
+      "accn": "0000066740-23-000014",
+      "tag": "NetIncomeLoss",
+      "fy": 2022
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 5777000000,
+      "form": "10-K",
+      "filed": "2024-02-07",
+      "accn": "0000066740-24-000016",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2022-01-01",
+      "period_end": "2022-12-31",
+      "value": 5777000000,
+      "form": "10-K",
+      "filed": "2025-02-05",
+      "accn": "0000066740-25-000006",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": -6995000000,
+      "form": "10-K",
+      "filed": "2024-02-07",
+      "accn": "0000066740-24-000016",
+      "tag": "NetIncomeLoss",
+      "fy": 2023
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": -6995000000,
+      "form": "10-K",
+      "filed": "2025-02-05",
+      "accn": "0000066740-25-000006",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2023-01-01",
+      "period_end": "2023-12-31",
+      "value": -6995000000,
+      "form": "10-K",
+      "filed": "2026-02-03",
+      "accn": "0000066740-26-000014",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 4173000000,
+      "form": "10-K",
+      "filed": "2025-02-05",
+      "accn": "0000066740-25-000006",
+      "tag": "NetIncomeLoss",
+      "fy": 2024
+     },
+     {
+      "period_start": "2024-01-01",
+      "period_end": "2024-12-31",
+      "value": 4173000000,
+      "form": "10-K",
+      "filed": "2026-02-03",
+      "accn": "0000066740-26-000014",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
+     },
+     {
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "value": 3250000000,
+      "form": "10-K",
+      "filed": "2026-02-03",
+      "accn": "0000066740-26-000014",
+      "tag": "NetIncomeLoss",
+      "fy": 2025
      }
     ]
    }

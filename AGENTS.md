@@ -40,13 +40,13 @@ src/quantlab_env/grader.py     reward: answer, grounding (citation block, calcul
 src/quantlab_env/questions.py  Input, Question (inputs, gold formula, prompt with the citation block, par_calls),
                                fiscal_year, one builder per type, default_questions() (LEGACY, pinned),
                                probe_questions() (derived from the fixture), template_args
-src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net income, 5 companies, 2021 to 2024
+src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net income, 15 companies, 2021 to 2025
 scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, needs SEC_USER_AGENT); lists 15
                                companies and periods ending 2021 to 2025, records each filing's fy
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
                                units), test_env.py (end to end, every task, overlapping and freeloading
-                               sessions over tcp, session expiry, every probe task); 524 tests (353 in
-                               test_grader.py, 129 in test_env.py, 26 in test_tools.py); pytest's pythonpath
+                               sessions over tcp, session expiry, every probe task); 1033 tests (607 in
+                               test_grader.py, 383 in test_env.py, 26 in test_tools.py); pytest's pythonpath
                                puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md
 ```
@@ -114,12 +114,11 @@ Regenerating the fixture (network, only when changing data):
 SEC_USER_AGENT="Your Name, contact email" uv run python scripts/build_fixture.py
 ```
 
-The checked-in fixture has 5 companies; the build script lists 15. After
-regenerating: the probe set grows (96 tasks now), `KNOWN_MISSING_REVENUE` in
-`tests/test_build_fixture.py` should become empty, the fiscal-year test in
-`tests/test_tools.py` starts checking labels against each filing's `fy`, and
-the new companies' revenue values should be checked against their 10-Ks (the
-first matching tag in `CONCEPTS` may be a partial revenue line).
+The fixture was rebuilt on 2026-10-06 with all 15 companies (350 probe
+tasks). After any rebuild, check each new company's revenue against its 10-K:
+the first matching tag in `CONCEPTS` may be a partial revenue line. Walmart
+was (net sales under the default first tag), so `TAG_OVERRIDES` gives it its
+own order, recorded in the fixture as that company's `concepts`.
 
 `pyproject.toml` pins `hud>=0.6.18,<0.7` and declares `fastmcp`, `uvicorn` and
 `httpx` directly, because the code imports them.
@@ -284,7 +283,7 @@ probe task.
 ## The probe set
 
 `questions.probe_questions()` derives it from the fixture, so it grows when
-the fixture does (96 tasks with the current five companies). Difficulty comes
+the fixture does (350 tasks with the 15-company fixture). Difficulty comes
 from design, never from keeping tasks a model failed: fiscal years named by
 label (`questions.fiscal_year`: the calendar year a fiscal year ends in, a
 first-week-of-January end counting as the year before), the latest year filed

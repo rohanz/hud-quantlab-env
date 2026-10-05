@@ -70,12 +70,10 @@ difficulty coming from the questions themselves:
   points are not asked, since they round to nothing at two decimals.
 
 The set is derived from the fixture (`questions.probe_questions`), so it grows
-when the fixture does: 96 tasks with the current five companies (23
-`fy_net_margin`, 21 `latest_net_margin`, 16 `net_margin_change`,
-17 `revenue_growth`, 19 `net_margin_gap`). `scripts/build_fixture.py` now
-lists 15 companies, mostly with non-December fiscal years, and periods ending
-2021 to 2025; the checked-in fixture still has the original five until it is
-regenerated. Each type has its own template; the grader reads the inputs,
+when the fixture does: 350 tasks with the 15-company fixture (84
+`fy_net_margin`, 68 `latest_net_margin`, 58 `net_margin_change`,
+65 `revenue_growth`, 75 `net_margin_gap`), mostly companies with
+non-December fiscal years, periods ending 2021 to 2025. Each type has its own template; the grader reads the inputs,
 citation labels, gold formula and par call count off the question, so the
 reward is the same formula for every type.
 
@@ -308,12 +306,12 @@ deployed there yet.
 
 ## Data
 
-`src/quantlab_env/fixture.json` (29 KB) holds annual revenue and net income for
-AAPL, MSFT, NVDA, KO and JNJ, periods ending 2021 to 2024. The build script
-now lists 15 companies (adding ORCL, CSCO, NKE, FDX, COST, MU, WMT, DE, GE and
-MMM) and periods ending 2021 to 2025, and records each filing's fiscal-year
-focus (`fy`), which a test checks against the fiscal-year labelling rule; the
-checked-in fixture is the five-company one until it is regenerated. It ships
+`src/quantlab_env/fixture.json` (104 KB) holds annual revenue and net income for
+15 companies (AAPL, MSFT, NVDA, KO, JNJ, ORCL, CSCO, NKE, FDX, COST, MU, WMT,
+DE, GE and MMM), periods ending 2021 to 2025, and records each filing's
+fiscal-year focus (`fy`), which a test checks against the fiscal-year
+labelling rule. Walmart's revenue is total revenues, not net sales (its own
+tag order, `TAG_OVERRIDES` in the build script). It ships
 as package data and is loaded with `importlib.resources`, so an installed wheel works
 without the source checkout. It keeps every 10-K filing that reported each
 period, which is what makes point-in-time queries work. The data comes from the

@@ -100,7 +100,7 @@ Each template builds its question and relays it through `_episode`:
   filings for that period, plus JNJ's restatement re-asks. Pinned so the set
   does not grow with the fixture. Task ids look like `net_margin-83d5f782`.
 - `probe`: each probe template bound to `questions.probe_questions()`,
-  derived from the fixture (96 tasks with the current five companies):
+  derived from the fixture (350 tasks with the 15-company fixture):
   - `fy_net_margin`: every company and fiscal-year label, 30 days after the
     next year's 10-K (so later rows are there to confuse), or after its own
     if there is none; plus 30 days after every restatement of its inputs and
@@ -213,7 +213,7 @@ with a later `filed` date. The tools expose only `period_end`, `value`,
   were dropped and point-in-time history was lost,
 - USD values from `10-K` and `10-K/A` forms only,
 - durations of 350 to 380 days (annual periods),
-- periods ending in 2021 to 2025 (2021 to 2024 in the checked-in fixture),
+- periods ending in 2021 to 2025,
 - one row per `(period_end, accn)`; companyfacts repeats a fact once per
   frame, and the duplicates collapse here.
 
@@ -237,8 +237,9 @@ After regenerating, run `uv run pytest`. These tests catch data changes:
   rows the current fixture lacks, from filings built under the old per-period
   precedence (NVIDIA moved from `Revenues` to
   `RevenueFromContractWithCustomerExcludingAssessedTax`). No default question
-  can see those filings. Regenerating should add them; then empty
-  `KNOWN_MISSING_REVENUE`.
+  can see those filings. The 2026-10-06 rebuild restored them, so
+  `KNOWN_MISSING_REVENUE` is empty. Walmart's revenue uses its own tag order
+  (`TAG_OVERRIDES`): total revenues (`Revenues`), not net sales.
 - `test_every_default_question_is_answerable_from_the_tools` in
   `tests/test_tools.py`.
 

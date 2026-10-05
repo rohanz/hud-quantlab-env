@@ -123,19 +123,27 @@ def test_checked_in_fixture_is_a_fixed_point_of_the_builder():
     for company in fixture["companies"].values():
         facts = fixture_as_companyfacts(company["facts"])
         for concept, rows in company["facts"].items():
-            assert build_fixture.annual_rows(facts, fixture["concepts"][concept]) == rows
+            tags = company.get("concepts", fixture["concepts"])[concept]
+            assert build_fixture.annual_rows(facts, tags) == rows
 
 
-# Filings that reported a period's net income but whose revenue row is missing. NVIDIA moved from
-# Revenues to RevenueFromContractWithCustomerExcludingAssessedTax, and the fixture was built with
-# per-period precedence, which dropped these filings' revenue. No default question can see them
-# (each is asked 30 days after the period's first 10-K, before these filings), so no gold changes.
-# Regenerating the fixture with scripts/build_fixture.py (network) should add them; then empty this set.
-KNOWN_MISSING_REVENUE = {
-    ("NVDA", "2021-01-31", "0001045810-23-000017"),
-    ("NVDA", "2022-01-30", "0001045810-23-000017"),
-    ("NVDA", "2022-01-30", "0001045810-24-000029"),
-}
+def test_walmart_revenue_is_total_revenues_not_net_sales():
+    # Walmart files net sales under the default first tag and total revenues under Revenues.
+    tags = {**build_fixture.CONCEPTS, **build_fixture.TAG_OVERRIDES["WMT"]}["revenue"]
+    facts = companyfacts(
+        {
+            PREFERRED: [fact("2024-02-01", "2025-01-31", 674_538, "W-25", "2025-03-14")],
+            FALLBACK: [fact("2024-02-01", "2025-01-31", 680_985, "W-25", "2025-03-14")],
+        }
+    )
+    assert summary(build_fixture.annual_rows(facts, tags)) == [("2025-01-31", "W-25", 680_985, FALLBACK)]
+    wmt = json.loads(FIXTURE.read_text())["companies"]["WMT"]
+    assert {r["tag"] for r in wmt["facts"]["revenue"]} == {"Revenues"}
+
+
+# Filings that reported a period's net income but whose revenue row is missing. Empty since the
+# 2026-10-06 rebuild with per-filing precedence, which restored NVIDIA's three missing rows.
+KNOWN_MISSING_REVENUE: set[tuple[str, str, str]] = set()
 
 
 def test_every_filing_with_net_income_also_has_revenue():

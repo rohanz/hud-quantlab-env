@@ -427,3 +427,28 @@ fail.
   (`demo.Honest`) scores 1.00 on every probe task end to end.
 - **Tests.** 524 tests pass (353 in `tests/test_grader.py`, 129 in
   `tests/test_env.py`, 26 in `tests/test_tools.py`).
+
+## 2026-10-06: Fixture rebuilt with 15 companies; Walmart revenue is total revenues
+
+The fixture was regenerated from SEC EDGAR with the 15 companies the build
+script lists, periods ending 2021 to 2025. The probe set grew from 96 to 350
+tasks (84 `fy_net_margin`, 68 `latest_net_margin`, 58 `net_margin_change`,
+65 `revenue_growth`, 75 `net_margin_gap`); the 18 legacy tasks and their golds
+are unchanged.
+
+- **Revenue checked company by company.** The latest year's revenue for each
+  company was compared with its reported total. Fourteen matched. Walmart did
+  not: the default first tag
+  (`RevenueFromContractWithCustomerExcludingAssessedTax`) is its net sales
+  ($674.5 billion for the year ending 2025-01-31), while its income statement
+  total is total revenues ($681.0 billion, `Revenues`), which includes
+  membership and other income. `TAG_OVERRIDES` gives Walmart its own tag
+  order, recorded in the fixture as that company's `concepts` so the fixture
+  stays a fixed point of the builder; a test pins it.
+- **NVIDIA's missing revenue rows restored.** Per-filing precedence added the
+  three filings the old build dropped, so `KNOWN_MISSING_REVENUE` is empty.
+- **Probe size.** 350 tasks is more than the 60 to 100 the QuantLab plan asks
+  for at 5 rollouts each. A seeded, type-stratified subset will be frozen
+  before any model is run on it, so the subset cannot depend on model results.
+- **Tests.** 1033 tests pass (607 in `tests/test_grader.py`, 383 in
+  `tests/test_env.py`, 26 in `tests/test_tools.py`).
