@@ -28,6 +28,7 @@ are kept out of the fixture.
 
 from __future__ import annotations
 
+import random
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -459,6 +460,26 @@ def probe_questions() -> list[Question]:
         + _probe_year_over_year(revenue_growth, ("revenue",))
         + _probe_gaps()
     )
+
+
+PROBE_SAMPLE_SEED = 20261006
+PROBE_SAMPLE_PER_KIND = 20
+
+
+def probe_sample(
+    qs: Sequence[Question], per_kind: int = PROBE_SAMPLE_PER_KIND, seed: int = PROBE_SAMPLE_SEED
+) -> list[Question]:
+    """A seeded subset with `per_kind` questions of each kind, drawn by design and never from model results.
+
+    Kinds are visited in sorted order and each kind's questions are ordered by prompt before
+    sampling, so the subset depends only on the fixture, `per_kind` and `seed`.
+    """
+    rng = random.Random(seed)
+    picked: list[Question] = []
+    for kind in sorted({q.kind for q in qs}):
+        pool = sorted((q for q in qs if q.kind == kind), key=lambda q: q.prompt)
+        picked += rng.sample(pool, min(per_kind, len(pool)))
+    return picked
 
 
 def template_args(q: Question) -> dict[str, str]:

@@ -28,6 +28,7 @@ env.py                         HUD Environment, FastMCP tool server, strict midd
                                (OverlappingEpisodes, QUANTLAB_EPISODE_TIMEOUT)
 tasks.py                       two named Tasksets: legacy (18, pinned) and probe (derived from the fixture)
 tasks_legacy.py, tasks_probe.py  one set each, for hud --source (a module may not expose a task twice)
+tasks_probe100.py              the frozen 100-task probe subset (questions.probe_sample: 20 per type, seeded)
 demo.py                        six scripted HUD Agents run end to end over MCP, offline; Honest, honest_expr and
                                honest_answer: the honest strategy on any question type (used by the tests)
 Dockerfile.hud                 image for hud serve / hud deploy (installs at build, telemetry off, port 8765,
@@ -45,7 +46,7 @@ scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, n
                                companies and periods ending 2021 to 2025, records each filing's fy
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
                                units), test_env.py (end to end, every task, overlapping and freeloading
-                               sessions over tcp, session expiry, every probe task); 1033 tests (607 in
+                               sessions over tcp, session expiry, every probe task); 1036 tests (607 in
                                test_grader.py, 383 in test_env.py, 26 in test_tools.py); pytest's pythonpath
                                puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md

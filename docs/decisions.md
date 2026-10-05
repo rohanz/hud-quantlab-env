@@ -448,7 +448,10 @@ are unchanged.
 - **NVIDIA's missing revenue rows restored.** Per-filing precedence added the
   three filings the old build dropped, so `KNOWN_MISSING_REVENUE` is empty.
 - **Probe size.** 350 tasks is more than the 60 to 100 the QuantLab plan asks
-  for at 5 rollouts each. A seeded, type-stratified subset will be frozen
-  before any model is run on it, so the subset cannot depend on model results.
-- **Tests.** 1033 tests pass (607 in `tests/test_grader.py`, 383 in
+  for at 5 rollouts each. `questions.probe_sample` draws a seeded subset of 20
+  per question type (seed 20261006), exposed as `tasks_probe100.py`. It was
+  frozen before any model ran on the probe, so it cannot depend on model
+  results; `tests/test_probe_sample.py` pins its prompts (sha256
+  `f41b9cdbae8ff3c0246f2b1c426376cbf5463e3291dfe31ec6fb5590a07c69c8`).
+- **Tests.** 1036 tests pass (607 in `tests/test_grader.py`, 383 in
   `tests/test_env.py`, 26 in `tests/test_tools.py`).
