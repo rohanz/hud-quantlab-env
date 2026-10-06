@@ -10,8 +10,8 @@ from hud.eval import LocalRuntime, Runtime
 
 from demo import Honest, Scripted
 from env import EPISODE, close_tool_server, env, net_margin
-from quantlab_env.questions import probe_questions
-from tasks import as_tasks, legacy, probe
+from quantlab_env.questions import chain_questions, probe_questions
+from tasks import as_tasks, chains, legacy, probe
 
 TASK = net_margin(ticker="JNJ", period_end="2022-01-02", as_of="2024-03-17")
 
@@ -63,6 +63,23 @@ def test_probe_taskset_binds_every_probe_question():
     ("question", "task"), list(zip(PROBE, probe, strict=True)), ids=lambda x: getattr(x, "slug", "")
 )
 async def test_honest_agent_scores_full_marks_on_every_probe_task(question, task):
+    r = await run(Honest(question), task)
+    assert r.reward == 1.0, r.evaluation
+    assert r.evaluation["info"]["tool_calls"] == question.par_calls
+
+
+CHAINS = chain_questions()
+
+
+def test_chain_taskset_binds_every_chain_question():
+    assert [t.slug for t in chains] == [t.slug for t in as_tasks(CHAINS)]
+    assert not {t.slug for t in chains} & ({t.slug for t in probe} | {t.slug for t in legacy})
+
+
+@pytest.mark.parametrize(
+    ("question", "task"), list(zip(CHAINS, chains, strict=True)), ids=lambda x: getattr(x, "slug", "")
+)
+async def test_honest_agent_scores_full_marks_on_every_chain_task(question, task):
     r = await run(Honest(question), task)
     assert r.reward == 1.0, r.evaluation
     assert r.evaluation["info"]["tool_calls"] == question.par_calls

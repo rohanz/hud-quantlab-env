@@ -6,7 +6,7 @@ over those figures, and the prompt. The gold uses exactly what the tools serve
 on the question's date (`data.facts_as_of`), so restatements filed later are
 invisible to it.
 
-Two task sets:
+Three task sets:
 
 - the legacy set (`default_questions`): 18 net-margin questions that name the
   fiscal period by its end date. QuantLab's base model lost most of its points
@@ -15,6 +15,11 @@ Two task sets:
   fixture. They name fiscal years by label ("fiscal 2023") as the company
   does, ask for the latest year filed by a date, straddle restatements, and
   combine two years or two companies.
+- the chained set (`chain_questions`): what an analyst asks about a peer group
+  or several years at once (the highest margin, the largest margin expansion,
+  a company against its peers' combined margin, a three-year trend), with a
+  calculation per compared figure. Frozen subsets of the probe sets:
+  `probe_sample` (v1) and `probe_sample_v2`.
 
 Fiscal-year labels (`fiscal_year`): a fiscal year is labelled by the calendar
 year in which it ends, except that a 52/53-week year ending in the first week
@@ -29,6 +34,7 @@ are kept out of the fixture.
 from __future__ import annotations
 
 import random
+import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -66,6 +72,10 @@ class Question:
     give: str = field(compare=False, repr=False)  # "the margin as a percentage"
     placeholder: str = "margin"  # the ANSWER line's placeholder
     unit: str = "%"  # how the ANSWER line ends: "%" or " pp"
+    choice: str | None = None  # a word the ANSWER line must name ("MSFT", "YES"), and no other of `choices`
+    choices: tuple[str, ...] = ()
+    computes: int = 1  # calculations at par: one per figure a ranking or trend has to compare
+    params: dict[str, str] = field(default_factory=dict, compare=False, repr=False)  # template args, if not derived
 
     @property
     def ticker(self) -> str:
@@ -96,13 +106,14 @@ class Question:
 
     @property
     def par_calls(self) -> int:
-        """One lookup per (ticker, concept) needed, and one calculation."""
-        return len({(i.ticker, i.concept) for i in self.inputs}) + 1
+        """One lookup per (ticker, concept) needed, and one calculation (one per compared figure for a
+        ranking or a trend)."""
+        return len({(i.ticker, i.concept) for i in self.inputs}) + self.computes
 
     @property
     def prompt(self) -> str:
         n = len(self.inputs)
-        count = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}.get(n + 1, str(n + 1))
+        count = _COUNTS.get(n + 1, str(n + 1))
         if self.kind == "net_margin":
             what = "the revenue and net income you used for that fiscal year"
         else:
@@ -115,17 +126,34 @@ class Question:
             f"from it. Give {self.give} to two decimal places. End with "
             f"exactly these {count} lines, citing {what} exactly as get_fundamentals returned them: the whole "
             "value in USD with its sign, digits only (a leading $ and thousands commas are allowed; no rounding, no "
-            f"units):\n{block}ANSWER: <{self.placeholder}>{self.unit}"
+            f"units):\n{block}ANSWER: {self.answer_prefix}<{self.placeholder}>{self.unit}"
         )
+
+    @property
+    def answer_prefix(self) -> str:
+        """What the ANSWER line names before its number: "<ticker> ", "<YES or NO> " or nothing."""
+        if self.choice is None:
+            return ""
+        return "<YES or NO> " if set(self.choices) == {"YES", "NO"} else "<ticker> "
+
+
+_COUNTS = dict(enumerate(["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"], 2))
+_COUNTS.update({12: "twelve", 13: "thirteen"})
 
 
 def _describe(i: Input) -> str:
-    """The placeholder in the prompt's citation block: "revenue value", "prior net income value"."""
-    words = i.key.split("_")
+    """The placeholder in the prompt's citation block: "revenue value", "prior net income value",
+    "AAPL prior revenue value", "fiscal 2024 net income value"."""
+    words, parts = i.key.split("_"), []
     if words[0] == i.ticker.lower():
-        return f"{i.ticker} {_CONCEPT_NAMES[i.concept]} value"
-    prefix = "prior " if words[0] == "prior" else ""
-    return f"{prefix}{_CONCEPT_NAMES[i.concept]} value"
+        parts.append(i.ticker)
+        words = words[1:]
+    elif re.fullmatch(r"fy\d{4}", words[0]):
+        parts.append(f"fiscal {words[0][2:]}")
+        words = words[1:]
+    if words[0] == "prior":
+        parts.append("prior")
+    return " ".join([*parts, _CONCEPT_NAMES[i.concept], "value"])
 
 
 def _name(ticker: str) -> str:
@@ -269,6 +297,149 @@ def net_margin_gap(ticker: str, other: str, fiscal: str, as_of: str) -> Question
     )
 
 
+# --- chained analyst questions: several companies or several years, compared --
+#
+# Each needs the figures of several companies or years, a calculation per figure compared, and a
+# comparison. The gold formula is the answer's own calculation (the chosen company's margin, the
+# smallest change), so the grader's derivation check is unchanged; the choice the comparison makes
+# (a ticker, YES or NO) must also be named on the ANSWER line.
+
+PICK_TOL = 0.005  # the grader's relative answer tolerance: a picked figure must stand clear of the others by twice it
+
+
+def _names(tickers: Sequence[str]) -> str:
+    names = [_name(t) for t in tickers]
+    return f"{', '.join(names[:-1])} and {names[-1]}"
+
+
+def _pick(values: Sequence[float], highest: bool) -> int:
+    """The index of the highest (or lowest) value; ValueError unless it stands clear of every other, so the
+    answer's number alone tells the pick apart (by 0.1 percentage points and twice the answer tolerance)."""
+    k = max(range(len(values)), key=lambda j: values[j] if highest else -values[j])
+    gap = max(MIN_CHANGE, 2 * PICK_TOL * abs(values[k]))
+    if any(abs(v - values[k]) < gap for j, v in enumerate(values) if j != k):
+        raise ValueError(f"no clear pick among {values}")
+    return k
+
+
+def _margin_of(k: int) -> Formula:
+    """The margin of the k-th (revenue, net income) pair."""
+    return lambda v: v[2 * k + 1] / v[2 * k]
+
+
+def _change_of(k: int, stride: int) -> Formula:
+    """A margin minus the next pair's: at inputs k * stride (this year) and k * stride + 2 (the year before)."""
+    i = k * stride
+    return lambda v: v[i + 1] / v[i] - v[i + 3] / v[i + 2]
+
+
+def peer_margin_rank(tickers: str, fiscal: str, rank: str, as_of: str) -> Question:
+    """Which of several peers had the highest (or lowest) net margin for a fiscal-year label, and that margin."""
+    if rank not in ("highest", "lowest"):
+        raise ValueError(f"rank must be highest or lowest, not {rank!r}")
+    ts = tickers.split(",")
+    inputs = tuple(x for t in ts for x in _margin_inputs(t, _period(t, fiscal, as_of), as_of, f"{t.lower()}_"))
+    values = [i.value for i in inputs]
+    k = _pick([_margin_of(j)(values) for j in range(len(ts))], rank == "highest")
+    return Question(
+        "peer_margin_rank",
+        as_of,
+        inputs,
+        _margin_of(k),
+        f"Which of {_names(ts)} had the {rank} {_MARGIN} for its fiscal {fiscal}, using only filings "
+        f"available on {as_of}? Fiscal years are named as each company names them.",
+        "that company's ticker and its margin as a percentage",
+        choice=ts[k],
+        choices=tuple(ts),
+        computes=len(ts),
+        params={"tickers": tickers, "fiscal_year": fiscal, "rank": rank, "as_of": as_of},
+    )
+
+
+def peer_margin_change_rank(tickers: str, fiscal: str, as_of: str) -> Question:
+    """Which of several peers expanded its net margin the most over the prior fiscal year, and by how much."""
+    ts, year = tickers.split(","), int(fiscal)
+    inputs = tuple(
+        x
+        for t in ts
+        for x in _margin_inputs(t, _period(t, year, as_of), as_of, f"{t.lower()}_")
+        + _margin_inputs(t, _period(t, year - 1, as_of), as_of, f"{t.lower()}_prior_")
+    )
+    values = [i.value for i in inputs]
+    k = _pick([_change_of(j, 4)(values) for j in range(len(ts))], highest=True)
+    return Question(
+        "peer_margin_change_rank",
+        as_of,
+        inputs,
+        _change_of(k, 4),
+        f"Which of {_names(ts)} expanded its {_MARGIN} the most from fiscal {year - 1} to fiscal {year} "
+        f"(the largest change in percentage points, or the smallest fall if none rose), using only filings "
+        f"available on {as_of}? Fiscal years are named as each company names them.",
+        "that company's ticker and its change in percentage points (negative if its margin fell)",
+        "change",
+        " pp",
+        choice=ts[k],
+        choices=tuple(ts),
+        computes=len(ts),
+        params={"tickers": tickers, "fiscal_year": fiscal, "as_of": as_of},
+    )
+
+
+def _vs_combined(v: Sequence[float]) -> float:
+    """The first company's margin minus the rest's combined margin (total net income over total revenue)."""
+    return v[1] / v[0] - sum(v[3::2]) / sum(v[2::2])
+
+
+def margin_vs_peers(ticker: str, peers: str, fiscal: str, as_of: str) -> Question:
+    """One company's net margin against its peers' combined net margin, for a fiscal-year label, in pp."""
+    ts = [ticker, *peers.split(",")]
+    inputs = tuple(x for t in ts for x in _margin_inputs(t, _period(t, fiscal, as_of), as_of, f"{t.lower()}_"))
+    return Question(
+        "margin_vs_peers",
+        as_of,
+        inputs,
+        _vs_combined,
+        f"By how many percentage points was {_name(ticker)}'s {_MARGIN} for its fiscal {fiscal} above the "
+        f"combined net margin of {_names(ts[1:])} (their total net income divided by their total revenue, each "
+        f"for its own fiscal {fiscal}), using only filings available on {as_of}? Fiscal years are named as "
+        "each company names them.",
+        "the difference in percentage points (negative if it was below)",
+        "difference",
+        " pp",
+        params={"ticker": ticker, "peers": peers, "fiscal_year": fiscal, "as_of": as_of},
+    )
+
+
+TREND_YEARS = 3  # year-over-year changes asked about; one more year of figures is needed
+
+
+def margin_trend(ticker: str, as_of: str) -> Question:
+    """Whether net margin rose in each of the last three fiscal years filed by `as_of`, and the smallest change."""
+    latest = fiscal_year(_latest_period(ticker, as_of))
+    years = [latest - j for j in range(TREND_YEARS + 1)]
+    inputs = tuple(x for y in years for x in _margin_inputs(ticker, _period(ticker, y, as_of), as_of, f"fy{y}_"))
+    values = [i.value for i in inputs]
+    changes = [_change_of(j, 2)(values) for j in range(TREND_YEARS)]
+    k = _pick(changes, highest=False)
+    return Question(
+        "margin_trend",
+        as_of,
+        inputs,
+        _change_of(k, 2),
+        f"Did {_name(ticker)}'s {_MARGIN} rise in each of its last three fiscal years reported in a 10-K filed "
+        f"on or before {as_of}, each year against the year before, using only filings available on {as_of}? "
+        "Fiscal years are named as the company names them.",
+        "YES or NO, then the smallest of the three year-over-year changes in percentage points (negative if "
+        "the margin fell)",
+        "smallest change",
+        " pp",
+        choice="YES" if changes[k] > 0 else "NO",
+        choices=("YES", "NO"),
+        computes=TREND_YEARS,
+        params={"ticker": ticker, "as_of": as_of},
+    )
+
+
 # --- the legacy set ------------------------------------------------------------
 
 # Pinned so it stays these 18 after the fixture grows: one question per company-year,
@@ -353,8 +524,13 @@ def _latest_period(ticker: str, as_of: str) -> str:
 
 def _dates(ticker: str, periods: Sequence[str], concepts: Sequence[str], base: str) -> list[str]:
     """`base`, plus 30 days after every restatement of these figures, plus the view before the first one."""
-    changes = [_days(d, 30) for d in _restated(ticker, periods, concepts)]
-    first = _days(max(_first_filed(ticker, p) for p in periods), 30)
+    return _group_dates({ticker: periods}, concepts, base)
+
+
+def _group_dates(periods: dict[str, Sequence[str]], concepts: Sequence[str], base: str) -> list[str]:
+    """`_dates` over several companies' periods: a restatement of any of them is asked before and after."""
+    changes = [_days(d, 30) for t, ps in periods.items() for d in _restated(t, ps, concepts)]
+    first = _days(max(_first_filed(t, p) for t, ps in periods.items() for p in ps), 30)
     dates = {base, *changes}
     if changes and base >= min(changes):
         dates.add(first)
@@ -462,28 +638,150 @@ def probe_questions() -> list[Question]:
     )
 
 
+# Peer groups an analyst would compare: each a sector's names in the fixture, mostly with fiscal years
+# that do not end in December (and NVIDIA's and Walmart's end in January of the year they are named for).
+PEER_GROUPS = (
+    ("AAPL", "MSFT", "ORCL", "CSCO"),  # large-cap technology
+    ("NVDA", "MU", "AAPL", "CSCO"),  # semiconductors and hardware
+    ("KO", "NKE", "COST", "WMT"),  # consumer
+    ("DE", "GE", "MMM", "FDX"),  # industrials
+)
+
+
+def _peer_sets() -> list[tuple[tuple[str, ...], int, int]]:
+    """Each peer group and each three of it (numbered 0 to 4), with each fiscal-year label all of them have."""
+    out = []
+    for group in PEER_GROUPS:
+        years = set.intersection(*(set(_fiscal_periods(t)) for t in group))
+        for n, members in enumerate([group, *(tuple(t for t in group if t != drop) for drop in group)]):
+            out += [(members, n, fiscal) for fiscal in sorted(years)]
+    return out
+
+
+def _peer_dates(members: Sequence[str], fiscal_years: Sequence[int]) -> list[str]:
+    """30 days after the last of these 10-Ks, and around every restatement of any member's figures."""
+    periods = {t: [_fiscal_periods(t)[y] for y in fiscal_years] for t in members}
+    base = _days(max(_first_filed(t, p) for t, ps in periods.items() for p in ps), 30)
+    return _group_dates(periods, ("revenue", "net_income"), base)
+
+
+def _clear(build_question: Callable[..., Question], *args: str) -> Question | None:
+    """The question, unless its pick is not clear (`_pick`) or its answer rounds to nothing."""
+    try:
+        q = build_question(*args)
+    except ValueError:
+        return None
+    return q if abs(q.gold) >= MIN_CHANGE else None
+
+
+def _probe_peer_ranks() -> list[Question]:
+    """Each peer group and each three of it, asking for the highest or the lowest margin in turn."""
+    out = []
+    for members, n, fiscal in _peer_sets():
+        rank = "highest" if (n + fiscal) % 2 == 0 else "lowest"
+        for as_of in _peer_dates(members, [fiscal]):
+            out.append(_clear(peer_margin_rank, ",".join(members), str(fiscal), rank, as_of))
+    return [q for q in out if q]
+
+
+def _probe_peer_change_ranks() -> list[Question]:
+    """The largest margin expansion in each three of a peer group (four companies would be 16 figures), on one
+    basis per company."""
+    out = []
+    for members, n, fiscal in _peer_sets():
+        if not n or not all(fiscal - 1 in _fiscal_periods(t) for t in members):
+            continue
+        for as_of in _peer_dates(members, [fiscal, fiscal - 1]):
+            pairs = {t: (_period(t, fiscal, as_of), _period(t, fiscal - 1, as_of)) for t in members}
+            if all(_same_filing(t, ("revenue", "net_income"), *ps, as_of) for t, ps in pairs.items()):
+                out.append(_clear(peer_margin_change_rank, ",".join(members), str(fiscal), as_of))
+    return [q for q in out if q]
+
+
+def _probe_vs_peers() -> list[Question]:
+    """Each member of each peer group against the other three combined."""
+    out = []
+    for members, n, fiscal in _peer_sets():
+        if n:
+            continue
+        for as_of in _peer_dates(members, [fiscal]):
+            for t in members:
+                peers = ",".join(p for p in members if p != t)
+                out.append(_clear(margin_vs_peers, t, peers, str(fiscal), as_of))
+    return [q for q in out if q]
+
+
+def _probe_trends() -> list[Question]:
+    """The last three years' trend, the day before each 10-K (the latest year is the previous one) and 30
+    days after it, on one basis throughout; one question per distinct set of figures, at its latest date."""
+    out: dict[tuple, Question] = {}
+    concepts = ("revenue", "net_income")
+    for ticker in data.companies():
+        labelled = _fiscal_periods(ticker)
+        for as_of in sorted({_days(f, n) for f in _filings(ticker)[1:] for n in (-1, 30)}):
+            latest = fiscal_year(_latest_period(ticker, as_of))
+            years = [latest - j for j in range(TREND_YEARS + 1)]
+            # skip dates where the newest 10-K reports a year outside the fixture's window
+            if not all(y in labelled for y in years) or _first_filed(ticker, labelled[latest]) != max(
+                _filings_before(ticker, as_of)
+            ):
+                continue
+            periods = [_period(ticker, y, as_of) for y in years]
+            if not all(_same_filing(ticker, concepts, p, prior, as_of) for p, prior in pairwise(periods)):
+                continue
+            if q := _clear(margin_trend, ticker, as_of):
+                out[(ticker, q.inputs)] = q
+    return list(out.values())
+
+
+def chain_questions() -> list[Question]:
+    """The chained analyst questions (probe v2): peers ranked, a company against its peers, a trend. Where two
+    dates see the same figures (restatements of different members filed days apart), only the first is asked."""
+    out: dict[tuple, Question] = {}
+    for q in _probe_peer_ranks() + _probe_peer_change_ranks() + _probe_vs_peers() + _probe_trends():
+        args = tuple((k, v) for k, v in q.params.items() if k != "as_of")
+        out.setdefault((q.kind, args, q.inputs), q)
+    return list(out.values())
+
+
 PROBE_SAMPLE_SEED = 20261006
 PROBE_SAMPLE_PER_KIND = 20
+CHAIN_KINDS = ("peer_margin_rank", "peer_margin_change_rank", "margin_vs_peers", "margin_trend")
+ONE_HOP_KINDS = ("fy_net_margin", "latest_net_margin", "net_margin_change", "revenue_growth", "net_margin_gap")
+# v2: weighted to the chained types, keeping four of each v1 type for continuity (100 tasks)
+PROBE_V2_COUNTS = {**dict.fromkeys(CHAIN_KINDS, 20), **dict.fromkeys(ONE_HOP_KINDS, 4)}
+
+
+def stratified_sample(qs: Sequence[Question], counts: dict[str, int], seed: int) -> list[Question]:
+    """A seeded subset with `counts[kind]` questions of each kind, drawn by design and never from model results.
+
+    Kinds are visited in sorted order and each kind's questions are ordered by prompt before
+    sampling, so the subset depends only on the questions, `counts` and `seed`.
+    """
+    rng = random.Random(seed)
+    picked: list[Question] = []
+    for kind in sorted(counts):
+        pool = sorted((q for q in qs if q.kind == kind), key=lambda q: q.prompt)
+        picked += rng.sample(pool, min(counts[kind], len(pool)))
+    return picked
 
 
 def probe_sample(
     qs: Sequence[Question], per_kind: int = PROBE_SAMPLE_PER_KIND, seed: int = PROBE_SAMPLE_SEED
 ) -> list[Question]:
-    """A seeded subset with `per_kind` questions of each kind, drawn by design and never from model results.
+    """The v1 subset: `per_kind` questions of each kind present (frozen as tasks_probe100.py)."""
+    return stratified_sample(qs, dict.fromkeys({q.kind for q in qs}, per_kind), seed)
 
-    Kinds are visited in sorted order and each kind's questions are ordered by prompt before
-    sampling, so the subset depends only on the fixture, `per_kind` and `seed`.
-    """
-    rng = random.Random(seed)
-    picked: list[Question] = []
-    for kind in sorted({q.kind for q in qs}):
-        pool = sorted((q for q in qs if q.kind == kind), key=lambda q: q.prompt)
-        picked += rng.sample(pool, min(per_kind, len(pool)))
-    return picked
+
+def probe_sample_v2(qs: Sequence[Question], seed: int = PROBE_SAMPLE_SEED) -> list[Question]:
+    """The v2 subset (`PROBE_V2_COUNTS`), drawn from the probe and chained questions together."""
+    return stratified_sample(qs, PROBE_V2_COUNTS, seed)
 
 
 def template_args(q: Question) -> dict[str, str]:
     """The arguments of the env template that poses `q`."""
+    if q.params:
+        return dict(q.params)
     if q.kind == "net_margin":
         return {"ticker": q.ticker, "period_end": q.period_end, "as_of": q.as_of}
     if q.kind == "latest_net_margin":

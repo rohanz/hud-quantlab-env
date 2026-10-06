@@ -11,7 +11,9 @@ agent is asked for a company's net margin for a fiscal year "using only filings
 available on" a given date. That is the 18-task legacy set; a harder probe set
 (fiscal-year labels, latest year by a date, restatements, margin change,
 revenue growth, two-company gaps) is derived from the fixture for use as a
-held-out probe. It looks figures up through MCP tools backed by an
+held-out probe, and chained analyst questions (peers ranked by margin or margin
+change, a company against its peers' combined margin, a three-year margin
+trend) make the frozen probe v2 subset. It looks figures up through MCP tools backed by an
 offline SEC fixture, does the arithmetic with a calculator tool, and is graded
 on the answer and on whether every number it cites came from a tool result in
 that episode.
@@ -26,28 +28,33 @@ Public background:
 env.py                         HUD Environment, FastMCP tool server, strict middleware, one template per question
                                type (_episode does the work; TEMPLATES by kind), symmetric session guard
                                (OverlappingEpisodes, QUANTLAB_EPISODE_TIMEOUT)
-tasks.py                       two named Tasksets: legacy (18, pinned) and probe (derived from the fixture)
+tasks.py                       three named Tasksets: legacy (18, pinned), probe and chains (derived from the fixture)
 tasks_legacy.py, tasks_probe.py  one set each, for hud --source (a module may not expose a task twice)
-tasks_probe100.py              the frozen 100-task probe subset (questions.probe_sample: 20 per type, seeded)
-demo.py                        six scripted HUD Agents run end to end over MCP, offline; Honest, honest_expr and
-                               honest_answer: the honest strategy on any question type (used by the tests)
+tasks_probe100.py              the frozen 100-task v1 probe subset (questions.probe_sample: 20 per type, seeded)
+tasks_probe_v2.py              the frozen 100-task v2 subset (questions.probe_sample_v2: 20 per chained type, 4 per
+                               v1 type, seeded); both subset modules keep their Taskset private for hud --source
+demo.py                        six scripted HUD Agents run end to end over MCP, offline; Honest, honest_expr(s),
+                               honest_pick and honest_answer: the honest strategy on any question type (tests)
 Dockerfile.hud                 image for hud serve / hud deploy (installs at build, telemetry off, port 8765,
                                non-root user app, HEALTHCHECK); .dockerignore keeps dev files out
 src/quantlab_env/data.py       fixture loading (importlib.resources) and point-in-time lookup (facts_as_of)
 src/quantlab_env/tools.py      get_fundamentals, compute, strict validate/execute, Episode (call log, open
                                episodes, overlap marks, DEFAULT_EPISODE_TIMEOUT)
-src/quantlab_env/grader.py     reward: answer, grounding (citation block, calculator provenance, prose check),
-                               validity, efficiency; reads inputs, labels, formula and par calls off the Question
-src/quantlab_env/questions.py  Input, Question (inputs, gold formula, prompt with the citation block, par_calls),
-                               fiscal_year, one builder per type, default_questions() (LEGACY, pinned),
-                               probe_questions() (derived from the fixture), template_args
+src/quantlab_env/grader.py     reward: answer (and a ranking's or trend's choice), grounding (citation block,
+                               calculator provenance, prose check), validity, efficiency; reads inputs, labels,
+                               formula, choice and par calls off the Question
+src/quantlab_env/questions.py  Input, Question (inputs, gold formula, prompt with the citation block, choice and
+                               choices, computes, par_calls), fiscal_year, one builder per type, PEER_GROUPS,
+                               default_questions() (LEGACY, pinned), probe_questions() and chain_questions()
+                               (derived from the fixture), stratified_sample, probe_sample(_v2), template_args
 src/quantlab_env/fixture.json  package data: public SEC XBRL revenue and net income, 15 companies, 2021 to 2025
 scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, needs SEC_USER_AGENT); lists 15
                                companies and periods ending 2021 to 2025, records each filing's fy
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
                                units), test_env.py (end to end, every task, overlapping and freeloading
-                               sessions over tcp, session expiry, every probe task); 1036 tests (607 in
-                               test_grader.py, 383 in test_env.py, 26 in test_tools.py); pytest's pythonpath
+                               sessions over tcp, session expiry, every probe and chained task),
+                               test_probe_sample.py (v1 and v2 hashes); 1654 tests (927 in test_grader.py, 678 in
+                               test_env.py, 27 in test_tools.py); pytest's pythonpath
                                puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md
 ```
@@ -70,7 +77,7 @@ HUD CLI task lifecycle (offline, no model; prefer the tests and demo):
 
 ```bash
 export HUD_TELEMETRY_ENABLED=false
-uv run hud task list --source tasks.py          # both sets; tasks_legacy.py / tasks_probe.py for one
+uv run hud task list --source tasks.py          # all three sets; tasks_legacy.py / tasks_probe.py for one
 uv run hud task start net_margin-83d5f782 --source tasks.py
 uv run hud task grade net_margin-83d5f782 --source tasks.py --answer "ANSWER: 26.52%" --json
 ```
@@ -83,6 +90,7 @@ export ANTHROPIC_API_KEY=...             # or HUD_API_KEY with --gateway
 uv run hud eval tasks.py claude --task-ids net_margin-83d5f782 --max-steps 10
 uv run hud eval tasks_legacy.py claude --all --max-steps 10
 uv run hud eval tasks_probe.py claude --all --max-steps 10
+uv run hud eval tasks_probe_v2.py claude --all --max-steps 16   # chained tasks take up to 12 calls
 ```
 
 Docker (the image sets `HUD_TELEMETRY_ENABLED=false` itself):
@@ -133,7 +141,11 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 - **answer**: the first number on the last `ANSWER:` line is within 0.5% of the
   gold (as a percent or a fraction) or within 0.005 percentage points of it
   (two decimals), and at least one admissible `get_fundamentals` call
-  succeeded.
+  succeeded. A ranking or trend (`Question.choice`) also needs the line to
+  name its choice (the ticker, or `YES` or `NO`) as a whole word, in any
+  case, and no other of `Question.choices` (`grader.chosen`). The gold is the
+  picked figure itself, and a pick is asked only if it stands clear of every
+  other candidate by 0.1 pp and twice the answer tolerance.
 - **grounding** (all or nothing): the citation block is correct, the final
   answer matches a calculator result derived from the question's inputs by
   its gold formula (net income over revenue, for net margin), and every other
@@ -145,8 +157,10 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
   admissible lookup succeeded (so also 0 with no calls).
 - **efficiency**: `par / max(par, calls)`, and 0 unless an admissible lookup
   succeeded. Par is one lookup per (ticker, concept) the question needs plus
-  one compute: 3 for net margin and margin change, 2 for revenue growth, 5
-  for a two-company gap.
+  one compute (`Question.computes`, one per compared figure for a ranking or
+  trend): 3 for net margin and margin change, 2 for revenue growth, 5 for a
+  two-company gap, 9 for a three-peer ranking or for a company against three
+  peers, 12 for a four-peer ranking, 5 for a trend.
 
 Strict tool calls: a FastMCP middleware (`StrictToolLog` in `env.py`) answers
 every call from `tools.execute`, which validates the raw arguments (no unknown
@@ -169,7 +183,10 @@ net margin, `Question.labels` in general), and each value must equal a row of
 its own input's concept, ticker and period, from an admissible lookup in this
 episode, and the value the gold used. Probe labels: `PRIOR_REVENUE` and
 `PRIOR_NET_INCOME` (the prior fiscal year), `<TICKER>_REVENUE` and
-`<TICKER>_NET_INCOME` (each company of a gap). A missing value, any other formatting, or a swapped value lands in
+`<TICKER>_NET_INCOME` (each company of a gap). Chained labels:
+`<TICKER>_REVENUE`, `<TICKER>_NET_INCOME`, `<TICKER>_PRIOR_REVENUE`,
+`<TICKER>_PRIOR_NET_INCOME` (each peer) and `FY<YEAR>_REVENUE`,
+`FY<YEAR>_NET_INCOME` (each year of a trend). A missing value, any other formatting, or a swapped value lands in
 `missing_inputs`. Labels (`REVENUE`, `NET_INCOME`, `ANSWER`) are
 case-insensitive and open their line after any markdown list, quote, heading
 or emphasis markers (`**REVENUE:** x`, `- REVENUE:`, `> REVENUE:`,
@@ -276,10 +293,28 @@ Probe set (each has a test in `tests/test_grader.py`):
 | gap in the reverse order (B minus A) | 0.50 |
 | gap with one company's block lines missing | 0.70 |
 
+Chained questions (each has a test in `tests/test_grader.py`):
+
+| case | reward |
+|---|---|
+| honest, every chained question | 1.00 |
+| rank: right margin, wrong ticker, two tickers or none on the ANSWER line | 0.50 |
+| rank: another company's margin under its ticker | 0.20 |
+| rank: one peer's block lines missing, or its figures never looked up | 0.70 |
+| rank across GE's restatement with the pre-restatement leader (DE, not GE) | 0.20 |
+| rank with NVIDIA's fiscal 2024 read as the year ending 2025-01-26 | 0.20 |
+| change rank by this year's margin, or with pre-restatement figures | 0.20 |
+| vs peers: simple average of the peers' margins (`/ 3`) | 0.20 |
+| vs peers: combined margin, then the difference (one call over par) | 0.99 |
+| vs peers: peers minus the company | 0.50 |
+| trend: `YES` for a fall, both words, or none | 0.50 |
+| trend: the latest change instead of the smallest | 0.20 |
+| trend: lookups past the date | 0.00 |
+
 `demo.py` runs honest, dodge, mental_math, laundered, memorised and malformed
 (1.00, 0.70, 0.70, 0.70, 0.00, 0.95). The end-to-end tests also require 1.00
 for the honest agent on all 18 legacy tasks and for `demo.Honest` on every
-probe task.
+probe and chained task.
 
 ## The probe set
 
@@ -293,6 +328,17 @@ and after, and four-input arithmetic. Year-over-year questions never mix a
 restated year with a prior year from another filing, and results under 0.1
 percentage points are not asked. Do not prune or hand-pick probe tasks by
 model results; the set and grader version are to be hashed and frozen.
+
+v1 (`tasks_probe100.py`) was measured on 2026-10-06 and was too easy (base
+0.901, SFT 0.864; one-hop single-company types near 0.98), so its numbers are
+recorded and it stays frozen. `questions.chain_questions()` adds chained
+analyst questions over the sector peer groups in `PEER_GROUPS` (294 tasks):
+`peer_margin_rank`, `peer_margin_change_rank`, `margin_vs_peers` and
+`margin_trend`, each with its "an analyst asks this when" rationale in
+docs/decisions.md. The v2 subset (`tasks_probe_v2.py`) is 20 of each chained
+type plus 4 of each v1 type, seeded (20261006) and pinned by sha256 in
+`tests/test_probe_sample.py`. A new question type must be realistic (say
+when an analyst asks it); reject artificial ones.
 
 ## Adding a new question type
 
@@ -308,7 +354,10 @@ model results; the set and grader version are to be hashed and frozen.
 3. **Question.** In `src/quantlab_env/questions.py`, add a builder that computes
    the gold from `data.facts_as_of` (the same view the tools serve), the prompt
    ending in the citation block and the `ANSWER:` line, and a generator for the
-   default set.
+   default set. A ranking or yes/no question sets `choice`, `choices` and
+   `computes`, makes the gold the picked figure, and asks only clear picks
+   (`_pick`); set `params` if the template args cannot be read off the
+   inputs.
 4. **Grader.** Usually nothing: the grader reads the question's `inputs`
    (labels, tickers, concepts, periods, values), its gold `formula` and its
    `par_calls`, so a new type over the existing concepts needs no grader
@@ -319,9 +368,10 @@ model results; the set and grader version are to be hashed and frozen.
    prompt, refuses overlaps, grades and closes in a `finally`), like the
    others, and add it to `TEMPLATES`; teach `questions.template_args` its
    arguments.
-6. **Tasks.** Add its generator to `probe_questions` (or a new named set in
-   `tasks.py`); keep the legacy set pinned.
-7. **Tests.** Teach `demo.honest_expr` the calculation, add grader tests for
+6. **Tasks.** Add its generator to `chain_questions` (or a new named set in
+   `tasks.py`); keep the legacy set and both frozen subsets pinned
+   (`probe_questions` feeds v1, so adding to it changes v1's hash).
+7. **Tests.** Teach `demo.honest_expr` (or `honest_exprs`) the calculation, add grader tests for
    the honest path and each relevant adversarial case in
    `tests/test_grader.py`; the answerability check in `tests/test_tools.py`
    and the end-to-end run in `tests/test_env.py` cover every probe task.

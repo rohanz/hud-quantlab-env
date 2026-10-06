@@ -9,7 +9,7 @@ from hud.eval import Taskset
 from quantlab_env.questions import probe_questions, probe_sample
 from tasks import as_tasks, env
 
-probe100 = Taskset("quantlab-probe100", as_tasks(probe_sample(probe_questions())))
-tasks = list(probe100)
+_probe100 = Taskset("quantlab-probe100", as_tasks(probe_sample(probe_questions())))
+tasks = list(_probe100)
 
 __all__ = ["env", "tasks"]

@@ -151,8 +151,20 @@ def test_every_probe_question_is_answerable_from_the_tools():
         assert abs(q.gold) >= questions.MIN_CHANGE
 
 
+def test_every_chain_question_is_answerable_from_the_tools():
+    qs = questions.chain_questions()
+    assert {q.kind for q in qs} == set(questions.CHAIN_KINDS)
+    assert len({(q.kind, tuple(sorted(questions.template_args(q).items()))) for q in qs}) == len(qs)
+    for q in qs:
+        for i in q.inputs:
+            rows = {r["period_end"]: r["value"] for r in get_fundamentals(i.ticker, i.concept, q.as_of)["rows"]}
+            assert rows[i.period_end] == i.value
+        assert abs(q.gold) >= questions.MIN_CHANGE
+        assert 5 <= q.par_calls <= 12
+
+
 def test_probe_questions_are_posed_by_their_template_args():
-    for q in questions.probe_questions():
+    for q in questions.probe_questions() + questions.chain_questions():
         args = questions.template_args(q)
         builder = getattr(questions, q.kind)
         args = {"fiscal": args.pop("fiscal_year"), **args} if "fiscal_year" in args else args

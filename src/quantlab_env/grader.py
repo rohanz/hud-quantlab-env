@@ -5,7 +5,10 @@
 answer     The number on the final `ANSWER:` line is within 0.5% of the gold
            (as a fraction or a percent), or within 0.005 percentage points of
            it (the two decimals the prompt asks for), and the episode made at
-           least one successful data lookup. No evidence, no credit.
+           least one successful data lookup. No evidence, no credit. A
+           ranking or yes/no question also needs its choice (a ticker, YES
+           or NO) named on that line as a whole word, in any case, and no
+           other of its choices.
 grounding  All or nothing. The answer's citation block gives each of the
            question's inputs exactly as a lookup returned them, each under its
            own label, the final answer is a calculator result derived from
@@ -15,8 +18,9 @@ validity   Share of tool calls that were well formed, and 0 unless a lookup
            succeeded (so also 0 with no calls).
 efficiency par / max(par, calls), and 0 unless a lookup succeeded, so a
            burst of failed calls earns nothing. Par is one lookup per
-           (ticker, concept) the question needs plus one calculation
-           (PAR_CALLS = 3 for net margin).
+           (ticker, concept) the question needs plus one calculation, or one
+           per figure a ranking or trend compares (PAR_CALLS = 3 for net
+           margin).
 
 The citation block is one labelled line per input before the `ANSWER:` line;
 for net margin:
@@ -233,14 +237,26 @@ def extract_numbers(text: str) -> list[Cited]:
     return cited
 
 
+def answer_line(text: str) -> str | None:
+    """What follows the label on the last `ANSWER:` line."""
+    lines = _ANSWER.findall(text)
+    return lines[-1][1] if lines else None
+
+
 def final_answer(text: str) -> Cited | None:
     """The first number on the last `ANSWER:` line."""
-    lines = _ANSWER.findall(text)
-    if not lines:
+    line = answer_line(text)
+    if line is None:
         return None
     # rebuilt without markdown: the label has no digits, and its colon can precede a spaced minus
-    nums = extract_numbers(f"ANSWER: {lines[-1][1]}")
+    nums = extract_numbers(f"ANSWER: {line}")
     return nums[0] if nums else None
+
+
+def chosen(text: str, choices: Sequence[str]) -> list[str]:
+    """The choices (tickers, YES or NO) the last `ANSWER:` line names, as whole words, in any case."""
+    line = answer_line(text) or ""
+    return [c for c in choices if re.search(rf"(?<![^\W_]){re.escape(c)}(?![^\W_])", line, re.IGNORECASE)]
 
 
 @cache
@@ -497,7 +513,10 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
     future = sum(1 for c in calls if c.ok and c.name == "get_fundamentals" and not admissible_lookup(c, question.as_of))
 
     final = final_answer(answer)
-    correct = final is not None and _correct(final, question.gold)
+    # a ranking or a yes/no question: the ANSWER line must name its choice and no other
+    named = chosen(answer, question.choices)
+    chose = question.choice is None or named == [question.choice]
+    correct = final is not None and _correct(final, question.gold) and chose
 
     claims = [c for c in extract_numbers(answer) if not c.exempt]
     # a percent is a ratio the calculator produced, never a looked-up amount
@@ -528,6 +547,8 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
         "gold": question.gold,
         "final_answer": final.text if final else None,
         "correct": correct,
+        "choice": question.choice,
+        "chosen": named,
         "citations": cited,
         "cited": [c.text for c in claims],
         "ungrounded": ungrounded,

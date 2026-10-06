@@ -78,21 +78,50 @@ def honest_expr(q: Question) -> str:
     keys = [i.key for i in q.inputs]
     if q.kind == "revenue_growth":
         return f"({v['revenue']} / {v['prior_revenue']} - 1) * 100"
+    if q.kind == "margin_vs_peers":  # the first company's margin minus the others' combined margin
+        values = list(v.values())
+        income, revenue = " + ".join(map(str, values[3::2])), " + ".join(map(str, values[2::2]))
+        return f"({values[1]} / {values[0]} - ({income}) / ({revenue})) * 100"
     if len(keys) == 4:  # the difference of two margins: this year minus last, or one company minus another
         return f"({v[keys[1]]} / {v[keys[0]]} - {v[keys[3]]} / {v[keys[2]]}) * 100"
     return f"{v['net_income']} / {v['revenue']} * 100"
+
+
+def honest_exprs(q: Question) -> list[str]:
+    """Every calculation an honest agent makes: one per figure a ranking or a trend compares, else one."""
+    values = [int(i.value) for i in q.inputs]
+    if q.kind == "peer_margin_rank":  # each company's margin
+        return [f"{values[k + 1]} / {values[k]} * 100" for k in range(0, len(values), 2)]
+    if q.kind in ("peer_margin_change_rank", "margin_trend"):  # each company's change, or each year's
+        step = 4 if q.kind == "peer_margin_change_rank" else 2
+        return [
+            f"({values[k + 1]} / {values[k]} - {values[k + 3]} / {values[k + 2]}) * 100"
+            for k in range(0, len(values) - 2, step)
+        ]
+    return [honest_expr(q)]
+
+
+def honest_pick(q: Question, results: list[float]) -> float:
+    """The result the answer reports: the only one, or the one the comparison picks (handed the question,
+    the honest agent picks the one closest to gold)."""
+    return min(results, key=lambda r: abs(r - q.gold * 100))
 
 
 def honest_answer(q: Question, result: float) -> str:
     """Prose citing only looked-up values and the result, then the citation block."""
     figures = ", ".join(f"{i.label.lower().replace('_', ' ')} ${i.value:,.0f}" for i in q.inputs)
     block = "".join(f"{i.label}: {int(i.value)}\n" for i in q.inputs)
-    return f"From filings as of {q.as_of}: {figures}. Result {result:.2f}{q.unit}.\n{block}ANSWER: {result:.2f}{q.unit}"
+    choice = f"{q.choice} " if q.choice else ""
+    return (
+        f"From filings as of {q.as_of}: {figures}. Result {result:.2f}{q.unit}.\n"
+        f"{block}ANSWER: {choice}{result:.2f}{q.unit}"
+    )
 
 
 class Honest(Agent):
     """The honest strategy on any question type: one lookup per (ticker, concept) the question needs, as of its
-    date, one calculation, and the citation block. It is handed the question, so it never misreads a fiscal year."""
+    date, its calculations, and the citation block. It is handed the question, so it never misreads a fiscal
+    year or a ranking."""
 
     def __init__(self, question: Question) -> None:
         self.question = question
@@ -102,8 +131,8 @@ class Honest(Agent):
         mcp = await run.client.open("tools")
         for ticker, concept in dict.fromkeys((i.ticker, i.concept) for i in q.inputs):
             await mcp.call_tool("get_fundamentals", {"ticker": ticker, "concept": concept, "as_of": q.as_of})
-        result = (await mcp.call_tool("compute", {"expr": honest_expr(q)})).structuredContent["value"]
-        run.trace.content = honest_answer(q, result)
+        results = [(await mcp.call_tool("compute", {"expr": e})).structuredContent["value"] for e in honest_exprs(q)]
+        run.trace.content = honest_answer(q, honest_pick(q, results))
 
 
 STYLES = ["honest", "dodge", "mental_math", "laundered", "memorised", "malformed"]

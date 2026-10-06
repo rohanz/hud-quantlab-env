@@ -9,8 +9,9 @@ tools during the episode.
 
 ## The task
 
-Point-in-time ratios over annual revenue and net income, in two task sets. The
-legacy set asks one question type, point-in-time net margin:
+Point-in-time ratios over annual revenue and net income, in three task sets
+(legacy, probe and chained analyst questions). The legacy set asks one question
+type, point-in-time net margin:
 
 > What was Johnson & Johnson (JNJ)'s net margin for the fiscal year ending
 > 2022-01-02, using only filings available on 2024-03-17?
@@ -77,6 +78,50 @@ non-December fiscal years, periods ending 2021 to 2025. Each type has its own te
 citation labels, gold formula and par call count off the question, so the
 reward is the same formula for every type.
 
+### Chained analyst questions (probe v2)
+
+Measured on 2026-10-06 on the frozen 100-task v1 subset (`tasks_probe100.py`),
+Qwen3.5-9B base scored 0.901 (target 0.55 to 0.80) and its SFT model 0.864.
+Single-company, one-hop types were nearly solved (`fy_net_margin` 0.977,
+`latest_net_margin` 0.979); the only multi-company type, `net_margin_gap`, was
+the hardest (0.782). So the chained types ask what an analyst or PM asks about
+several companies or several years at once, with 5 to 12 tool calls where
+later steps depend on earlier results (which year is the latest, which margin
+is the highest):
+
+| type | an analyst asks this when | example | par calls |
+|---|---|---|---|
+| `peer_margin_rank` | building a comp table and naming the best or worst operator in a peer group | Which of Apple, Microsoft, Oracle and Cisco had the lowest net margin for its fiscal 2021, using only filings available on 2021-11-28? (`ANSWER: CSCO 21.26%`) | 9 (three companies) or 12 (four) |
+| `peer_margin_change_rank` | asking who expanded margins most this year, the usual earnings-season question | Which of GE, 3M and FedEx expanded its net margin the most from fiscal 2021 to fiscal 2022, as of 2023-03-12? (`ANSWER: GE 9.08 pp`) | 9 |
+| `margin_vs_peers` | judging whether a company earns a premium or discount margin to its sector | By how many pp was FedEx's fiscal 2022 net margin above the combined net margin of Deere, GE and 3M (their total net income over total revenue)? (`ANSWER: -3.95 pp`) | 9 |
+| `margin_trend` | checking a "margins expand every year" thesis before a 10-K lands | Did NVIDIA's net margin rise in each of its last three fiscal years reported in a 10-K filed on or before 2025-02-25? Give YES or NO and the smallest annual change. (`ANSWER: NO -20.04 pp`) | 5 |
+
+- **Peer groups** are sectors in the fixture (`questions.PEER_GROUPS`): large-cap
+  technology (AAPL, MSFT, ORCL, CSCO), semiconductors and hardware (NVDA, MU,
+  AAPL, CSCO), consumer (KO, NKE, COST, WMT) and industrials (DE, GE, MMM,
+  FDX). Most fiscal years do not end in December, and each company's year is
+  named by its own label, so one question mixes years ending in January, May,
+  July, September and December.
+- **Restatements across companies.** Every restatement of any member's figures
+  is asked before and after. GE's restated fiscal 2023 moves the highest margin
+  of Deere, GE and FedEx from Deere (16.60%, as of 2024-03-03) to GE (26.82%, as
+  of 2025-03-05).
+- **Rankings and yes/no answers are scored by a tested rule.** The gold is the
+  picked company's margin (or change), or the smallest annual change for a
+  trend, and the ANSWER line must also name the choice (the ticker, or YES or
+  NO) as a whole word, in any case, and no other candidate. A pick is asked
+  only if it stands clear of every other candidate by 0.1 pp and twice the
+  answer tolerance, so the number alone identifies it.
+- **The combined margin** is defined in the prompt as total net income over
+  total revenue, how sector margins are aggregated. A simple average of the
+  peers' margins needs a literal count, which the calculator rules reject.
+
+`questions.chain_questions()` derives 294 chained tasks from the fixture (113
+`peer_margin_rank`, 62 `peer_margin_change_rank`, 96 `margin_vs_peers`, 23
+`margin_trend`). The frozen v2 subset `tasks_probe_v2.py` has 100 tasks: 20 of
+each chained type and 4 of each v1 type for continuity, seeded and pinned by a
+hash in `tests/test_probe_sample.py`. `tasks_probe100.py` (v1) is unchanged.
+
 ## Tools (MCP)
 
 `env.py` starts a FastMCP server in an `@env.initialize` hook and publishes it as
@@ -104,10 +149,10 @@ reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
 
 | component | rule |
 |---|---|
-| answer | The number on the final `ANSWER:` line is within 0.5% of the gold margin (as a percent or a fraction), and at least one admissible lookup succeeded. With no evidence, a correct answer earns nothing. |
+| answer | The number on the final `ANSWER:` line is within 0.5% of the gold margin (as a percent or a fraction), and at least one admissible lookup succeeded. With no evidence, a correct answer earns nothing. A ranking or trend question also needs its choice (a ticker, or YES or NO) on that line, and no other candidate. |
 | grounding | All or nothing. The citation block must give the revenue and net income the gold was computed from, each under its own label, exactly as an admissible lookup returned them; the final answer must match a calculator result derived from the question's net income over its revenue; and every other number the answer cites must match evidence from this episode. |
 | validity | The share of tool calls that were well formed. It pays nothing unless an admissible lookup succeeded, so it is also 0 with no calls. |
-| efficiency | `3 / max(3, calls)`. It pays nothing unless an admissible lookup succeeded. |
+| efficiency | `par / max(par, calls)`, par 3 for net margin (one lookup per ticker and concept plus one calculation, or one per figure a ranking or trend compares). It pays nothing unless an admissible lookup succeeded. |
 
 The citation block (`citations` in `src/quantlab_env/grader.py`):
 
@@ -220,6 +265,24 @@ task unless noted.
 | Burst of malformed calls, then the right answer | Not from QuantLab: an efficiency leak (0.1 for zero evidence) caught by the end-to-end test during development, now closed. | 0.00 |
 | Freeloader session | Not from QuantLab: against one `hud serve`, a newer session makes no calls and submits an older session's answer, which used to score 1.00 on the older session's calls. Tested end to end in `tests/test_env.py`. | refused (`OverlappingEpisodes`, both sessions) |
 
+Chained questions (each also in `tests/test_grader.py`):
+
+| case | reward |
+|---|---|
+| honest, every chained task | 1.00 |
+| rank: right margin, wrong or no ticker, or two tickers named | 0.50 |
+| rank: another company's margin under its ticker | 0.20 |
+| rank: one peer's figures missing from the block, or not looked up | 0.70 |
+| rank across GE's restatement, with the pre-restatement leader | 0.20 |
+| rank with NVIDIA's fiscal 2024 read as the year ending 2025-01-26 | 0.20 |
+| change rank by this year's margin instead of the change | 0.20 |
+| combined margin as a simple average of the peers' margins | 0.20 |
+| combined margin in two calculations (one call over par) | 0.99 |
+| peers minus the company (sign reversed) | 0.50 |
+| trend: wrong word (`YES` for a fall), both words, or none | 0.50 |
+| trend: the latest change instead of the smallest | 0.20 |
+| trend: lookups past the date (a newer year) | 0.00 |
+
 [docs/reward-design.md](docs/reward-design.md) has the full table with
 subscores.
 
@@ -231,7 +294,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 524 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 1654 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -260,7 +323,7 @@ To try the task lifecycle by hand with the HUD CLI:
 
 ```bash
 export HUD_TELEMETRY_ENABLED=false
-uv run hud task list --source tasks.py        # both sets; tasks_legacy.py or tasks_probe.py for one
+uv run hud task list --source tasks.py        # all three sets; tasks_legacy.py or tasks_probe.py for one
 uv run hud task start net_margin-83d5f782 --source tasks.py
 uv run hud task grade net_margin-83d5f782 --source tasks.py --answer "ANSWER: 26.52%" --json
 ```
@@ -273,6 +336,7 @@ export ANTHROPIC_API_KEY=...        # or HUD_API_KEY with --gateway
 uv run hud eval tasks.py claude --task-ids net_margin-83d5f782 --max-steps 10
 uv run hud eval tasks_legacy.py claude --all --max-steps 10   # the 18 legacy tasks
 uv run hud eval tasks_probe.py claude --all --max-steps 10    # the probe set
+uv run hud eval tasks_probe_v2.py claude --all --max-steps 16 # the frozen v2 subset (up to 12 calls)
 ```
 
 ### Docker
@@ -328,14 +392,16 @@ The environment never touches the network.
 
 ```
 env.py                         HUD Environment, MCP tool server, one template per question type, session guard
-tasks.py                       the two named task sets: legacy (18) and probe (derived from the fixture)
+tasks.py                       the three named task sets: legacy (18), probe and chains (derived from the fixture)
 tasks_legacy.py, tasks_probe.py  one set each, for hud --source
+tasks_probe100.py              the frozen v1 subset (100: 20 per v1 type)
+tasks_probe_v2.py              the frozen v2 subset (100: 20 per chained type, 4 per v1 type)
 demo.py                        scripted agents, end to end
 Dockerfile.hud                 container image for hud serve / hud deploy
 src/quantlab_env/data.py       point-in-time fixture access
 src/quantlab_env/tools.py      tools, strict argument checks, episode call log and open episodes
 src/quantlab_env/grader.py     reward
-src/quantlab_env/questions.py  question types, fiscal-year labels, gold answers, the legacy and probe sets
+src/quantlab_env/questions.py  question types, fiscal-year labels, peer groups, gold answers, the task sets and subsets
 src/quantlab_env/fixture.json  the SEC data the tools serve (package data)
 scripts/build_fixture.py       regenerate the fixture from EDGAR
 tests/                         grader, tools, fixture, fixture builder and end-to-end tests
@@ -370,7 +436,7 @@ docs/                          design notes (see below)
   After it expires, a newer episode is graded normally, and if the abandoned
   session comes back after that newer one began, it is refused; any tool
   calls it makes in the meantime land in the newer episode's log.
-- Compared with QuantLab this has six question types over two concepts and
+- Compared with QuantLab this has ten question types over two concepts and
   two tools, not many question types and six tools. Grounding here checks every cited number, not
   only the final answer. That idea comes from the earlier memo writer's checker.
 - The checked-in fixture is missing three NVIDIA revenue rows (FY2021 and
@@ -387,9 +453,16 @@ What the grader still cannot catch (details in
 The two inputs are checked exactly, by label, in the citation block. These
 limits apply to the other numbers the answer cites in prose:
 
-- The probe set's difficulty is by design, not calibrated on a model yet: no
-  real model has been run on it, so its target band (base mean reward 0.55 to
-  0.80, reward variance across rollouts on at least 30% of tasks) is untested.
+- The probe set's difficulty is by design. The v1 subset was too easy (base
+  0.901 against a 0.55 to 0.80 target); the chained v2 subset has not been run
+  on a model yet, so whether it lands in the band is untested.
+- Choices are read as whole words in any case, so a ticker that is also a word
+  (`COST`, `DE`, `GE`, `KO`) counts as named wherever it appears on the ANSWER
+  line (`ANSWER: WMT, the lowest cost 2.39%` names COST too, and is wrong).
+- A ranking's gold is the chosen company's own calculation. An agent that
+  looks up and cites every peer but computes only the one it guessed is not
+  penalised for skipping the comparison. 22 of the 23 trend tasks are NO; the
+  word alone is easy to guess, but the smallest change must be right too.
 - The fiscal-year labelling rule is one fixed rule. A company that labels a
   year by the calendar year it starts in would get wrong golds, so none is in
   the build list; after regenerating, `tests/test_tools.py` checks the rule

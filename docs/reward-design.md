@@ -3,7 +3,8 @@
 The grader is plain code in `src/quantlab_env/grader.py`. No LLM judge. It
 reads two things: the agent's final text and the episode's tool call log
 (`EPISODE.calls`, one `ToolCall(name, arguments, result)` per call, in order),
-plus the question (ticker, period, `as_of` date, gold inputs).
+plus the question (its inputs, gold formula, `as_of` date, par calls and,
+for a ranking or a trend, the choice the ANSWER line must name).
 
 ```
 reward = 0.5 * answer + 0.3 * grounding + 0.1 * validity + 0.1 * efficiency
@@ -28,6 +29,20 @@ question's `as_of` date, which is exactly what the tools return on that date.
 The tolerances are used only here, to judge the answer against gold.
 Everything else (evidence, provenance, grounding) matches at the precision a
 number is written with; see [signs, scale and precision](#signs-scale-and-precision).
+
+A ranking or a trend (`Question.choice` set) also needs the choice named on
+that line: `chosen` lists which of the question's candidates (`Question.choices`:
+the peer tickers, or `YES` and `NO`) the line names as whole words, in any
+case, and the answer is correct only if that list is exactly the right choice.
+So `ANSWER: CSCO 21.26%`, `ANSWER: **csco** 21.26%` and
+`ANSWER: Cisco (CSCO): 21.26%` name CSCO; `ANSWER: CSCO or ORCL 21.26%` and
+`ANSWER: 21.26%` name no single choice and are wrong. Text before the ANSWER
+line does not count. The pick is asked only when it stands clear of every
+other candidate (by 0.1 percentage points and twice the 0.5% tolerance), so
+the number alone also identifies it. The gold is the picked figure itself
+(the chosen company's margin or change, or a trend's smallest annual
+change), so derivation below needs no change: a calculation of another
+company's margin is not the gold's formula.
 
 The answer only scores if at least one admissible lookup succeeded (see
 [the filing-date cutoff](#the-filing-date-cutoff)). A correct number with no
@@ -54,7 +69,11 @@ concept, a fiscal period and the value the gold used. Each input is cited on
 its own line under its label, the key in upper case. Net margin's are
 `REVENUE` and `NET_INCOME`; the probe set adds `PRIOR_REVENUE` and
 `PRIOR_NET_INCOME` (the prior fiscal year) and `<TICKER>_REVENUE` and
-`<TICKER>_NET_INCOME` (each company of a gap question). Everything below
+`<TICKER>_NET_INCOME` (each company of a gap question). The chained types
+use `<TICKER>_REVENUE`, `<TICKER>_NET_INCOME`, `<TICKER>_PRIOR_REVENUE` and
+`<TICKER>_PRIOR_NET_INCOME` for each peer, and `FY<YEAR>_REVENUE` and
+`FY<YEAR>_NET_INCOME` for each year of a trend (`FY2025_REVENUE`), so a
+ranking cites every candidate's figures, not only the winner's. Everything below
 applies to every label. For net margin, the prompt asks the answer to end with
 exactly three lines:
 
@@ -107,7 +126,11 @@ unless an admissible lookup succeeded, so it is also 0 with no calls.
 (ticker, concept) the question needs plus one compute: `PAR_CALLS = 3` for net
 margin (revenue lookup, net income lookup, one compute), and in the probe set
 3 for a change in margin (one lookup returns both years), 2 for revenue
-growth and 5 for a gap between two companies. Every call counts, including failed and
+growth and 5 for a gap between two companies. A ranking or a trend compares
+several figures, so its par counts one compute per figure
+(`Question.computes`): 9 for three peers (6 lookups, 3 margins or changes), 12
+for four, 5 for a trend (2 lookups, 3 changes). `margin_vs_peers` is one
+expression over eight values: par 9. Every call counts, including failed and
 inadmissible ones. It is 0 unless an admissible lookup succeeded, so failed
 calls alone never earn it.
 
@@ -325,6 +348,28 @@ Probe-set cases, each with a test in `tests/test_grader.py`:
 | revenue growth with an unneeded net income lookup | 1 | 1 | 1 | 0.67 | 0.967 |
 | gap computed in the reverse order (B minus A) | 0 | 1 | 1 | 1 | 0.50 |
 | gap with one company's lines missing from the block | 1 | 0 | 1 | 1 | 0.70 |
+
+Chained cases, each with a test in `tests/test_grader.py` (ranks on Apple,
+Microsoft, Oracle and Cisco, lowest fiscal 2021 margin, CSCO 21.26%, unless
+noted):
+
+| case | answer | grounding | validity | efficiency | reward |
+|---|---|---|---|---|---|
+| honest, every chained question | 1 | 1 | 1 | 1 | 1.00 |
+| rank: CSCO's margin with `ORCL` on the line, `CSCO or ORCL`, or no ticker | 0 | 1 | 1 | 1 | 0.50 |
+| rank: Apple's margin under `AAPL` (another company's calculation) | 0 | 0 | 1 | 1 | 0.20 |
+| rank: Microsoft's lines missing from the block | 1 | 0 | 1 | 1 | 0.70 |
+| rank: Microsoft's lines cited but never looked up | 1 | 0 | 1 | 1 | 0.70 |
+| rank of Deere, GE and FedEx fiscal 2023 as of 2025-03-05 (GE, restated) answered with the 2024-03-03 view (DE) | 0 | 0 | 1 | 1 | 0.20 |
+| rank with NVIDIA's fiscal 2024 read as the year ending 2025-01-26 | 0 | 0 | 1 | 1 | 0.20 |
+| change rank (GE, MMM, FDX, fiscal 2022): MMM's change, the highest margin, not the largest change | 0 | 0 | 1 | 1 | 0.20 |
+| change rank answered with GE's pre-restatement figures | 0 | 0 | 1 | 1 | 0.20 |
+| FedEx vs peers: simple average of the peers' margins (`/ 3`) | 0 | 0 | 1 | 1 | 0.20 |
+| FedEx vs peers: combined margin, then the difference (10 calls) | 1 | 1 | 1 | 0.9 | 0.99 |
+| FedEx vs peers: peers minus FedEx | 0 | 1 | 1 | 1 | 0.50 |
+| NVIDIA trend: `YES -20.04 pp`, `YES, NO -20.04 pp` or no word | 0 | 1 | 1 | 1 | 0.50 |
+| NVIDIA trend: the latest change (32.66 pp) instead of the smallest | 0 | 0 | 1 | 1 | 0.20 |
+| NVIDIA trend: lookups after the date (fiscal 2025 visible) | 0 | 0 | 0 | 0 | 0.00 |
 
 The freeloader row is tested end to end in `tests/test_env.py`: both sessions
 fail with `OverlappingEpisodes` and neither is graded (see
@@ -564,6 +609,16 @@ other numbers the answer cites in prose.
   a fiscal year ends in, a first-week-of-January end counting as the year
   before). A company that labels by the year a fiscal year starts would get
   wrong golds, so none is in the build list.
+- A ranking's gold is the chosen company's own calculation, so an agent that
+  looks up and cites every candidate but computes only the one it guessed
+  (from memory) is not penalised for skipping the comparison; its efficiency
+  is even above par. The 0.1 pp clearance keeps such a guess from also being
+  right by tolerance.
+- Choices are whole words in any case, so a ticker that is also an English
+  word (`COST`, `DE`, `GE`, `KO`) counts as named anywhere on the ANSWER line:
+  `ANSWER: WMT, the lowest cost` names COST too and is wrong (a false
+  negative). 22 of the 23 trend tasks are NO, so the word is easy to guess;
+  the number is what is hard.
 - The provenance check is numeric, not symbolic: it evaluates each formula at
   the looked-up values and at 1% nudges of them, and nowhere else.
 - The grader cannot tell whether the agent understood the point-in-time trap,

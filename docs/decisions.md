@@ -455,3 +455,95 @@ are unchanged.
   `f41b9cdbae8ff3c0246f2b1c426376cbf5463e3291dfe31ec6fb5590a07c69c8`).
 - **Tests.** 1036 tests pass (607 in `tests/test_grader.py`, 383 in
   `tests/test_env.py`, 26 in `tests/test_tools.py`).
+
+## 2026-10-06: Chained analyst questions and a frozen probe v2 subset
+
+Measured on the frozen 100-task v1 subset (`tasks_probe100.py`), Qwen3.5-9B
+base via vLLM, temperature 0.9, 5 rollouts: base 0.901 (target 0.55 to 0.80),
+SFT 0.864. By type (base): `fy_net_margin` 0.977, `latest_net_margin` 0.979,
+`revenue_growth` 0.904, `net_margin_change` 0.864, `net_margin_gap` 0.782.
+Single-company one-hop questions are nearly solved, so they cannot separate
+models; the only multi-company type was the hardest. The new types ask what a
+working analyst or PM asks about several companies or several years at once,
+needing 5 to 12 tool calls in which later steps depend on earlier results.
+
+- **Four types kept**, each with its reason to exist:
+  - `peer_margin_rank`: an analyst asks this when building a comp table and
+    naming the best or worst operator in a peer group ("Which of Apple,
+    Microsoft, Oracle and Cisco had the lowest net margin for its fiscal
+    2021, using only filings available on 2021-11-28?", `CSCO 21.26%`). Three
+    or four peers, highest or lowest in turn; par 9 or 12.
+  - `peer_margin_change_rank`: an analyst asks this in earnings season, when
+    the question is who expanded margins most ("Which of GE, 3M and FedEx
+    expanded its net margin the most from fiscal 2021 to fiscal 2022?",
+    `GE 9.08 pp`). Three peers (four would be 16 cited figures); par 9.
+  - `margin_vs_peers`: an analyst asks this when judging whether a company
+    earns a premium or discount margin to its sector ("By how many
+    percentage points was FedEx's fiscal 2022 net margin above the combined
+    net margin of Deere, GE and 3M?", `-3.95 pp`). Par 9.
+  - `margin_trend`: an analyst asks this when checking a "margins expand
+    every year" thesis, often just before a 10-K lands ("Did NVIDIA's net
+    margin rise in each of its last three fiscal years reported in a 10-K
+    filed on or before 2025-02-25?", `NO -20.04 pp`, the smallest change).
+    Asked the day before each 10-K and 30 days after it; par 5.
+- **Rejected.** Revenue CAGR over three or more years: the most common growth
+  metric, but it needs a power, and `compute` has none on purpose. A power
+  with a free exponent would let any target be manufactured from evidence
+  (`(a / b) ** c` for a chosen `c`), breaking calculator provenance, and an
+  arithmetic mean of annual growth rates is not what analysts mean by CAGR,
+  so no tool was added. A simple average of peer margins (needs a literal
+  count, which the calculator rules reject as a constant that is not
+  evidence): the combined margin, total net income over total revenue, is
+  how sector margins are aggregated, and the prompt defines it. "In how many
+  of the last three years did the margin rise" (a count is guessable and has
+  no formula to derive). Each of these is either artificial or would weaken
+  the grader.
+- **Difficulty by design**: peer groups are the fixture's sectors
+  (`PEER_GROUPS`: large-cap technology, semiconductors and hardware,
+  consumer, industrials), mostly with non-December fiscal years named by
+  label, so one question mixes years ending in January to December (NVIDIA's
+  and Walmart's fiscal years end in January of the year they are named for).
+  Every restatement of any member is asked before and after (GE's spin-off
+  restatements change the leader of Deere, GE and FedEx for fiscal 2023, from
+  DE at 16.60% to GE at 26.82%). A trend needs the latest year filed by the
+  date, then the three before it, on one basis. No task is kept or dropped by
+  model results.
+- **Scoring a ranking or a yes/no answer** (grader change, tested): a
+  question may carry a `choice` and its `choices`; the ANSWER line must name
+  the choice as a whole word, in any case, and no other candidate
+  (`grader.chosen`). The gold is the picked figure itself (the chosen
+  company's margin or change, or the smallest annual change), so the
+  existing derivation check applies unchanged, and a calculation of another
+  company's margin is not grounded. A pick is asked only if it stands clear
+  of every other candidate by 0.1 percentage points and twice the 0.5%
+  answer tolerance (`questions._pick`), so the number alone identifies it.
+  Questions without a choice grade exactly as before (tested).
+- **Efficiency par** gains `Question.computes`: one calculation per figure a
+  ranking or trend has to compare (default 1, so every existing par is
+  unchanged).
+- **Sets.** `questions.chain_questions()` derives 294 tasks from the fixture
+  (113 `peer_margin_rank`, 62 `peer_margin_change_rank`, 96
+  `margin_vs_peers`, 23 `margin_trend`), bound as the `chains` set in
+  `tasks.py`. `probe_questions()` is unchanged, so the v1 subset and its hash
+  are too. The v2 subset (`tasks_probe_v2.py`, `questions.probe_sample_v2`,
+  seed 20261006) has 100 tasks: 20 of each chained type and 4 of each v1 type
+  for continuity, mean par 7.1 calls (8.1 over the chained types). Frozen
+  before any model ran on it; `tests/test_probe_sample.py` pins its prompts
+  (sha256 `9cde6035723745581a635ab06e572421de55f8de6054b73a208a15d37ad0503e`).
+  `probe_sample` (v1) now calls the shared `stratified_sample` and draws the
+  same subset (its hash test is unchanged).
+- **`hud --source` fix.** `tasks_probe100.py` exposed its subset twice (as a
+  `Taskset` and as `tasks`), so `hud task list --source tasks_probe100.py`
+  failed with duplicate slugs. The `Taskset` is now private (`_probe100`), as
+  in `tasks_probe.py`; the tasks are unchanged. `tasks_probe_v2.py` does the
+  same.
+- **Known limits.** A ranking agent that guesses the winner and computes only
+  its margin (while citing every peer) is not penalised for skipping the
+  comparison. A ticker that is also a word (`COST`, `DE`, `GE`, `KO`) on the
+  ANSWER line counts as named. 22 of the 23 trend tasks are NO. Not
+  calibrated: no model has run on v2 yet. At up to 12 calls, `hud eval` needs
+  `--max-steps` above 10 for these tasks.
+- **Tests.** 1654 tests pass (927 in `tests/test_grader.py`, 678 in
+  `tests/test_env.py`, 27 in `tests/test_tools.py`, 5 in
+  `tests/test_probe_sample.py`); `demo.py` is unchanged (1.00, 0.70, 0.70,
+  0.70, 0.00, 0.95).

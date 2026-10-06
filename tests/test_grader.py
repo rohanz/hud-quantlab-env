@@ -2,9 +2,17 @@
 
 import pytest
 
-from demo import honest_answer, honest_expr
+from demo import honest_answer, honest_expr, honest_exprs, honest_pick
 from quantlab_env import questions
-from quantlab_env.grader import admissible_lookup, build_evidence, citations, extract_numbers, final_answer, grade
+from quantlab_env.grader import (
+    admissible_lookup,
+    build_evidence,
+    chosen,
+    citations,
+    extract_numbers,
+    final_answer,
+    grade,
+)
 from quantlab_env.tools import Episode, execute
 
 # JNJ restated FY2021 revenue in its 2024 10-K. Asked as of 2024-03-17 the
@@ -1124,3 +1132,254 @@ def test_growth_efficiency_counts_an_unneeded_lookup():
     g = grade(text, calls, q)
     assert g.subscores["efficiency"] == pytest.approx(2 / 3)
     assert g.reward == pytest.approx(0.9 + 0.1 * 2 / 3)
+
+
+# --- chained analyst questions: peers ranked, a company against its peers, a trend ---
+
+
+def solve_chain(q: questions.Question, as_of: str | None = None, pick: int | None = None) -> tuple[str, list, list]:
+    """The honest strategy on a chained question: one lookup per (ticker, concept), one calculation per compared
+    figure, the citation block. `pick` reports another calculation's result instead; `as_of` looks up on
+    another date."""
+    calls = [lookup(c, as_of or q.as_of, t) for t, c in dict.fromkeys((i.ticker, i.concept) for i in q.inputs)]
+    exprs = honest_exprs(q)
+    ep = episode(*calls, *(("compute", {"expr": e}) for e in exprs))
+    results = [c.result["value"] for c in ep.calls[-len(exprs) :]]
+    return honest_answer(q, honest_pick(q, results) if pick is None else results[pick]), ep.calls, results
+
+
+CHAINS = questions.chain_questions()
+
+
+@pytest.mark.parametrize("q", CHAINS, ids=lambda q: f"{q.kind}-{'-'.join(q.params.values())}")
+def test_honest_agent_scores_full_marks_on_every_chain_question(q):
+    text, calls, _ = solve_chain(q)
+    g = grade(text, calls, q)
+    assert g.reward == 1.0, g.info
+    assert len(calls) == q.par_calls
+
+
+def test_chain_par_calls_and_labels():
+    """A lookup per (ticker, concept) and a calculation per compared figure: 4 to 12 calls."""
+    rank4 = questions.peer_margin_rank("AAPL,MSFT,ORCL,CSCO", "2021", "lowest", "2021-11-28")
+    assert rank4.par_calls == 12 and rank4.choice == "CSCO" and rank4.choices == ("AAPL", "MSFT", "ORCL", "CSCO")
+    assert questions.peer_margin_rank("DE,GE,FDX", "2023", "highest", "2024-03-03").par_calls == 9
+    change = questions.peer_margin_change_rank("GE,MMM,FDX", "2022", "2023-03-12")
+    assert change.par_calls == 9 and change.labels["ge_prior_net_income"] == "GE_PRIOR_NET_INCOME"
+    assert "GE_PRIOR_REVENUE: <GE prior revenue value>" in change.prompt
+    assert change.prompt.endswith("ANSWER: <ticker> <change> pp")
+    vs = questions.margin_vs_peers("FDX", "DE,GE,MMM", "2022", "2023-03-12")
+    assert vs.par_calls == 9 and vs.choice is None and vs.prompt.endswith("ANSWER: <difference> pp")
+    trend = questions.margin_trend("ORCL", "2026-06-21")
+    assert trend.par_calls == 5 and trend.choices == ("YES", "NO")
+    assert "FY2025_REVENUE: <fiscal 2025 revenue value>" in trend.prompt
+    assert trend.prompt.endswith("ANSWER: <YES or NO> <smallest change> pp")
+    assert {q.par_calls for q in CHAINS} == {5, 9, 12}
+
+
+@pytest.mark.parametrize(
+    ("line", "named"),
+    [
+        ("CSCO 21.26%", ["CSCO"]),
+        ("csco 21.26%", ["CSCO"]),  # any case
+        ("**CSCO** 21.26%", ["CSCO"]),
+        ("Cisco (CSCO): 21.26%", ["CSCO"]),
+        ("CSCO, not MSFT, 21.26%", ["MSFT", "CSCO"]),
+        ("CSCOX 21.26%", []),  # whole words only
+        ("21.26%", []),
+    ],
+)
+def test_choice_is_a_whole_word_on_the_answer_line(line, named):
+    choices = ("AAPL", "MSFT", "ORCL", "CSCO")
+    assert chosen(f"Cisco had the lowest.\nANSWER: {line}", choices) == named
+    assert chosen("CSCO is lowest\nANSWER: 21.26%", choices) == []  # prose before the line does not count
+
+
+def test_answers_without_a_choice_are_graded_as_before():
+    g = grade(HONEST, full_episode().calls, Q)
+    assert g.reward == 1.0 and g.info["choice"] is None and g.info["chosen"] == []
+
+
+RANK = questions.peer_margin_rank("AAPL,MSFT,ORCL,CSCO", "2021", "lowest", "2021-11-28")
+
+
+def test_rank_names_the_wrong_ticker_with_the_right_margin():
+    """The number is CSCO's margin and is derived honestly, but the line names Oracle: no answer credit."""
+    text, calls, _ = solve_chain(RANK)
+    g = grade(text.replace("ANSWER: CSCO", "ANSWER: ORCL"), calls, RANK)
+    assert g.subscores["answer"] == 0.0 and g.subscores["grounding"] == 1.0 and g.info["chosen"] == ["ORCL"]
+    assert g.reward == pytest.approx(0.5)
+
+
+def test_rank_hedging_between_two_tickers_is_wrong():
+    text, calls, _ = solve_chain(RANK)
+    g = grade(text.replace("ANSWER: CSCO", "ANSWER: CSCO or ORCL"), calls, RANK)
+    assert g.subscores["answer"] == 0.0 and g.reward == pytest.approx(0.5)
+
+
+def test_rank_without_a_ticker_is_wrong():
+    text, calls, _ = solve_chain(RANK)
+    g = grade(text.replace("ANSWER: CSCO ", "ANSWER: "), calls, RANK)
+    assert g.subscores["answer"] == 0.0 and g.reward == pytest.approx(0.5)
+
+
+def test_rank_picks_the_wrong_company():
+    """Reporting another company's margin under its ticker: the answer is wrong and is not the gold's
+    calculation (the chosen company's margin), so it is ungrounded too."""
+    text, calls, _ = solve_chain(RANK, pick=0)
+    text = text.replace("ANSWER: CSCO", "ANSWER: AAPL")
+    g = grade(text, calls, RANK)
+    assert g.subscores["answer"] == 0.0 and not g.info["answer_derived"]
+    assert g.reward == pytest.approx(0.2)
+
+
+def test_rank_with_one_peer_missing_from_the_block():
+    text, calls, _ = solve_chain(RANK)
+    text = "\n".join(line for line in text.splitlines() if not line.startswith("MSFT_"))
+    g = grade(text, calls, RANK)
+    assert g.info["missing_inputs"] == ["msft_revenue", "msft_net_income"]
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_rank_skipping_a_peers_lookups_is_ungrounded():
+    """Citing Microsoft's figures from memory: they are not evidence in this episode."""
+    text, calls, _ = solve_chain(RANK)
+    calls = [c for c in calls if c.arguments.get("ticker") != "MSFT"]
+    g = grade(text, calls, RANK)
+    assert g.info["missing_inputs"] == ["msft_revenue", "msft_net_income"] and g.subscores["answer"] == 1.0
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_rank_restatement_changes_the_leader():
+    """GE's fiscal 2023, restated for the GE Vernova spin-off in its 2024 10-K, lifts it from behind Deere
+    to the highest margin of Deere, GE and FedEx. The pre-restatement answer (DE) is wrong after it."""
+    before = questions.peer_margin_rank("DE,GE,FDX", "2023", "highest", "2024-03-03")
+    after = questions.peer_margin_rank("DE,GE,FDX", "2023", "highest", "2025-03-05")
+    assert (before.choice, round(before.gold * 100, 2)) == ("DE", 16.6)
+    assert (after.choice, round(after.gold * 100, 2)) == ("GE", 26.82)
+    text, calls, _ = solve_chain(after)
+    assert grade(text, calls, after).reward == 1.0
+    stale, calls, _ = solve_chain(before)
+    g = grade(stale, calls, after)
+    assert g.subscores["answer"] == 0.0 and g.info["missing_inputs"] == ["ge_revenue", "ge_net_income"]
+    assert g.reward == pytest.approx(0.2)
+
+
+def test_rank_fiscal_label_slip():
+    """NVIDIA's fiscal 2024 ends on 2024-01-28. Reading it as the year ending 2025-01-26 keeps NVIDIA on
+    top but reports the wrong margin from the wrong rows."""
+    q = questions.peer_margin_rank("NVDA,MU,AAPL,CSCO", "2024", "highest", "2025-03-01")
+    assert (q.choice, round(q.gold * 100, 2), q.inputs[0].period_end) == ("NVDA", 48.85, "2024-01-28")
+    slip = questions.Question(
+        q.kind,
+        q.as_of,
+        questions._margin_inputs("NVDA", "2025-01-26", q.as_of, "nvda_") + q.inputs[2:],
+        q.formula,
+        q.ask,
+        q.give,
+        choice="NVDA",
+        choices=q.choices,
+        computes=q.computes,
+    )
+    text, calls, _ = solve_chain(slip)
+    g = grade(text, calls, q)
+    assert g.subscores["answer"] == 0.0 and g.info["missing_inputs"] == ["nvda_revenue", "nvda_net_income"]
+    assert g.reward == pytest.approx(0.2)
+
+
+CHANGE = questions.peer_margin_change_rank("GE,MMM,FDX", "2022", "2023-03-12")
+
+
+def test_change_rank_by_this_years_margin_is_wrong():
+    """MMM had the highest fiscal 2022 margin, but GE's margin rose the most. Reporting MMM's change is wrong."""
+    text, calls, results = solve_chain(CHANGE, pick=1)
+    assert CHANGE.choice == "GE" and results[0] == pytest.approx(CHANGE.gold * 100)
+    g = grade(text.replace("ANSWER: GE", "ANSWER: MMM"), calls, CHANGE)
+    assert g.subscores["answer"] == 0.0 and g.reward == pytest.approx(0.2)
+
+
+def test_change_rank_restatement_straddle():
+    """GE's fiscal 2021 and 2022 were restated in its 2023 10-K: GE still leads, by 11.81 pp, not 9.08."""
+    after = questions.peer_margin_change_rank("GE,MMM,FDX", "2022", "2024-03-03")
+    assert (after.choice, round(after.gold * 100, 2)) == ("GE", 11.81)
+    stale, calls, _ = solve_chain(CHANGE)
+    g = grade(stale, calls, after)
+    assert g.subscores["answer"] == 0.0 and g.reward == pytest.approx(0.2)
+
+
+VS = questions.margin_vs_peers("FDX", "DE,GE,MMM", "2022", "2023-03-12")
+
+
+def test_vs_peers_simple_average_is_not_the_combined_margin():
+    """Averaging the peers' margins needs a literal 3, which is not evidence: wrong and ungrounded."""
+    v = [int(i.value) for i in VS.inputs]
+    calls = [lookup(c, VS.as_of, t) for t, c in dict.fromkeys((i.ticker, i.concept) for i in VS.inputs)]
+    expr = f"({v[1]} / {v[0]} - ({v[3]} / {v[2]} + {v[5]} / {v[4]} + {v[7]} / {v[6]}) / 3) * 100"
+    ep = episode(*calls, ("compute", {"expr": expr}))
+    result = ep.calls[-1].result["value"]
+    assert round(result, 2) != round(VS.gold * 100, 2)
+    g = grade(honest_answer(VS, result), ep.calls, VS)
+    assert g.subscores["answer"] == 0.0 and g.subscores["grounding"] == 0.0
+    assert g.reward == pytest.approx(0.2)
+
+
+def test_vs_peers_in_two_steps_is_grounded():
+    """The peers' combined margin first, then the difference: honest, one call over par."""
+    v = [int(i.value) for i in VS.inputs]
+    calls = [lookup(c, VS.as_of, t) for t, c in dict.fromkeys((i.ticker, i.concept) for i in VS.inputs)]
+    ep = episode(*calls, ("compute", {"expr": f"({v[3]} + {v[5]} + {v[7]}) / ({v[2]} + {v[4]} + {v[6]}) * 100"}))
+    combined = ep.calls[-1].result["value"]
+    execute("compute", {"expr": f"{v[1]} / {v[0]} * 100 - {combined}"}, ep)
+    g = grade(honest_answer(VS, ep.calls[-1].result["value"]), ep.calls, VS)
+    assert g.subscores["grounding"] == 1.0 and g.subscores["efficiency"] == pytest.approx(0.9)
+    assert g.reward == pytest.approx(0.99)
+
+
+def test_vs_peers_reversed_is_grounded_but_wrong():
+    """Peers minus the company: the right calculation with its sign flipped, as for a reversed gap."""
+    v = [int(i.value) for i in VS.inputs]
+    calls = [lookup(c, VS.as_of, t) for t, c in dict.fromkeys((i.ticker, i.concept) for i in VS.inputs)]
+    income, revenue = f"{v[3]} + {v[5]} + {v[7]}", f"{v[2]} + {v[4]} + {v[6]}"
+    ep = episode(*calls, ("compute", {"expr": f"(({income}) / ({revenue}) - {v[1]} / {v[0]}) * 100"}))
+    g = grade(honest_answer(VS, ep.calls[-1].result["value"]), ep.calls, VS)
+    assert g.subscores["answer"] == 0.0 and g.subscores["grounding"] == 1.0
+    assert g.reward == pytest.approx(0.5)
+
+
+TREND = questions.margin_trend("NVDA", "2025-02-25")
+
+
+def test_trend_yes_and_no():
+    """Oracle's margin rose in each of fiscal 2023 to 2025 (smallest rise 1.19 pp); NVIDIA's, as of the day
+    before its fiscal 2025 10-K, fell 20.04 pp in fiscal 2023."""
+    up = questions.margin_trend("ORCL", "2026-06-21")
+    assert (up.choice, round(up.gold * 100, 2)) == ("YES", 1.19)
+    assert (TREND.choice, round(TREND.gold * 100, 2), TREND.inputs[0].period_end) == ("NO", -20.04, "2024-01-28")
+    for q in (up, TREND):
+        text, calls, _ = solve_chain(q)
+        assert f"ANSWER: {q.choice} " in text and grade(text, calls, q).reward == 1.0
+
+
+def test_trend_word_must_match():
+    text, calls, _ = solve_chain(TREND)
+    for line in ("ANSWER: YES -20.04 pp", "ANSWER: YES, NO -20.04 pp", "ANSWER: -20.04 pp"):
+        g = grade(text.replace("ANSWER: NO -20.04 pp", line), calls, TREND)
+        assert g.subscores["answer"] == 0.0 and g.reward == pytest.approx(0.5), line
+    assert grade(text.replace("ANSWER: NO", "ANSWER: **No**,"), calls, TREND).reward == 1.0
+
+
+def test_trend_reports_the_latest_change_not_the_smallest():
+    text, calls, results = solve_chain(TREND, pick=0)
+    g = grade(text, calls, TREND)
+    assert results[0] == pytest.approx(32.66, abs=0.01) and g.subscores["answer"] == 0.0
+    assert g.reward == pytest.approx(0.2)
+
+
+def test_trend_peeking_past_the_date():
+    """The day before NVIDIA's fiscal 2025 10-K, the latest year is fiscal 2024. Lookups dated after the
+    question's date see fiscal 2025 but are not evidence."""
+    later = questions.margin_trend("NVDA", "2025-03-28")
+    assert later.inputs[0].period_end == "2025-01-26"
+    text, calls, _ = solve_chain(later)
+    g = grade(text, calls, TREND)
+    assert g.info["future_lookups"] == 2 and g.reward == 0.0

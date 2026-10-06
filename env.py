@@ -1,8 +1,10 @@
 """HUD environment: point-in-time ratios from SEC filings, graded on evidence.
 
 One template per question type (`quantlab_env.questions`): the legacy
-`net_margin`, and the probe set's `fy_net_margin`, `latest_net_margin`,
-`net_margin_change`, `revenue_growth` and `net_margin_gap`.
+`net_margin`, the probe set's `fy_net_margin`, `latest_net_margin`,
+`net_margin_change`, `revenue_growth` and `net_margin_gap`, and the chained
+analyst questions' `peer_margin_rank`, `peer_margin_change_rank`,
+`margin_vs_peers` and `margin_trend`.
 
 The tools are served over MCP by a FastMCP server that an `@env.initialize`
 hook starts and publishes as the `tools` capability. A middleware routes every
@@ -192,7 +194,58 @@ async def net_margin_gap(ticker: str, other: str, fiscal_year: str, as_of: str):
         await episode.aclose()
 
 
+@env.template(id="peer_margin_rank", description="Chain: which of several peers had the highest or lowest net margin")
+async def peer_margin_rank(tickers: str, fiscal_year: str, rank: str, as_of: str):
+    episode = _episode(questions.peer_margin_rank(tickers, fiscal_year, rank, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="peer_margin_change_rank", description="Chain: which of several peers expanded net margin the most")
+async def peer_margin_change_rank(tickers: str, fiscal_year: str, as_of: str):
+    episode = _episode(questions.peer_margin_change_rank(tickers, fiscal_year, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="margin_vs_peers", description="Chain: a company's net margin against its peers' combined, in pp")
+async def margin_vs_peers(ticker: str, peers: str, fiscal_year: str, as_of: str):
+    episode = _episode(questions.margin_vs_peers(ticker, peers, fiscal_year, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
+@env.template(id="margin_trend", description="Chain: did net margin rise in each of the last three fiscal years")
+async def margin_trend(ticker: str, as_of: str):
+    episode = _episode(questions.margin_trend(ticker, as_of))
+    try:
+        answer = yield await anext(episode)
+        yield await episode.asend(answer)
+    finally:
+        await episode.aclose()
+
+
 TEMPLATES = {
     t.__name__: t
-    for t in (net_margin, fy_net_margin, latest_net_margin, net_margin_change, revenue_growth, net_margin_gap)
+    for t in (
+        net_margin,
+        fy_net_margin,
+        latest_net_margin,
+        net_margin_change,
+        revenue_growth,
+        net_margin_gap,
+        peer_margin_rank,
+        peer_margin_change_rank,
+        margin_vs_peers,
+        margin_trend,
+    )
 }

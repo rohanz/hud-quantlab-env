@@ -68,6 +68,11 @@ async def latest_net_margin(ticker: str, as_of: str): ...
 async def net_margin_change(ticker: str, fiscal_year: str, as_of: str): ...
 async def revenue_growth(ticker: str, fiscal_year: str, as_of: str): ...
 async def net_margin_gap(ticker: str, other: str, fiscal_year: str, as_of: str): ...
+# chained analyst questions (tickers and peers are comma-separated, "AAPL,MSFT,ORCL")
+async def peer_margin_rank(tickers: str, fiscal_year: str, rank: str, as_of: str): ...  # rank: highest or lowest
+async def peer_margin_change_rank(tickers: str, fiscal_year: str, as_of: str): ...
+async def margin_vs_peers(ticker: str, peers: str, fiscal_year: str, as_of: str): ...
+async def margin_trend(ticker: str, as_of: str): ...
 ```
 
 Each template builds its question and relays it through `_episode`:
@@ -75,7 +80,8 @@ Each template builds its question and relays it through `_episode`:
 1. The question builder (`questions.build` for `net_margin`, the function of
    the same name for the others) computes the gold from the point-in-time
    data and fails if a period was not filed by `as_of` (or, for a fiscal-year
-   label, if no single filed period carries it).
+   label, if no single filed period carries it, or, for a ranking or a
+   trend, if the pick does not stand clear of the other candidates).
 2. `EPISODE.begin()` clears the call log, opens the episode and returns its
    generation.
 3. It yields the prompt (which asks for one labelled line per input, for net
@@ -87,12 +93,14 @@ Each template builds its question and relays it through `_episode`:
    on grade, on error and when HUD closes an abandoned generator.
 5. It yields an `EvaluationResult` with the reward, one `SubScore` per
    component (weights from `grader.WEIGHTS`) and an `info` dict: gold, final
-   answer, correct, the parsed citation block, cited numbers, ungrounded
+   answer, correct, the choice and the choices the ANSWER line named (for
+   a ranking or a trend), the parsed citation block, cited numbers, ungrounded
    numbers, missing inputs, whether the answer is derived, call counts
    (total, malformed, future lookups).
 
-`tasks.py` holds two named sets (HUD `Taskset`s); `tasks_legacy.py` and
-`tasks_probe.py` expose one each for `--source`.
+`tasks.py` holds three named sets (HUD `Taskset`s); `tasks_legacy.py` and
+`tasks_probe.py` expose one each for `--source`, and `tasks_probe100.py` (v1)
+and `tasks_probe_v2.py` expose the frozen subsets.
 
 - `legacy`: `net_margin` bound to `questions.default_questions()`, 18 tasks
   pinned in `questions.LEGACY`: one per company and fiscal year ending 2022 to
@@ -114,6 +122,33 @@ Each template builds its question and relays it through `_episode`:
   - `net_margin_gap`: for each fiscal-year label, each company (alphabetical)
     against the next, wrapping round, 30 days after the later 10-K; skipped
     under 0.1 percentage points.
+- `chains`: each chained template bound to `questions.chain_questions()`,
+  derived from the fixture over the peer groups in `questions.PEER_GROUPS`
+  (294 tasks: 113, 62, 96 and 23 of the four types). Each peer question is
+  asked 30 days after the last member's 10-K for the year, plus 30 days after
+  every restatement of any member's figures and the view before the first
+  one; where two dates see the same figures, only the first is kept.
+  - `peer_margin_rank`: each group of four and each three of it, every
+    fiscal-year label they all have, asking for the highest or the lowest in
+    turn; asked only if the pick stands clear of every other margin by 0.1
+    percentage points and twice the 0.5% answer tolerance.
+  - `peer_margin_change_rank`: each three of a group (four would be 16
+    figures), each year against the one before, on one basis per company (as
+    for `net_margin_change`), with the same clearance for the largest change.
+  - `margin_vs_peers`: each member of a group of four against the other three
+    combined (total net income over total revenue); skipped under 0.1
+    percentage points.
+  - `margin_trend`: the day before each 10-K and 30 days after it, when the
+    fixture holds the latest year filed and the three before it, on one basis
+    throughout; asked only if the smallest of the three changes stands clear
+    of the other two and is at least 0.1 percentage points.
+
+The frozen subsets are drawn by `questions.stratified_sample` (seed
+20261006, each kind's questions sorted by prompt): v1
+(`questions.probe_sample`, 20 per v1 type) and v2
+(`questions.probe_sample_v2`, `PROBE_V2_COUNTS`: 20 per chained type and 4
+per v1 type, from the probe and chained sets together). Their prompts are
+pinned by sha256 in `tests/test_probe_sample.py`.
 
 Fiscal-year labels (`questions.fiscal_year`): the calendar year a fiscal year
 ends in, except that a 52/53-week year ending in the first week of January
