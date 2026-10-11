@@ -33,6 +33,9 @@ tasks_legacy.py, tasks_probe.py  one set each, for hud --source (a module may no
 tasks_probe100.py              the frozen 100-task v1 probe subset (questions.probe_sample: 20 per type, seeded)
 tasks_probe_v2.py              the frozen 100-task v2 subset (questions.probe_sample_v2: 20 per chained type, 4 per
                                v1 type, seeded); both subset modules keep their Taskset private for hud --source
+grpo_splits.py, tasks_grpo_<split>.py  the GRPO splits (train, val, test_in, test_heldout) as Tasksets: rows
+                               written and sha256-pinned by quantlab-generality's scripts/hud_split.py, read from
+                               $QUANTLAB_GRPO_SPLITS and posed by TEMPLATES; ImportError without it
 demo.py                        six scripted HUD Agents run end to end over MCP, offline; Honest, honest_expr(s),
                                honest_pick and honest_answer: the honest strategy on any question type (tests)
 Dockerfile.hud                 image for hud serve / hud deploy (installs at build, telemetry off, port 8765,
@@ -53,7 +56,7 @@ scripts/build_fixture.py       regenerate the fixture from SEC EDGAR (network, n
 tests/                         test_grader.py, test_tools.py, test_fixture.py, test_build_fixture.py (offline
                                units), test_env.py (end to end, every task, overlapping and freeloading
                                sessions over tcp, session expiry, every probe and chained task),
-                               test_probe_sample.py (v1 and v2 hashes); 1654 tests (927 in test_grader.py, 678 in
+                               test_probe_sample.py (v1 and v2 hashes), test_grpo_splits.py; 1657 tests (927 in test_grader.py, 678 in
                                test_env.py, 27 in test_tools.py); pytest's pythonpath
                                puts the root on sys.path
 docs/                          reward-design.md, environment.md, decisions.md

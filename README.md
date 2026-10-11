@@ -294,7 +294,7 @@ tools read an SEC fixture that ships inside the package. Keep HUD telemetry off.
 ```bash
 export HUD_TELEMETRY_ENABLED=false
 uv sync
-uv run pytest                 # 1654 grader, tools, fixture and end-to-end tests, offline
+uv run pytest                 # 1657 grader, tools, fixture and end-to-end tests, offline
 uv run python demo.py         # scripted agents through the env over MCP, offline
 ```
 
@@ -396,6 +396,7 @@ tasks.py                       the three named task sets: legacy (18), probe and
 tasks_legacy.py, tasks_probe.py  one set each, for hud --source
 tasks_probe100.py              the frozen v1 subset (100: 20 per v1 type)
 tasks_probe_v2.py              the frozen v2 subset (100: 20 per chained type, 4 per v1 type)
+tasks_grpo_<split>.py          GRPO training splits, rows read from $QUANTLAB_GRPO_SPLITS (grpo_splits.py)
 demo.py                        scripted agents, end to end
 Dockerfile.hud                 container image for hud serve / hud deploy
 src/quantlab_env/data.py       point-in-time fixture access

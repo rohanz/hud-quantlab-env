@@ -100,7 +100,10 @@ Each template builds its question and relays it through `_episode`:
 
 `tasks.py` holds three named sets (HUD `Taskset`s); `tasks_legacy.py` and
 `tasks_probe.py` expose one each for `--source`, and `tasks_probe100.py` (v1)
-and `tasks_probe_v2.py` expose the frozen subsets.
+and `tasks_probe_v2.py` expose the frozen subsets. `tasks_grpo_<split>.py`
+(`grpo_splits.py`) poses the GRPO splits written by the training repo's
+`scripts/hud_split.py`, read from the directory in `QUANTLAB_GRPO_SPLITS`
+(without it those modules raise `ImportError`, so a directory scan skips them).
 
 - `legacy`: `net_margin` bound to `questions.default_questions()`, 18 tasks
   pinned in `questions.LEGACY`: one per company and fiscal year ending 2022 to

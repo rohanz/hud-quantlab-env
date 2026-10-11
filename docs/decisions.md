@@ -547,3 +547,22 @@ needing 5 to 12 tool calls in which later steps depend on earlier results.
   `tests/test_env.py`, 27 in `tests/test_tools.py`, 5 in
   `tests/test_probe_sample.py`); `demo.py` is unchanged (1.00, 0.70, 0.70,
   0.70, 0.00, 0.95).
+
+## 2026-10-11: GRPO split modules (tooling, grading unchanged)
+
+- **What.** `grpo_splits.py` and `tasks_grpo_<split>.py` (train, val,
+  test_in, test_heldout) pose the GRPO-from-base splits through `TEMPLATES`,
+  as `tasks.py` does for the named sets, so training rollouts, sweeps and the
+  final HUD tests use `Taskset.run` and `hud eval --source
+  tasks_grpo_<split>.py` directly.
+- **Where the rows live.** The split is defined, written and sha256-pinned in
+  the training repo (quantlab-generality `scripts/hud_split.py`, seed
+  20261009; 339 / 80 / 100 / 143 of the 662 tasks; the margin-change family
+  held out). The modules read `<split>.jsonl` from the directory in
+  `QUANTLAB_GRPO_SPLITS`, so this repo carries no copy that could drift. A row
+  whose slug a template no longer reproduces fails loudly (the env changed
+  since the split). Without the variable the modules raise `ImportError`, so
+  a directory scan skips them.
+- **Unchanged.** Templates, grader, fixture, the legacy set and both frozen
+  probe subsets.
+- **Tests.** 1657 pass (3 new in `tests/test_grpo_splits.py`).
