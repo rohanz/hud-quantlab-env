@@ -588,3 +588,37 @@ needing 5 to 12 tool calls in which later steps depend on earlier results.
   band; single-hop types are solved (1.00), as they were for the 9B base on
   v1. The set stays frozen; the README's limits now say so.
 - **Unchanged.** Templates, grader, fixture, tasksets, tests.
+
+## 2026-10-16: Sonnet 5.5 and Opus 5.5 through `hud eval`; `3M` and `10-Ks` were false positives
+
+- **What.** Probe v2 with claude-sonnet-5-5 (0.807 as run) and
+  claude-opus-5-5 (0.830), same settings as the 4.6 run. Both answered all
+  100 questions correctly and lost only on grounding. Reading the traces
+  showed two grader false positives: the company name `3M` (MMM, as the
+  prompt writes it) read as 3 million, and the plural form name `10-Ks` not
+  exempt like `10-K`. Ten episodes across the three runs lost 0.3 to `3M`
+  alone.
+- **Fix.** `_NOT_CLAIMS` exempts the exact name token of any company the
+  fixture names by a digit (`_DIGIT_NAMES`, from `data.companies()`;
+  case-sensitive, not after `$`, a word character or a digit, not before a
+  word character) and takes a plural on form names. Tests:
+  `test_a_company_named_by_a_digit_is_not_an_amount` (`$3M`, `3 M` and `3m`
+  stay amounts) and a new case in the dates and form names test. Adversarial
+  scores unchanged; 1662 tests pass.
+- **Regrade.** Every stored episode of the three probe runs and the legacy
+  run was regraded from its trace (`results/2026-10-15_claude55_eval/
+  regrade_after_3M_10Ks_fix.json`): the regrade reproduces every original
+  score except the twelve the fix frees. After it: sonnet-4-6 0.883 (with the
+  429 task's re-run), sonnet-5-5 0.816, opus-5-5 0.845.
+- **What the newer models do.** They write their working in prose: per-year
+  margins from mental arithmetic (`about 22.13%`, 34 and 28 episodes), the
+  sign of a fall dropped (`fell by 2.72 points` for a computed -2.72; 22 and
+  38 episodes, and the sole deduction in 16 Opus episodes), and peer totals
+  added by hand before `compute` (18 and 21). Sonnet 5.5 made one `compute`
+  call per chained question. One Sonnet 5.5 answer was in Chinese and
+  graded normally.
+- **Left open.** Whether an unsigned amount after a fall word (`fell`,
+  `down`, `decline`) should match a negative computed value. It is a grading
+  change with consequences for the sign rules (`a loss of 20.9 billion`), so
+  it waits for its own decision and tests. Full tables in
+  `results/2026-10-15_claude55_eval/README.md`.

@@ -214,9 +214,10 @@ How the other numbers in the answer (the prose) are checked:
   themselves are checked exactly in the block. A dash after a digit
   (`2021 - 2022`), a word hyphen and a bullet at the start of a line are not
   signs.
-- Dates, `FY2023`, `Q4`, form names like `10-K`, list markers at the start of a
-  line, a bare year and a single-digit count followed by a word (`3 filings`)
-  are not claims. Context decides, not value: `$7`, `7%` and `$2023` are
+- Dates, `FY2023`, `Q4`, form names like `10-K` or `10-Ks`, a company the
+  fixture names by a digit (`3M`, never `$3M` or `3 M`), list markers at the
+  start of a line, a bare year and a single-digit count followed by a word
+  (`3 filings`) are not claims. Context decides, not value: `$7`, `7%` and `$2023` are
   claims, and so is a count or year followed by a scale or currency word
   (`7 hundred million`, `2023 dollars`). The same holds for dates: a date form
   followed by a unit or currency word, or a number right after a currency sign,
@@ -455,11 +456,16 @@ The two inputs are checked exactly, by label, in the citation block. These
 limits apply to the other numbers the answer cites in prose:
 
 - The probe set's difficulty is by design. The v1 subset was too easy (base
-  0.901 against a 0.55 to 0.80 target). On the chained v2 subset,
-  claude-sonnet-4-6 through `hud eval` scored 0.871 on 2026-10-15 (legacy
-  set 0.983); only `margin_vs_peers` (0.711) lands in the band, and nearly
-  every deduction is mental math on peer totals or an uncomputed aside in
-  prose. See `results/2026-10-15_claude_eval/README.md`.
+  0.901 against a 0.55 to 0.80 target). On the chained v2 subset through
+  `hud eval` (2026-10-15, regraded after the `3M` and `10-Ks` exemptions):
+  claude-sonnet-4-6 0.883, claude-sonnet-5-5 0.816, claude-opus-5-5 0.845
+  (legacy set, 4.6: 0.983). Every model answers nearly every question
+  correctly; the deductions are grounding, from margins and changes written
+  in prose from mental arithmetic, peer totals added by hand before the
+  calculator, and signs dropped (`fell by 2.72 points` for a computed
+  -2.72). Only `margin_vs_peers` (0.72 to 0.74) lands in the band. See
+  `results/2026-10-15_claude_eval/README.md` and
+  `results/2026-10-15_claude55_eval/README.md`.
 - Choices are read as whole words in any case, so a ticker that is also a word
   (`COST`, `DE`, `GE`, `KO`) counts as named wherever it appears on the ANSWER
   line (`ANSWER: WMT, the lowest cost 2.39%` names COST too, and is wrong).

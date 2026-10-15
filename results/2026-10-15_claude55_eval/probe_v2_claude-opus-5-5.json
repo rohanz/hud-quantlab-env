@@ -1,0 +1,710 @@
+{
+  "job_id": "78f00dfd06aa4347b555a67b9499db14",
+  "source": "tasks_probe_v2.py",
+  "run_count": 100,
+  "mean_reward": 0.83026883,
+  "error_count": 0,
+  "elapsed_seconds": 94.0346101669129,
+  "runs": [
+    {
+      "task_id": "fy_net_margin",
+      "slug": "fy_net_margin-36ed5688",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "aa2b46cec36e4fe6af3c736c2f0f5279"
+    },
+    {
+      "task_id": "fy_net_margin",
+      "slug": "fy_net_margin-17180be5",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "0ecb9faa288d48ac8b0613823b9f8cf7"
+    },
+    {
+      "task_id": "fy_net_margin",
+      "slug": "fy_net_margin-ca5a461a",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "e7e7b90800734b51a20d064b35b2644e"
+    },
+    {
+      "task_id": "fy_net_margin",
+      "slug": "fy_net_margin-ef7b2f25",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "322c3538456c4208bd876dab52f4f312"
+    },
+    {
+      "task_id": "latest_net_margin",
+      "slug": "latest_net_margin-361e1372",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "312ae4bbd26b4cfd9fdd007b8c49e2cd"
+    },
+    {
+      "task_id": "latest_net_margin",
+      "slug": "latest_net_margin-bf4d104b",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "b45efc34c8c34455a3e0fd3c833ab765"
+    },
+    {
+      "task_id": "latest_net_margin",
+      "slug": "latest_net_margin-c4063333",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "915f133bfd7a4e31a5381799f7d43e84"
+    },
+    {
+      "task_id": "latest_net_margin",
+      "slug": "latest_net_margin-8ffe2802",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "89482072bd9e47e5bfee9145a22d0a68"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-ccd97b99",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "a2ec48fbf95e4f96904ed77236de33b0"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-bdf07162",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "dc5d79a1cb1046e6a1a5d9b122578d2e"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-361e1372",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "9e419c7637ed4e8ca80a2a4916a8fbd5"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-c4063333",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "83e2b688779643c2b3418a4ee745d2f2"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-711a1e1e",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "caa9b49a2dd248bdb794a0fa12f4acbd"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-a1101f0c",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "d67f336ee7a1494eb7b291411de2b088"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-6c3c5f3a",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "e232b652eb8f4b8ca63f5326e85c8a2d"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-576ac005",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "8ac3dcc896eb4597a11e58b038ca9f2e"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-a24c2a4b",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "06c8648aa8c54c77bde5f5db2f809a14"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-13bbb611",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "3a22cc5783aa40759d99fd5333cdc57b"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-88fb1011",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "3694d58509174b1a922b8e8740198cd9"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-ea0319c3",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "1d3484fea8fa41c5acee3779d10188f5"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-7e7f3bf2",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "4ab1653df8e24382a611fd8a46e24389"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-18fae347",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "25ffca07271743f98bc06b4a944334d5"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-c8d24de6",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "9c6be3a8d91647cfa336b5ecb4eca797"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-151b2be2",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "4ab7d7eff99b48ca882ae8b1613dafb1"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-32ba0cd1",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "2277c4c276034052baddd6ed8f1a541c"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-21dec264",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "5f3ce9be648c4e69a8e3a359fa5d573a"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-d27dc0d3",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "0b66b64ca27849d98c6dd9092db10b4c"
+    },
+    {
+      "task_id": "margin_trend",
+      "slug": "margin_trend-0903e099",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "a110847d67544f1db356b722e0fa0f29"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-f9b44d02",
+      "reward": 0.681818,
+      "is_error": false,
+      "trace_id": "e9079717397345adb45a8384a8470066"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-c231fda6",
+      "reward": 0.681818,
+      "is_error": false,
+      "trace_id": "9e742f841f3846538c532a6352cde9ec"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-9b2b4b08",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "05b211d9616c4f68bc153173e9d5d4e6"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-6631003f",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "02decdc69de74ab5a303b49057b8c41e"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-9114bd3c",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "45f1f71e044940798c6e4f006fe5def8"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-a016df0f",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "761d741300224a7cad0e4cc6aef6f51a"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-e7df3790",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "0d3a42dae85c41a496e96ca786e3df71"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-9ff4214d",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "d42190819a9b4d158db673f25dc0defe"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-e10a313a",
+      "reward": 0.681818,
+      "is_error": false,
+      "trace_id": "c5a52efecef84dcb9c6109a5f8fe059a"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-95ecacd3",
+      "reward": 0.69,
+      "is_error": false,
+      "trace_id": "ead4fe86ca0c4bd2a435dc77dc84a5d4"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-0b270fea",
+      "reward": 0.69,
+      "is_error": false,
+      "trace_id": "d75f0ae1843640a18a463f2ab97a0f2f"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-7c99dd29",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "414b65a56f934f619e264e9ad82bf3f0"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-a7dcdc60",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "3dea2116438a47cc9472c0bb82a89e53"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-f495e918",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "f3e255297cc144199b70da7d010a4602"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-9bb6086d",
+      "reward": 0.69,
+      "is_error": false,
+      "trace_id": "47fa183db71b4f97958bc3226334bf01"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-48554ded",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "8c3b620886614c13bde6255184b180c3"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-02bfefd7",
+      "reward": 0.69,
+      "is_error": false,
+      "trace_id": "93d609c2e9fc46c7b0c0f0c45804a8b1"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-b53e617a",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "92464ae35b8546af8a526acced6bdbb8"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-cb8055e5",
+      "reward": 0.69,
+      "is_error": false,
+      "trace_id": "1305573c793f4cc9858f78b3fc20941e"
+    },
+    {
+      "task_id": "margin_vs_peers",
+      "slug": "margin_vs_peers-d3820ddf",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "8ba0464db2814df9a408feb4327a5e1a"
+    },
+    {
+      "task_id": "net_margin_change",
+      "slug": "net_margin_change-54005ede",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "b89714b3efbc4051b3ad2a1b4945aacf"
+    },
+    {
+      "task_id": "net_margin_change",
+      "slug": "net_margin_change-8c24454e",
+      "reward": 0.96,
+      "is_error": false,
+      "trace_id": "8d3e2ae7a7f14b7bbbd19a4beee6f3ea"
+    },
+    {
+      "task_id": "net_margin_change",
+      "slug": "net_margin_change-b052ad00",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "0ac8cb6b52d14e9a8c2000630901c225"
+    },
+    {
+      "task_id": "net_margin_change",
+      "slug": "net_margin_change-3962bb51",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "7ea2fe1a53f84ecebfb629146620e9c5"
+    },
+    {
+      "task_id": "net_margin_gap",
+      "slug": "net_margin_gap-83ebf10c",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "32729e24093e46bbb60146e2e363799d"
+    },
+    {
+      "task_id": "net_margin_gap",
+      "slug": "net_margin_gap-b6ffbc70",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "836645ffa8734531b470a7a2942127ff"
+    },
+    {
+      "task_id": "net_margin_gap",
+      "slug": "net_margin_gap-305e070b",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "a333ff22d93d44ee9af77f1323cc1b7b"
+    },
+    {
+      "task_id": "net_margin_gap",
+      "slug": "net_margin_gap-73ff825e",
+      "reward": 0.671429,
+      "is_error": false,
+      "trace_id": "49c28e6346c745bb90dfa18a9a373388"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-a6281ed7",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "9699a2dd48364477adb80980d60316d0"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-a8ea5ece",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "b881f462a6bc41a8b4b59999faa40331"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-e212dde2",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "9a9a7bc5f4884d55bd040da5ea6b9feb"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-0da0db60",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "eee256e2ed794b8e9e53843887ae45f7"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-7f5e9e63",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "c1eb6650654a4e1f884e1ef0a3be55e9"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-1a351a8a",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "413b7def234c4abeafd54db5f0c64f61"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-6207007c",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "28011d6b401a4da780e28628c96e5189"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-7d332e74",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "c4b430204a5e4ca4bd2552d24627665d"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-0973155d",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "a55895c69d5e4501a68f29c6b776e098"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-69e07505",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "2aaad78bb8af4afb935b84e1d6ad652c"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-9bab61b4",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "79a33f6259ab410ca7708c94946329c5"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-8c00453e",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "216ccf522a0b48ef9d78ed921928d283"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-54ed1e34",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "33f52dde882743dc8868a01c70c69a63"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-a74a033d",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "58651aa02cdd486dbdc94bcf183244f0"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-51ce7531",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "e1228571a13b46748ad005a47d3d7676"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-2c907800",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "e1e71bfb6847498d999dba84f81a586a"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-15a22d6c",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "59502f822dca4aa29263b4d2a2428e7a"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-28ed86c4",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "f4b9becdbca94308b4b71d1406031806"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-14eace55",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "5f61f38581604db695966127ab8169eb"
+    },
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-089c2e51",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "c7ec577a1a3043f9a42569025153264f"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-48196ef4",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "75a219e3485b44a9b83431db09942daa"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-46c7331d",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "f0f696f931b940ce845d3516d1008f43"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-07493df6",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "9ac1fdb90206435cad0f1380c5226f04"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-2449493f",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "5dc0d9ca790e4c8592a031c91a9c0788"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-72bffd6b",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "88e1f9ea8db14f5fba0dd44055eacd28"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-643d1fbb",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "9a9d418e2eec491e8908f84bf4bb2c2f"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-4825ec60",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "8456a244150947e6b377d5b9d40512a3"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-3fdede1d",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "ae0cdf85585e47f6a77d4af5ef79aa43"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-50727cf7",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "c45675b1622340a5b4ef0d37111a749b"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-fac66b22",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "0f3460c07e214ac8ac1973368fbfcc92"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-bf50c32b",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "26e3c45796884ab28df1e6e6adcb5143"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-5ed64f4d",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "68c3ceb1995243859801f84fd2e7803e"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-c0cba868",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "640cd4b58b48454a9f38a7b2688f195d"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-1774b632",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "06daa7bf2b654d04b2c83a2f4d8f4d41"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-0eb1b634",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "2ffdf347767944d897f91311e52d2315"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-47ae9d6f",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "9f5301e7422d4b9ca1285c38ee737e07"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-5f380095",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "0092b1b5b43143dd8cf5e7fd10d13071"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-4b328632",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "aed7c9671fda41c7b15ec3df212b6382"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-a50fe111",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "7d00c0b9708348369424103c04dee596"
+    },
+    {
+      "task_id": "peer_margin_rank",
+      "slug": "peer_margin_rank-ee00a484",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "58dd5376e1b1438482858da74a398fd4"
+    },
+    {
+      "task_id": "revenue_growth",
+      "slug": "revenue_growth-90f987c7",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "4ac71bcb58394a2aab6d231f912088cb"
+    },
+    {
+      "task_id": "revenue_growth",
+      "slug": "revenue_growth-e80cedde",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "8d68d97145cf49d6a7f606b17b74fb21"
+    },
+    {
+      "task_id": "revenue_growth",
+      "slug": "revenue_growth-36f28c18",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "18d6760fd1924b2ab93f195ce53b9c20"
+    },
+    {
+      "task_id": "revenue_growth",
+      "slug": "revenue_growth-6ad4f42a",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "a0bc498bbef2444a945e31d13dd7cfa7"
+    }
+  ]
+}

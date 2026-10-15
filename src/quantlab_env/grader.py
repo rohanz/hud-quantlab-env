@@ -68,6 +68,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from functools import cache
 
+from .data import companies
 from .questions import Input, Question
 from .tools import BINOPS, ToolCall
 
@@ -105,14 +106,19 @@ _DATE = (
     r"\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{4}"
     rf"|{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,\s*\d{{4}})?|(?<![$.,\d])\d{{1,2}}\s+{_MONTH}(?:\s+\d{{4}})?"
 )
+# A company the fixture names by a digit ("3M Co.", MMM): the exact name token, as the
+# prompt writes it, is a name, not 3 million. "$3M", "3 M" and "3m" are still amounts.
+_DIGIT_NAMES = sorted({n.split()[0] for n in (c["name"] for c in companies().values()) if n[:1].isdigit()})
 # Text that looks numeric but is not a claim: dates, fiscal-year and quarter labels,
-# form names, and numbered-list markers at the start of a line. A date followed by a
-# unit word, or a day after a currency sign ("$9 may", "USD 9 may"), is an amount:
-# the `amount` branch consumes a currency sign and its number first, and is kept.
+# form names (singular or plural), a company named by a digit, and numbered-list markers
+# at the start of a line. A date followed by a unit word, or a day after a currency sign
+# ("$9 may", "USD 9 may"), is an amount: the `amount` branch consumes a currency sign and
+# its number first, and is kept.
 _NOT_CLAIMS = re.compile(
     rf"(?P<amount>(?:\$|\busd\b)\s*[{_DASH}]?\s*\d+)"
     rf"|\b(?:{_DATE})\b(?!\.\d|{_AMOUNT_WORD})"
-    r"|\bFY\s?\d{2,4}\b|\bQ[1-4]\b|\b(?:10-K|10-Q|8-K)(?:/A)?\b"
+    r"|\bFY\s?\d{2,4}\b|\bQ[1-4]\b|\b(?:10-K|10-Q|8-K)(?:/A)?s?\b"
+    rf"|(?-i:(?<![\w$.,])(?:{'|'.join(map(re.escape, _DIGIT_NAMES))})(?!\w))"
     r"|^\s*(?:[-*]\s*)?\(?\d{1,2}[.)](?=\s)",
     re.IGNORECASE | re.MULTILINE,
 )

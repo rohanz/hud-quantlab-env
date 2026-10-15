@@ -228,8 +228,10 @@ Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
   a hyphen-minus or a true minus (U+2212, U+FE63, U+FF0D) is a sign; a spaced
   en or em dash is punctuation. After a digit, inside a word or as a bullet
   opening a line, a dash is not a sign.
-- Dates, FY and quarter labels, form names, list markers, a bare year and a
-  single-digit count followed by a word are exempt by context, never by value.
+- Dates, FY and quarter labels, form names (`10-K`, `10-Ks`), a company the
+  fixture names by a digit (`3M`; `$3M`, `3 M` and `3m` stay amounts), list
+  markers, a bare year and a single-digit count followed by a word are exempt
+  by context, never by value.
   A count or year followed by a scale or currency word (`7 hundred million`,
   `2023 dollars`) is an amount, not exempt. So is a date form followed by a
   unit or currency word, or a number right after a currency sign (`$9 may`,

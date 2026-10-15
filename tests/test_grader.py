@@ -720,10 +720,28 @@ def test_number_parsing(text, value, kind):
         "In FY2023 (fiscal year 2023, ending 2023-12-31) per its 10-K/A and 3 filings",
         "Filed on March 17, 2024, 17 Mar 2024 or 03/17/2024, for Q4 of fiscal 2021.",
         "1. Look up revenue.\n2) Look up net income.\n(3) Compute.\n- 4. Answer.",
+        "The 10-Ks filed by then; 3M's margin, 3M (MMM) and GE, 3M and FedEx.",
     ],
 )
 def test_dates_years_counts_and_list_markers_are_not_claims(text):
     assert [c.text for c in extract_numbers(text) if not c.exempt] == []
+
+
+@pytest.mark.parametrize(
+    ("text", "claim"),
+    [
+        ("debt of $3M", "$3M"),
+        ("debt of 3 M", "3 M"),
+        ("debt of 3m", "3m"),
+        ("debt of 3M", None),
+    ],
+)
+def test_a_company_named_by_a_digit_is_not_an_amount(text, claim):
+    """claude-sonnet-5-5 and claude-opus-5-5 through hud eval (2026-10-15): "3M" (the company,
+    MMM, named in the prompt) was read as 3 million and cost grounding in ten episodes
+    across three runs. Only the exact name token is exempt: "$3M", "3 M" and "3m" stay
+    amounts."""
+    assert [c.text for c in extract_numbers(text) if not c.exempt] == ([claim] if claim else [])
 
 
 @pytest.mark.parametrize(

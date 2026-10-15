@@ -1,0 +1,1026 @@
+A new version of hud is available: 0.6.20 (current: 0.6.18)
+Run: uv sync --upgrade-package hud
+Initializing evaluation...
+Loading tasks from: tasks_probe_v2.py
+Loaded 100 task(s)
+         Evaluation Settings          
+╭────────────────┬───────────────────╮
+│ Setting        │ Value             │
+├────────────────┼───────────────────┤
+│ source         │ tasks_probe_v2.py │
+│ runtime        │ local             │
+│ agent          │ claude            │
+│ all            │ True              │
+│ max_steps      │ 16                │
+│ max_concurrent │ 30                │
+│                │                   │
+│ claude config  │                   │
+│   model        │ claude-opus-5-5   │
+╰────────────────┴───────────────────╯
+Running evaluation (max_concurrent: 30, group_size: 1)
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+
+'tasks_probe_v2.py' Results
+  Runs: 100
+  Time: 94.0s
+  Mean reward: 0.830
+

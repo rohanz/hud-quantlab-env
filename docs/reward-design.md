@@ -256,7 +256,9 @@ before grounding by context, never by value alone:
   (`March 17, 2024`, `17 Mar 2024`, `June 30`), unless followed by a unit or
   currency word or preceded by a currency sign (see below),
 - fiscal-year and quarter labels (`FY2023`, `Q4`) and form names (`10-K`,
-  `10-K/A`, `10-Q`, `8-K`),
+  `10-K/A`, `10-Q`, `8-K`, and their plurals),
+- the exact name token of a company the fixture names by a digit (`3M`, as
+  the prompt writes it); `$3M`, `3 M` and `3m` are still amounts,
 - numbered-list markers at the start of a line (`1.`, `2)`, `(3)`),
 - a bare four-digit year from 1900 to 2100 with no sign, currency or unit
   (`fiscal 2021`),

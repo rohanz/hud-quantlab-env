@@ -68,3 +68,13 @@ was built to catch, and the 0.98 episodes show the honest path scores
 cleanly on every type. The scores land in the intended 0.55 to 0.80 band only
 for `margin_vs_peers`; the single-hop types are solved, as they were for the
 9B base on v1.
+
+## Regrade note (2026-10-16)
+
+The claude-sonnet-5-5 and claude-opus-5-5 runs in `../2026-10-15_claude55_eval`
+exposed two grader false positives (`3M` read as 3 million, `10-Ks` not
+exempt). After the fix, this run regrades to 0.875 as run and 0.883 with
+the 429 task re-run spliced in; four episodes move (one trend, two
+peers-comparison, one peer rank), listed in
+`../2026-10-15_claude55_eval/regrade_after_3M_10Ks_fix.json`. The legacy
+set is unchanged at 0.983.
