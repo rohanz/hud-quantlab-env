@@ -197,7 +197,11 @@ How the other numbers in the answer (the prose) are checked:
   with: `$78.74 billion` is a rounding of 78,740 million, but `$20.885 billion`
   is not 20,878 million. The 0.5% tolerance applies only to the final answer
   against gold. A currency amount with no unit means what it says: `$78.74` is
-  78.74 dollars, not 78.74 billion. A cited zero matches only zero, so
+  78.74 dollars, not 78.74 billion. A fall written in words carries its
+  sign: a bare number or percent right after `fell`, `down`, `declined`,
+  `dropped` or the like (`fell by 2.72 points`) may match a computed -2.72;
+  `fell to 11%` names a level and `down $5 billion` is an amount, so neither
+  flips. A cited zero matches only zero, so
   `$0 trillion` is not a rounding of every amount.
 - Scale words are `trillion(s)`, `tn`, `t`, `billion(s)`, `bn`, `bln`, `bil`,
   `b`, `million(s)`, `mn`, `mln`, `mm`, `m`, `thousand(s)`, `k`; percent is
@@ -254,6 +258,8 @@ task unless noted.
 | **Right answer, no evidence** | Answering from memory. | 0.00 |
 | Right margin from the wrong year | Apple's FY2022 and FY2023 margins are both 25.31%. The citation block and provenance checks catch an agent that used the wrong year's rows. | 0.70 |
 | Stale, pre-restatement answer | The point-in-time trap. | 0.20 |
+| A fall in words | `The margin fell by 4.09 points` for a computed -4.09 pp. | 1.00 |
+| Rise word on a fall | `The margin rose by 4.09 points` for a computed -4.09 pp. | 0.70 |
 | Wrong sign on an input in prose | `-$20.878 billion` or `net income -$20,878 million` with any attached dash (en dash, em dash, U+2212 and the rest), or `net income - $20.878 billion` with a spaced hyphen-minus or true minus, for a profit. | 0.70 |
 | Dropped scale on an input in prose | `$78.74` for 78.74 billion. | 0.70 |
 | Invented input within 0.5% of the real one | `compute("20885/78740*100")` and `net income $20.885 billion` when the filing says 20,878 million. Matching is at written precision, so neither is evidence. | 0.675 (one extra compute call) |

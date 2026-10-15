@@ -1,0 +1,2705 @@
+{
+ "results/2026-10-15_claude55_eval/probe_v2_claude-sonnet-5-5.json": {
+  "regraded_mean": 0.82788692,
+  "per_type": {
+   "fy_net_margin": 1.0,
+   "latest_net_margin": 1.0,
+   "margin_trend": 0.6794346,
+   "margin_vs_peers": 0.715,
+   "net_margin_change": 0.85,
+   "net_margin_gap": 0.7,
+   "peer_margin_change_rank": 0.865,
+   "peer_margin_rank": 0.97,
+   "revenue_growth": 1.0
+  },
+  "changed": [
+   [
+    "margin_vs_peers-9bb6086d",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "net_margin_change-54005ede",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-6207007c",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-7d332e74",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-0973155d",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_rank-07493df6",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_rank-47ae9d6f",
+    0.7,
+    1.0,
+    []
+   ]
+  ],
+  "rows": [
+   {
+    "slug": "fy_net_margin-36ed5688",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-17180be5",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-ca5a461a",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-ef7b2f25",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-361e1372",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-bf4d104b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-c4063333",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-8ffe2802",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-ccd97b99",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "\u22120.78",
+     "\u22122.95",
+     "\u22121.21",
+     "\u22122.95",
+     "-2.95"
+    ]
+   },
+   {
+    "slug": "margin_trend-bdf07162",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "\u22120.57",
+     "\u22120.00"
+    ]
+   },
+   {
+    "slug": "margin_trend-361e1372",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "0.31",
+     "0.53",
+     "\u22120.28",
+     "\u22120.28",
+     "-0.28"
+    ]
+   },
+   {
+    "slug": "margin_trend-c4063333",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "0.48",
+     "0.46"
+    ]
+   },
+   {
+    "slug": "margin_trend-711a1e1e",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "1.65",
+     "\u22120.78"
+    ]
+   },
+   {
+    "slug": "margin_trend-a1101f0c",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "18.85",
+     "12.62"
+    ]
+   },
+   {
+    "slug": "margin_trend-6c3c5f3a",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "\u22123.04",
+     "1.20"
+    ]
+   },
+   {
+    "slug": "margin_trend-576ac005",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "0.09",
+     "\u22123.04",
+     "1.20",
+     "3.04",
+     "-3.04"
+    ]
+   },
+   {
+    "slug": "margin_trend-a24c2a4b",
+    "old": 0.6625,
+    "new": 0.6625,
+    "ungrounded": [
+     "3.03"
+    ]
+   },
+   {
+    "slug": "margin_trend-13bbb611",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "\u22123.09",
+     "1.23",
+     "\u22120.83",
+     "\u22123.09",
+     "\u22123.09",
+     "\u22123.0888",
+     "-3.09"
+    ]
+   },
+   {
+    "slug": "margin_trend-88fb1011",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "\u22120.03",
+     "\u22120.48",
+     "0.48",
+     "\u22120.48",
+     "\u22120.4765",
+     "-0.48"
+    ]
+   },
+   {
+    "slug": "margin_trend-ea0319c3",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "\u22120.00"
+    ]
+   },
+   {
+    "slug": "margin_trend-7e7f3bf2",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "1.19",
+     "2.74",
+     "1.91",
+     "1.19",
+     "1.19"
+    ]
+   },
+   {
+    "slug": "margin_trend-18fae347",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "1.23",
+     "4.75"
+    ]
+   },
+   {
+    "slug": "margin_trend-c8d24de6",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "40.63",
+     "19.75"
+    ]
+   },
+   {
+    "slug": "margin_trend-151b2be2",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "26.0%",
+     "36.2%",
+     "16.2%",
+     "48.9%"
+    ]
+   },
+   {
+    "slug": "margin_trend-32ba0cd1",
+    "old": 0.683333,
+    "new": 0.683333,
+    "ungrounded": [
+     "0.23",
+     "\u22122.54",
+     "1.81",
+     "\u22122.54",
+     "-2.54"
+    ]
+   },
+   {
+    "slug": "margin_trend-21dec264",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "0.31",
+     "0.53"
+    ]
+   },
+   {
+    "slug": "margin_trend-d27dc0d3",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "21.15%",
+     "28.24%",
+     "7.1",
+     "\u221237.54%",
+     "3.10%",
+     "40.6"
+    ]
+   },
+   {
+    "slug": "margin_trend-0903e099",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "1.81",
+     "0.19"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-f9b44d02",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "16.88%",
+     "11,296,000,000",
+     "204,189,000,000",
+     "5.53%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-c231fda6",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "8.01",
+     "21.68%",
+     "$224,022,000,000",
+     "$754,539,000,000",
+     "29.69%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9b2b4b08",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "2.39",
+     "25.31%",
+     "$30,251,000,000",
+     "$109,229,000,000",
+     "27.69%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-6631003f",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "4.93",
+     "2.42%",
+     "$20,505,000,000",
+     "$279,122,000,000",
+     "7.35%",
+     "2.42%",
+     "7.35%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9114bd3c",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "8.70",
+     "0.58%",
+     "16,734,000,000",
+     "180,318,000,000",
+     "9.28%",
+     "0.58%",
+     "9.28%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-a016df0f",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "13.03%",
+     "$17,823,000,000",
+     "$179,465,000,000",
+     "9.93%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-e7df3790",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "5.44",
+     "22.13%",
+     "$177,859,000,000",
+     "$645,154,000,000",
+     "27.57%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9ff4214d",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "$4,632,000,000",
+     "$193,510,000,000",
+     "$6,520,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-e10a313a",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "6.98",
+     "$108,923,000,000",
+     "$351,886,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-95ecacd3",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "6.03",
+     "$6,995,000,000",
+     "$12,653,000,000",
+     "$121,209,000,000",
+     "$6,995,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-0b270fea",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "28.24%",
+     "$121,367,000,000",
+     "$472,799,000,000",
+     "25.67%",
+     "2.5731"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-7c99dd29",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "1.96",
+     "2.56%",
+     "$29,008,000,000",
+     "$642,344,000,000",
+     "4.52%",
+     "2.56%",
+     "4.52%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-a7dcdc60",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "4.31",
+     "21.26%",
+     "$104,873,000,000",
+     "$409,897,000,000",
+     "25.58%",
+     "21.26%",
+     "25.58%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-f495e918",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "3.95",
+     "4.09%",
+     "$13,133,000,000",
+     "$163,361,000,000",
+     "8.04%",
+     "4.09%",
+     "8.04%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9bb6086d",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-48554ded",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "9.49",
+     "22.84%",
+     "$195,070,000,000",
+     "$603,312,000,000",
+     "32.33%",
+     "22.84%",
+     "32.33%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-02bfefd7",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "61.93"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-b53e617a",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "16.75%",
+     "4,674,000,000",
+     "6,520,000,000",
+     "202,179,000,000",
+     "2.31%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-cb8055e5",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "55.85%",
+     "130,729,000,000",
+     "510,193,000,000",
+     "25.62%",
+     "55.85%",
+     "25.62%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-d3820ddf",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "22.19%",
+     "$25,563,000,000",
+     "$846,418,000,000",
+     "3.02%"
+    ]
+   },
+   {
+    "slug": "net_margin_change-54005ede",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_change-8c24454e",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_change-b052ad00",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "16.60%",
+     "13.56%"
+    ]
+   },
+   {
+    "slug": "net_margin_change-3962bb51",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "27.34%",
+     "22.59%"
+    ]
+   },
+   {
+    "slug": "net_margin_gap-83ebf10c",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "22.13%",
+     "16.60%"
+    ]
+   },
+   {
+    "slug": "net_margin_gap-b6ffbc70",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "18.70",
+     "2.56%",
+     "21.26%"
+    ]
+   },
+   {
+    "slug": "net_margin_gap-305e070b",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "25.88%",
+     "2.56%"
+    ]
+   },
+   {
+    "slug": "net_margin_gap-73ff825e",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "6.29",
+     "9.90%",
+     "16.19%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-a6281ed7",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "1.15%",
+     "26.82%",
+     "22.08%",
+     "\u221228.42%",
+     "4.09%",
+     "4.41%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-a8ea5ece",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "48.85%",
+     "55.85%",
+     "3.10%",
+     "22.85%",
+     "19.18%",
+     "17.97%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-e212dde2",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-0da0db60",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-7f5e9e63",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-1a351a8a",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-6207007c",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-7d332e74",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-0973155d",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-69e07505",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "36.69%",
+     "34.15%",
+     "15.83%",
+     "17.02%",
+     "22.91%",
+     "22.13%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-9bab61b4",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "22.19%",
+     "23.42%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-8c00453e",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "\u22128.79%",
+     "0.29%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-54ed1e34",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-a74a033d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-51ce7531",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-2c907800",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "48.85%",
+     "16.19%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-15a22d6c",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "13.73%",
+     "11.00%",
+     "16.94%",
+     "18.98%",
+     "16.98%",
+     "13.03%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-28ed86c4",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "36.45%",
+     "36.68%",
+     "33.96%",
+     "15.83%",
+     "21.26%",
+     "22.91%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-14eace55",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-089c2e51",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "13.56%",
+     "16.60%",
+     "1.15%",
+     "26.82%",
+     "22.08%",
+     "\u221228.42%"
+    ]
+   },
+   {
+    "slug": "peer_margin_rank-48196ef4",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-46c7331d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-07493df6",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-2449493f",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-72bffd6b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-643d1fbb",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-4825ec60",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-3fdede1d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-50727cf7",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-fac66b22",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-bf50c32b",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "22%",
+     "4.1%"
+    ]
+   },
+   {
+    "slug": "peer_margin_rank-5ed64f4d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-c0cba868",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-1774b632",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-0eb1b634",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-47ae9d6f",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-5f380095",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-4b328632",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-a50fe111",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "2.6%",
+     "2.4%"
+    ]
+   },
+   {
+    "slug": "peer_margin_rank-ee00a484",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-90f987c7",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-e80cedde",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-36f28c18",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-6ad4f42a",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   }
+  ]
+ },
+ "results/2026-10-15_claude55_eval/probe_v2_claude-opus-5-5.json": {
+  "regraded_mean": 0.89026883,
+  "per_type": {
+   "fy_net_margin": 1.0,
+   "latest_net_margin": 1.0,
+   "margin_trend": 0.94,
+   "margin_vs_peers": 0.7247726999999999,
+   "net_margin_change": 0.84,
+   "net_margin_gap": 0.84285725,
+   "peer_margin_change_rank": 0.865,
+   "peer_margin_rank": 1.0,
+   "revenue_growth": 0.925
+  },
+  "changed": [
+   [
+    "margin_trend-bdf07162",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-a1101f0c",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-6c3c5f3a",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-576ac005",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-151b2be2",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-32ba0cd1",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-21dec264",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_trend-0903e099",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "margin_vs_peers-a016df0f",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-a6281ed7",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-0da0db60",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-7f5e9e63",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-1a351a8a",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-6207007c",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-69e07505",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-15a22d6c",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_change_rank-28ed86c4",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_rank-07493df6",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_rank-bf50c32b",
+    0.7,
+    1.0,
+    []
+   ],
+   [
+    "peer_margin_rank-47ae9d6f",
+    0.7,
+    1.0,
+    []
+   ]
+  ],
+  "rows": [
+   {
+    "slug": "fy_net_margin-36ed5688",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-17180be5",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-ca5a461a",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-ef7b2f25",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-361e1372",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-bf4d104b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-c4063333",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-8ffe2802",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-ccd97b99",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-bdf07162",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-361e1372",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-c4063333",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-711a1e1e",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-a1101f0c",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-6c3c5f3a",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-576ac005",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-a24c2a4b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-13bbb611",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "3.09",
+     "25.28%",
+     "22.19%",
+     "22.19%",
+     "23.42%",
+     "23.42%",
+     "22.59%"
+    ]
+   },
+   {
+    "slug": "margin_trend-88fb1011",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "2.42%",
+     "2.39%",
+     "1.91%",
+     "2.39%"
+    ]
+   },
+   {
+    "slug": "margin_trend-ea0319c3",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "\u22120.00"
+    ]
+   },
+   {
+    "slug": "margin_trend-7e7f3bf2",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-18fae347",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-c8d24de6",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-151b2be2",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-32ba0cd1",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-21dec264",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-d27dc0d3",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "$5,833,000,000"
+    ]
+   },
+   {
+    "slug": "margin_trend-0903e099",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-f9b44d02",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$11,296,000,000",
+     "$204,189,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-c231fda6",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "8.01",
+     "$224,022,000,000",
+     "$754,539,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9b2b4b08",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "2.39",
+     "25.31%",
+     "$30,251,000,000",
+     "$109,229,000,000",
+     "27.70%",
+     "25.31%",
+     "27.70%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-6631003f",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "4.93",
+     "2.42%",
+     "7.35%",
+     "$20,505,000,000",
+     "$279,122,000,000",
+     "2.42%",
+     "7.35%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9114bd3c",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "8.70",
+     "0.58%",
+     "9.28%",
+     "$16.73B",
+     "$180.32B"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-a016df0f",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-e7df3790",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "5.44",
+     "22.13%",
+     "$177,859,000,000",
+     "$645,154,000,000",
+     "27.57%",
+     "22.13%",
+     "27.57%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9ff4214d",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "13.55%",
+     "$3,632,000,000",
+     "$193,510,000,000",
+     "2.39%",
+     "$6,520,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-e10a313a",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "6.98",
+     "$108,923,000,000",
+     "$351,886,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-95ecacd3",
+    "old": 0.69,
+    "new": 0.69,
+    "ungrounded": [
+     "6.03",
+     "4.41%",
+     "6,995",
+     "$12,653M",
+     "$6,995M",
+     "$121,209M",
+     "4.41%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-0b270fea",
+    "old": 0.69,
+    "new": 0.69,
+    "ungrounded": [
+     "28.24%",
+     "28.24%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-7c99dd29",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "1.96",
+     "2.56%",
+     "$29,008,000,000",
+     "$642,344,000,000",
+     "4.52%",
+     "2.56%",
+     "4.52%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-a7dcdc60",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "4.31",
+     "21.26%",
+     "$104,873,000,000",
+     "$410,197,000,000",
+     "25.57%",
+     "21.26%",
+     "25.57%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-f495e918",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "3.95",
+     "4.09%",
+     "$13,133,000,000",
+     "$163,361,000,000",
+     "8.04%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9bb6086d",
+    "old": 0.69,
+    "new": 0.69,
+    "ungrounded": [
+     "22.08%",
+     "$34B",
+     "$11,293,000,000",
+     "$175,228,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-48554ded",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "9.49",
+     "22.85%",
+     "$195,070,000,000",
+     "$603,312,000,000",
+     "32.33%",
+     "22.85%",
+     "32.33%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-02bfefd7",
+    "old": 0.69,
+    "new": 0.69,
+    "ungrounded": [
+     "61.93",
+     "$5,833,000,000",
+     "\u221237.54%",
+     "$113,976,000,000",
+     "$467,257,000,000",
+     "\u221237.54%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-b53e617a",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "16.75%",
+     "$4.674B",
+     "$202.179B",
+     "2.31%",
+     "16.75%",
+     "2.31%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-cb8055e5",
+    "old": 0.69,
+    "new": 0.69,
+    "ungrounded": [
+     "$130.729B",
+     "$510.193B",
+     "25.62%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-d3820ddf",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_change-54005ede",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "2.72",
+     "13.73%",
+     "11.00%"
+    ]
+   },
+   {
+    "slug": "net_margin_change-8c24454e",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_change-b052ad00",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "13.56%",
+     "16.60%"
+    ]
+   },
+   {
+    "slug": "net_margin_change-3962bb51",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_gap-83ebf10c",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_gap-b6ffbc70",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "18.70",
+     "2.56%",
+     "21.26%",
+     "-18.70386"
+    ]
+   },
+   {
+    "slug": "net_margin_gap-305e070b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_gap-73ff825e",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "6.29"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-a6281ed7",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-a8ea5ece",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "3.10%",
+     "22.85%",
+     "48.85%",
+     "55.85%",
+     "19.18%",
+     "17.97%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-e212dde2",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "25.98%",
+     "36.23%",
+     "21.15%",
+     "28.24%",
+     "21.26%",
+     "22.91%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-0da0db60",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-7f5e9e63",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-1a351a8a",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-6207007c",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-7d332e74",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-0973155d",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "0.78",
+     "22.91%",
+     "22.13%",
+     "$5.833B"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-69e07505",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-9bab61b4",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "22.19%",
+     "23.42%",
+     "2.57%",
+     "2.60%",
+     "2.39%",
+     "1.91%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-8c00453e",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "$6.52 billion",
+     "\u22128.79%",
+     "0.29%",
+     "13.5%",
+     "6.23%",
+     "4.09%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-54ed1e34",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "25.98%",
+     "36.23%",
+     "21.26%",
+     "22.91%",
+     "25.88%",
+     "25.31%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-a74a033d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-51ce7531",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-2c907800",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "16.19%",
+     "48.85%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-15a22d6c",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-28ed86c4",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-14eace55",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "22.19%",
+     "23.42%",
+     "3.04"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-089c2e51",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "$6,995M"
+    ]
+   },
+   {
+    "slug": "peer_margin_rank-48196ef4",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-46c7331d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-07493df6",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-2449493f",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-72bffd6b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-643d1fbb",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-4825ec60",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-3fdede1d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-50727cf7",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-fac66b22",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-bf50c32b",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-5ed64f4d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-c0cba868",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-1774b632",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-0eb1b634",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-47ae9d6f",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-5f380095",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-4b328632",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-a50fe111",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-ee00a484",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-90f987c7",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-e80cedde",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-36f28c18",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-6ad4f42a",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "53"
+    ]
+   }
+  ]
+ },
+ "results/2026-10-15_claude_eval/probe_v2.json": {
+  "regraded_mean": 0.87495053,
+  "per_type": {
+   "fy_net_margin": 1.0,
+   "latest_net_margin": 1.0,
+   "margin_trend": 0.8452782,
+   "margin_vs_peers": 0.74118865,
+   "net_margin_change": 0.81,
+   "net_margin_gap": 0.896429,
+   "peer_margin_change_rank": 0.877,
+   "peer_margin_rank": 0.97,
+   "revenue_growth": 1.0
+  },
+  "changed": [
+   [
+    "margin_trend-21dec264",
+    0.656,
+    0.956,
+    []
+   ],
+   [
+    "margin_vs_peers-a016df0f",
+    0.682,
+    0.982,
+    []
+   ],
+   [
+    "margin_vs_peers-9bb6086d",
+    0.682,
+    0.982,
+    []
+   ],
+   [
+    "peer_margin_rank-47ae9d6f",
+    0.7,
+    1.0,
+    []
+   ]
+  ],
+  "rows": [
+   {
+    "slug": "fy_net_margin-36ed5688",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-17180be5",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-ca5a461a",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "fy_net_margin-ef7b2f25",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-361e1372",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-bf4d104b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-c4063333",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "latest_net_margin-8ffe2802",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-ccd97b99",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-bdf07162",
+    "old": 0.655556,
+    "new": 0.655556,
+    "ungrounded": [
+     "\u22120.00"
+    ]
+   },
+   {
+    "slug": "margin_trend-361e1372",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-c4063333",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-711a1e1e",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-a1101f0c",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-6c3c5f3a",
+    "old": 0.95,
+    "new": 0.95,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-576ac005",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-a24c2a4b",
+    "old": 0.155556,
+    "new": 0.155556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-13bbb611",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-88fb1011",
+    "old": 0.155556,
+    "new": 0.155556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-ea0319c3",
+    "old": 0.655556,
+    "new": 0.655556,
+    "ungrounded": [
+     "\u22120.00"
+    ]
+   },
+   {
+    "slug": "margin_trend-7e7f3bf2",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-18fae347",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-c8d24de6",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-151b2be2",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-32ba0cd1",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-21dec264",
+    "old": 0.655556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-d27dc0d3",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_trend-0903e099",
+    "old": 0.955556,
+    "new": 0.955556,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-f9b44d02",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$11,296,000,000",
+     "$204,189,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-c231fda6",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$224,022,000,000",
+     "$754,539,000,000",
+     "8.01"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9b2b4b08",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$30,251,000,000",
+     "$109,229,000,000",
+     "2.39"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-6631003f",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "559,151 billion",
+     "20,505",
+     "279,122 billion"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9114bd3c",
+    "old": 0.981818,
+    "new": 0.981818,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-a016df0f",
+    "old": 0.681818,
+    "new": 0.981818,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-e7df3790",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$177,859,000,000",
+     "$645,154,000,000",
+     "5.44"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9ff4214d",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$4,632,000,000",
+     "$193,510,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-e10a313a",
+    "old": 0.669231,
+    "new": 0.669231,
+    "ungrounded": [
+     "35.9%"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-95ecacd3",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$6,995,000,000",
+     "$12,653,000,000",
+     "$121,209,000,000",
+     "6.03"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-0b270fea",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$121,367M",
+     "$472,799M"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-7c99dd29",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "1.96"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-a7dcdc60",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "4.31"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-f495e918",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$13,133,000,000",
+     "$163,361,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-9bb6086d",
+    "old": 0.681818,
+    "new": 0.981818,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-48554ded",
+    "old": 0.981818,
+    "new": 0.981818,
+    "ungrounded": []
+   },
+   {
+    "slug": "margin_vs_peers-02bfefd7",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$467,257,000,000",
+     "$113,976,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-b53e617a",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$4,674,000,000",
+     "$202,179,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-cb8055e5",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$130,729,000,000",
+     "$510,193,000,000"
+    ]
+   },
+   {
+    "slug": "margin_vs_peers-d3820ddf",
+    "old": 0.681818,
+    "new": 0.681818,
+    "ungrounded": [
+     "$25,563,000,000",
+     "$846,418,000,000"
+    ]
+   },
+   {
+    "slug": "net_margin_change-54005ede",
+    "old": 0.66,
+    "new": 0.66,
+    "ungrounded": [
+     "2.72"
+    ]
+   },
+   {
+    "slug": "net_margin_change-8c24454e",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_change-b052ad00",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_change-3962bb51",
+    "old": 0.66,
+    "new": 0.66,
+    "ungrounded": [
+     "$2.5 billion"
+    ]
+   },
+   {
+    "slug": "net_margin_gap-83ebf10c",
+    "old": 0.971429,
+    "new": 0.971429,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_gap-b6ffbc70",
+    "old": 0.971429,
+    "new": 0.971429,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_gap-305e070b",
+    "old": 0.971429,
+    "new": 0.971429,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin_gap-73ff825e",
+    "old": 0.671429,
+    "new": 0.671429,
+    "ungrounded": [
+     "6.29"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-a6281ed7",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-a8ea5ece",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-e212dde2",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-0da0db60",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-7f5e9e63",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-1a351a8a",
+    "old": 0.66,
+    "new": 0.66,
+    "ungrounded": [
+     "6.4%"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-6207007c",
+    "old": 0.2,
+    "new": 0.2,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-7d332e74",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-0973155d",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-69e07505",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-9bab61b4",
+    "old": 0.66,
+    "new": 0.66,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-8c00453e",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-54ed1e34",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-a74a033d",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-51ce7531",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-2c907800",
+    "old": 0.66,
+    "new": 0.66,
+    "ungrounded": [
+     "32",
+     "6"
+    ]
+   },
+   {
+    "slug": "peer_margin_change_rank-15a22d6c",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-28ed86c4",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-14eace55",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_change_rank-089c2e51",
+    "old": 0.96,
+    "new": 0.96,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-48196ef4",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-46c7331d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-07493df6",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-2449493f",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-72bffd6b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-643d1fbb",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-4825ec60",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-3fdede1d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-50727cf7",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-fac66b22",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "20%"
+    ]
+   },
+   {
+    "slug": "peer_margin_rank-bf50c32b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-5ed64f4d",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-c0cba868",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-1774b632",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-0eb1b634",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "15"
+    ]
+   },
+   {
+    "slug": "peer_margin_rank-47ae9d6f",
+    "old": 0.7,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-5f380095",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-4b328632",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-a50fe111",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "peer_margin_rank-ee00a484",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-90f987c7",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-e80cedde",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-36f28c18",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "revenue_growth-6ad4f42a",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   }
+  ]
+ },
+ "results/2026-10-15_claude_eval/legacy.json": {
+  "regraded_mean": 0.9833333333333333,
+  "per_type": {
+   "net_margin": 0.9833333333333333
+  },
+  "changed": [],
+  "rows": [
+   {
+    "slug": "net_margin-8815bd09",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-7aeeb3ea",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-e7d9b26c",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-c9be2287",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-81e9d1ef",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-7fe2e3dc",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-55fc2039",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-782fd3c0",
+    "old": 0.7,
+    "new": 0.7,
+    "ungrounded": [
+     "36%"
+    ]
+   },
+   {
+    "slug": "net_margin-dab41cfb",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-e2ab353e",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-2d4cece9",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-454e4e5e",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-5f918611",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-83d5f782",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-1a5ac884",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-4c2ce4f9",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-f45ee0e1",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   },
+   {
+    "slug": "net_margin-4a61474b",
+    "old": 1.0,
+    "new": 1.0,
+    "ungrounded": []
+   }
+  ]
+ }
+}

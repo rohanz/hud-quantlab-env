@@ -210,6 +210,20 @@ the amount's sign when it is:
   `(`, `,` or `;` (`net income: -  20,878 million`),
 - a true minus sign (U+2212, U+FE63, U+FF0D) opening a line.
 
+A fall written in words carries its sign. A bare number or percent that
+follows a fall word (`fell`, `falls`, `dropped`, `declined`, `decreased`,
+`down`, `lower`, `shrank`, `slipped`, `contracted`, `narrowed`, `eroded`,
+`lost`), with only filler words between (`by`, `about`, `around`, `roughly`,
+`approximately`, `some`, `nearly`, `almost`, `only`, `just`, `a`, `an`, `of`,
+`the`, `further`), may also be read as negative: `fell by 2.72 points`
+matches a computed -2.72 at the written precision. `fell to 11%` and `fell
+from 13%` name levels, so `to` and `from` are not filler and nothing flips.
+An amount with a currency sign or a scale word never flips (`down $5
+billion` is a claim about an amount, and a loss is not a fall). A number
+already signed is read as written. The rule came from claude-opus-5-5
+through `hud eval` on 2026-10-15, where "fell by X points" for a computed -X
+was the sole deduction in 16 of 100 episodes.
+
 Spaced off after a word or punctuation, an en or em dash (or any of U+2010 to
 U+2015) is punctuation, not a sign: models write `Revenue <em dash> $78.74 billion` as
 prose all the time, and reading it as a minus would fail honest answers. The
@@ -320,6 +334,8 @@ task asked on 2024-03-17 unless noted.
 | right margin from the wrong year (AAPL FY2022 vs FY2023) | 1 | 0 | 1 | 1 | 0.70 |
 | stale, pre-restatement answer | 0 | 0 | 1 | 1 | 0.20 |
 | wrong sign in prose, any attached dash (`net income was <en dash>$20,878 million`) | 1 | 0 | 1 | 1 | 0.70 |
+| a fall in words (`fell by 4.09 points` for a computed -4.09 pp) | 1 | 1 | 1 | 1 | 1.00 |
+| a rise word on a fall (`rose by 4.09 points` for -4.09 pp) | 1 | 0 | 1 | 1 | 0.70 |
 | spaced hyphen-minus or true minus in prose (`net income - $20.878 billion`) | 1 | 0 | 1 | 1 | 0.70 |
 | dropped scale in prose (`revenue $78.74`) | 1 | 0 | 1 | 1 | 0.70 |
 | invented input within 0.5% (`20885`), with one extra compute | 1 | 0 | 1 | 0.75 | 0.675 |

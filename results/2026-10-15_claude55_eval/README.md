@@ -76,10 +76,25 @@ narrated the falls as unsigned numbers. One Sonnet 5.5 answer was written
 in Chinese (graded normally: the block and ANSWER line were in the required
 form).
 
-A judgement call left open: the sign rule is documented and tested, and it
-is what stops "a loss of 20.9 billion" matching a positive 20.9 billion,
-but "fell by 2.72 points" is ordinary analyst English for a computed -2.72.
-Sixteen Opus 5.5 episodes lost 0.3 to that rule alone. Relaxing it (an
-unsigned amount after "fell", "down", "decline" matching a negative
-computed value) is a grading change and needs its own decision and tests;
-it has not been made.
+## The fall-word rule (2026-10-16)
+
+The sign rule is what stops "a loss of 20.9 billion" matching a positive
+20.9 billion, but "fell by 2.72 points" is ordinary analyst English for a
+computed -2.72, and sixteen Opus 5.5 episodes lost 0.3 to that alone. So a
+narrow relaxation was made, with tests: a bare number or percent right
+after a fall word may match a negative computed value; `fell to 11%` and
+`down $5 billion` do not flip. Every stored episode was regraded again
+(`regrade_after_fall_words.json`; the file keeps both regrades' deltas
+against the as-run scores):
+
+| model | as run | after `3M` and `10-Ks` | after the fall-word rule |
+|---|---|---|---|
+| claude-sonnet-4-6 (429 re-run spliced) | 0.871 | 0.883 | 0.883 |
+| claude-sonnet-5-5 | 0.807 | 0.816 | 0.828 |
+| claude-opus-5-5 | 0.830 | 0.845 | 0.890 |
+
+By type after the rule, Opus 5.5: `margin_trend` 0.940 (was 0.835),
+`peer_margin_change_rank` 0.865 (was 0.745); Sonnet 5.5:
+`net_margin_change` 0.850, `peer_margin_change_rank` 0.865. The deductions
+that remain are margins and totals worked out in prose without the
+calculator, which is the behaviour the grader exists to catch.

@@ -1401,3 +1401,59 @@ def test_trend_peeking_past_the_date():
     text, calls, _ = solve_chain(later)
     g = grade(text, calls, TREND)
     assert g.info["future_lookups"] == 2 and g.reward == 0.0
+
+
+# --- a fall written in words: "fell by 2.72 points" for a computed -2.72 ----------
+
+
+@pytest.mark.parametrize(
+    "prose",
+    [
+        "The margin fell by 4.09 percentage points.",
+        "The margin fell 4.09 pp.",
+        "Down about 4.09 points year on year.",
+        "A decline of roughly 4.09 pp.",
+        "It dropped by some 4.09 points.",
+        "The margin decreased 4.09 pp.",
+        "The margin fell by -4.09 pp.",
+        "The margin contracted by 4.09%.",
+    ],
+)
+def test_a_fall_written_in_words_matches_the_computed_negative_change(prose):
+    """claude-opus-5-5 through hud eval (2026-10-15): "fell by 2.72 points" for a computed
+    -2.72 was the only deduction in 16 of 100 episodes. The word carries the sign, so an
+    unsigned bare number or percent right after a fall word may match a negative
+    calculator result. JNJ fiscal 2022 vs 2021 as of 2024-03-17 is -4.09 pp."""
+    q = questions.net_margin_change("JNJ", "2022", "2024-03-17")
+    text, calls = solve(q)
+    assert grade(f"{prose}\n{text}", calls, q).reward == 1.0
+
+
+@pytest.mark.parametrize(
+    ("prose", "ungrounded"),
+    [
+        ("The margin rose by 4.09 percentage points.", ["4.09"]),  # a rise word does not flip
+        ("The margin fell to 4.09%.", ["4.09%"]),  # "to" names a level, not a change
+        ("The margin fell from 4.09%.", ["4.09%"]),
+        ("The margin fell by 4.09 pp, revenue fell by $4.09 billion.", ["$4.09 billion"]),  # amounts never flip
+        ("The margin fell. 4.09 pp.", ["4.09"]),  # only the next number, with filler words between
+        ("The margin fell by 4.10 pp.", ["4.10"]),  # the flipped value is still checked at its precision
+    ],
+)
+def test_a_fall_word_flips_only_a_bare_change_right_after_it(prose, ungrounded):
+    q = questions.net_margin_change("JNJ", "2022", "2024-03-17")
+    text, calls = solve(q)
+    g = grade(f"{prose}\n{text}", calls, q)
+    assert g.info["ungrounded"] == ungrounded
+    assert g.reward == pytest.approx(0.7)
+
+
+def test_fall_flag_on_cited_numbers():
+    cited = extract_numbers("fell by 2.72 pp, down $5 billion, rose 1.2%, fell by 3 million, lower by 2%")
+    assert [(c.text, c.fall) for c in cited] == [
+        ("2.72", True),
+        ("$5 billion", False),
+        ("1.2%", False),
+        ("3 million", False),
+        ("2%", True),
+    ]

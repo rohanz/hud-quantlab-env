@@ -217,6 +217,10 @@ Evidence rules (details: [docs/reward-design.md](docs/reward-design.md)):
   78,740 million; `$20.885 billion` does not match 20,878 million). A cited
   zero matches only zero. A percent matches only a calculator result, never a
   looked-up amount.
+- A fall written in words carries its sign: a bare number or percent right
+  after a fall word (`fell`, `dropped`, `declined`, `down`, with filler words
+  like `by` or `about` between) may match a negative computed value. `fell
+  to 11%` names a level and `down $5 billion` is an amount; neither flips.
 - Cited numbers keep their sign, and a currency amount without a unit word
   (`$78.74`) means that many dollars. Only a bare number may be read as
   thousands, millions, billions or a percent. Scale words: `trillion(s)`,
@@ -268,6 +272,8 @@ All on the JNJ FY2021 restatement task unless noted; each has a test.
 | right margin from the wrong year (AAPL FY2022 vs FY2023) | 0.70 |
 | stale, pre-restatement answer | 0.20 |
 | wrong sign in prose (any attached dash, or a spaced hyphen-minus or true minus) | 0.70 |
+| a fall in words (`fell by 4.09 points` for a computed -4.09 pp, margin change) | 1.00 |
+| a rise word on a fall (`rose by 4.09 points` for -4.09 pp) | 0.70 |
 | dropped scale on an input in prose (`$78.74`) | 0.70 |
 | invented input within 0.5%, `compute("20885/78740*100")` (one extra call) | 0.675 |
 | `x/x*7e9 + NI/REV*1e6` computed, then `$7 billion` cited (one extra call) | 0.675 |

@@ -617,8 +617,36 @@ needing 5 to 12 tool calls in which later steps depend on earlier results.
   added by hand before `compute` (18 and 21). Sonnet 5.5 made one `compute`
   call per chained question. One Sonnet 5.5 answer was in Chinese and
   graded normally.
-- **Left open.** Whether an unsigned amount after a fall word (`fell`,
-  `down`, `decline`) should match a negative computed value. It is a grading
-  change with consequences for the sign rules (`a loss of 20.9 billion`), so
-  it waits for its own decision and tests. Full tables in
-  `results/2026-10-15_claude55_eval/README.md`.
+- **Left open, then decided the same day (below).** Whether an unsigned
+  amount after a fall word should match a negative computed value. Full
+  tables in `results/2026-10-15_claude55_eval/README.md`.
+
+## 2026-10-16: A fall written in words carries its sign
+
+- **What.** "The margin fell by 2.72 points" for a computed -2.72 was the
+  sole deduction in 16 of Opus 5.5's 100 probe episodes and appeared in 38.
+  The word carries the sign; the grader read the bare 2.72 as positive.
+- **Rule.** `Cited.fall`: a bare number or percent (never a currency or
+  scaled amount) whose preceding text ends in a fall word (`_FALL`: fell,
+  falls, fallen, dropped, declined, decreased, down, lower, shrank, slipped,
+  contracted, narrowed, eroded, lost) with only filler words between (by,
+  about, around, roughly, approximately, some, nearly, almost, only, just,
+  a, an, of, the, further). In `grade`, such a claim also matches
+  `negated()` against the same evidence pool, at its written precision. `to`
+  and `from` are not filler, so a level after `fell to` does not flip. A
+  signed number is read as written. Rise words do nothing.
+- **Why narrow.** A loss is not a fall: `down $5 billion` against a looked-up
+  -5 billion net income would be a different claim, so amounts never flip.
+  The decision is a tradeoff between refusing invented numbers (the point of
+  grounding) and refusing ordinary phrasing of a correctly computed one; the
+  rule accepts only the second kind.
+- **Tests.** `test_a_fall_written_in_words_matches_the_computed_negative_
+  change` (8 phrasings, JNJ fiscal 2022 vs 2021 at -4.09 pp), `test_a_fall_
+  word_flips_only_a_bare_change_right_after_it` (rise word, `to`, `from`, a
+  currency amount, a sentence break, a wrong precision) and
+  `test_fall_flag_on_cited_numbers`. Adversarial scores unchanged (two rows
+  added); 1677 tests pass.
+- **Regrade.** All stored runs again (`results/2026-10-15_claude55_eval/
+  regrade_after_fall_words.json`): sonnet-4-6 0.883 (unchanged),
+  sonnet-5-5 0.828 (from 0.816), opus-5-5 0.890 (from 0.845). Legacy
+  unchanged.

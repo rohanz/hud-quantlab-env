@@ -155,6 +155,17 @@ _SCALE_WORD = re.compile(
     r"\s*(?:hundreds?|thousands?|millions?|billions?|trillions?|bn|bln|bil|mn|mln|mm|tn|dollars?|usd|cents?|bucks|grand)\b",
     re.IGNORECASE,
 )
+# A fall written in words: "fell by 2.72 points", "down about 4.1%". The word carries the
+# sign, so the bare number or percent right after it (with only filler words between)
+# may also be read as negative. "fell to 11%" names a level, not a change, and an amount
+# with a currency sign or a scale word ("down $5 billion") never flips: a loss is not a fall.
+_FALL = re.compile(
+    r"\b(?:fell|falls?|fallen|falling|dropp?(?:ed|s)?|declin(?:ed|es?|ing)|decreas(?:ed|es?|ing)|down|lower"
+    r"|shrank|shrunk|slipped|slid|contracted|narrowed|eroded|lost)"
+    r"(?:[^\S\n]+(?:by|about|around|roughly|approximately|some|nearly|almost|only|just|a|an|of|the|further))*"
+    r"[^\S\n]+\Z",
+    re.IGNORECASE,
+)
 # The citation block: "REVENUE: <value>" and "NET_INCOME: <value>" lines, each a tool
 # value written out whole in ASCII digits, optionally with a leading $ and thousands
 # commas. Labels (these and ANSWER) are case-insensitive and open their line, after
@@ -181,6 +192,10 @@ class Cited:
     kind: str  # "percent", "scaled" (unit word applied), "currency" (a bare $ amount) or "plain"
     exempt: bool = False  # a year or a small count, by context; never an amount with a unit or currency
     ulp: float = 0.0  # one unit in the last written place, in the same units as value
+    fall: bool = False  # an unsigned bare number or percent right after a fall word ("fell by 2.72 pp")
+
+    def negated(self) -> Cited:
+        return Cited(self.text, -self.value, self.kind, self.exempt, self.ulp)
 
     def readings(self) -> list[tuple[float, float]]:
         """Signed values this citation may stand for, each with its rounding half-width.
@@ -239,7 +254,8 @@ def extract_numbers(text: str) -> list[Cited]:
             kind, value, ulp = "scaled", value * _UNITS[unit], ulp * _UNITS[unit]
         else:
             kind = "currency" if m["cur"] or m["cur2"] else "plain"
-        cited.append(Cited(text[start : m.end()].strip(), value, kind, _exempt(m, kind, negative, text), ulp))
+        fall = not negative and kind in ("plain", "percent") and bool(_FALL.search(text, max(0, start - 64), start))
+        cited.append(Cited(text[start : m.end()].strip(), value, kind, _exempt(m, kind, negative, text), ulp, fall))
     return cited
 
 
@@ -526,8 +542,12 @@ def grade(answer: str | None, calls: list[ToolCall], question: Question) -> Grad
 
     claims = [c for c in extract_numbers(answer) if not c.exempt]
     # a percent is a ratio the calculator produced, never a looked-up amount
+    # a fall written in words ("fell by 2.72 pp") may stand for the negative computed change
     ungrounded = [
-        c.text for c in claims if not _matches(c, evidence.computed if c.kind == "percent" else evidence.values)
+        c.text
+        for c in claims
+        if not _matches(c, pool := evidence.computed if c.kind == "percent" else evidence.values)
+        and not (c.fall and _matches(c.negated(), pool))
     ]
     cited = citations(answer, question.labels)
     missing_inputs = [
