@@ -1,0 +1,247 @@
+A new version of hud is available: 0.6.20 (current: 0.6.18)
+Run: uv sync --upgrade-package hud
+Initializing evaluation...
+Loading tasks from: tasks_legacy.py
+Loaded 18 task(s)
+         Evaluation Settings          
+╭────────────────┬───────────────────╮
+│ Setting        │ Value             │
+├────────────────┼───────────────────┤
+│ source         │ tasks_legacy.py   │
+│ runtime        │ local             │
+│ agent          │ claude            │
+│ all            │ True              │
+│ max_steps      │ 10                │
+│ max_concurrent │ 30                │
+│                │                   │
+│ claude config  │                   │
+│   model        │ claude-sonnet-4-6 │
+╰────────────────┴───────────────────╯
+Running evaluation (max_concurrent: 30, group_size: 1)
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/starlette/routing.py", line 661, in lifespan
+    await receive()
+  File "/Users/rohan/Documents/progwork/hud-quantlab-env/.venv/lib/python3.12/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+
+'tasks_legacy.py' Results
+  Runs: 18
+  Time: 13.1s
+  Mean reward: 0.983
+                                    Details                                     
+┏━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃    # ┃ Prompt                      ┃ Answer                       ┃   Reward ┃
+┡━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│    0 │ What was Apple Inc.         │ Apple's net margin for the   │    1.000 │
+│      │ (AAPL)'s net ..             │ fiscal..                     │          │
+│    1 │ What was Apple Inc.         │ Apple's net margin for the   │    1.000 │
+│      │ (AAPL)'s net ..             │ fiscal..                     │          │
+│    2 │ What was Apple Inc.         │ Apple's net margin for the   │    1.000 │
+│      │ (AAPL)'s net ..             │ fiscal..                     │          │
+│    3 │ What was Microsoft Corp.    │ Microsoft's net margin for   │    1.000 │
+│      │ (MSFT)'s..                  │ the fi..                     │          │
+│    4 │ What was Microsoft Corp.    │ For the fiscal year ending   │    1.000 │
+│      │ (MSFT)'s..                  │ **2023..                     │          │
+│    5 │ What was Microsoft Corp.    │ Microsoft's net margin for   │    1.000 │
+│      │ (MSFT)'s..                  │ the fi..                     │          │
+│    6 │ What was NVIDIA Corp.       │ Rounding to two decimal      │    1.000 │
+│      │ (NVDA)'s ne..               │ places gi..                  │          │
+│    7 │ What was NVIDIA Corp.       │ NVIDIA's net margin for the  │    0.700 │
+│      │ (NVDA)'s ne..               │ fisca..                      │          │
+│    8 │ What was NVIDIA Corp.       │ NVIDIA's net margin for the  │    1.000 │
+│      │ (NVDA)'s ne..               │ fisca..                      │          │
+│    9 │ What was The Coca-Cola Co.  │ For the fiscal year ending   │    1.000 │
+│      │ (KO)'s..                    │ 2022-1..                     │          │
+│   10 │ What was The Coca-Cola Co.  │ Rounding to two decimal      │    1.000 │
+│      │ (KO)'s..                    │ places: *..                  │          │
+│   11 │ What was The Coca-Cola Co.  │ For the fiscal year ending   │    1.000 │
+│      │ (KO)'s..                    │ 2024-1..                     │          │
+│   12 │ What was Johnson & Johnson  │ Johnson & Johnson's net      │    1.000 │
+│      │ (JNJ)'..                    │ margin fo..                  │          │
+│   13 │ What was Johnson & Johnson  │ For Johnson & Johnson's      │    1.000 │
+│      │ (JNJ)'..                    │ fiscal ye..                  │          │
+│   14 │ What was Johnson & Johnson  │ For the fiscal year ending   │    1.000 │
+│      │ (JNJ)'..                    │ **2023..                     │          │
+│   15 │ What was Johnson & Johnson  │ For the fiscal year ending   │    1.000 │
+│      │ (JNJ)'..                    │ **2023..                     │          │
+│   16 │ What was Johnson & Johnson  │ Johnson & Johnson's net      │    1.000 │
+│      │ (JNJ)'..                    │ margin fo..                  │          │
+│   17 │ What was Johnson & Johnson  │ Rounding to two decimal      │    1.000 │
+│      │ (JNJ)'..                    │ places gi..                  │          │
+└──────┴─────────────────────────────┴──────────────────────────────┴──────────┘
+

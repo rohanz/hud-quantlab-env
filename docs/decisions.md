@@ -566,3 +566,25 @@ needing 5 to 12 tool calls in which later steps depend on earlier results.
 - **Unchanged.** Templates, grader, fixture, the legacy set and both frozen
   probe subsets.
 - **Tests.** 1657 pass (3 new in `tests/test_grpo_splits.py`).
+
+## 2026-10-15: First hosted-model run through `hud eval` (claude-sonnet-4-6)
+
+- **What.** The HUD CLI's own `claude` agent, model picked with
+  `--config model=claude-sonnet-4-6` (naming the model directly needs the HUD
+  model catalog and a `HUD_API_KEY`), one subprocess per rollout, telemetry
+  off. Legacy set 0.983 (18 tasks, one at 0.70); probe v2 0.863 as run and
+  0.871 with the one episode lost to an Anthropic concurrency 429 re-run
+  (0.96). Files and the per-type table are in
+  `results/2026-10-15_claude_eval/`.
+- **What the grader caught.** A memorised prior-year margin in prose; peer
+  totals added by hand before `compute` (17 of 20 `margin_vs_peers`, the
+  documented mental-math case); the latest change reported where the smallest
+  was asked (2 trend tasks, 0.16); a sign dropped in prose (`a decline of
+  2.72 pp` for -2.72) and a cited `−0.00 pp`; an uncomputed `~6.4%` growth
+  aside. Every deduction was checked against the trace's grader `info`; none
+  is a grader bug, and the 0.98 episodes show the honest path scores on every
+  type.
+- **Calibration.** Only `margin_vs_peers` (0.711) sits in the 0.55 to 0.80
+  band; single-hop types are solved (1.00), as they were for the 9B base on
+  v1. The set stays frozen; the README's limits now say so.
+- **Unchanged.** Templates, grader, fixture, tasksets, tests.

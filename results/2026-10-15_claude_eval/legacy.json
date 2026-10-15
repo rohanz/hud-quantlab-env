@@ -1,0 +1,136 @@
+{
+  "job_id": "e68e170da8e740098b303c15f92bfcea",
+  "source": "tasks_legacy.py",
+  "run_count": 18,
+  "mean_reward": 0.9833333333333333,
+  "error_count": 0,
+  "elapsed_seconds": 13.069748124922626,
+  "runs": [
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-8815bd09",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "ab9aee124acc4ab083c23e51d72e00e8"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-7aeeb3ea",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "ffdcd43d63fa4cae9f4d3012dbb7bdbf"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-e7d9b26c",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "75a474834dbb43f9aacc105fe8b5c84d"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-c9be2287",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "a00e96f570bc46dabd0dddc64948e301"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-81e9d1ef",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "fa81b9b58e414649aefa384680a71704"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-7fe2e3dc",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "83efd583828c4381adfca54efe92dca0"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-55fc2039",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "1173e957065e470dac3c24ac31f51482"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-782fd3c0",
+      "reward": 0.7,
+      "is_error": false,
+      "trace_id": "728ffeed7ebd4f2d838aa2c29b677e5f"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-dab41cfb",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "c677ef303b3a407a90edd99afee7a7b8"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-e2ab353e",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "47304b4fd1014ca4b4b8b3bb870fef6c"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-2d4cece9",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "529ce63484774ddba579453fcdb487f5"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-454e4e5e",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "077a93696da54a47b0094d98c9e45ea7"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-5f918611",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "797a5f5b1ada457a9f64146ae9c25429"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-83d5f782",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "32a25fda773942379af81ca83dadc1aa"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-1a5ac884",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "3926ea5dc8494733b49a8c77c0ef9f0b"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-4c2ce4f9",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "6eb00998eacd417fb8e4f35c2945a89f"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-f45ee0e1",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "6c9ee4cb92494fc6819ff4a69e878a2f"
+    },
+    {
+      "task_id": "net_margin",
+      "slug": "net_margin-4a61474b",
+      "reward": 1.0,
+      "is_error": false,
+      "trace_id": "433a5687b8d7474c8c772f77caf5ff3a"
+    }
+  ]
+}

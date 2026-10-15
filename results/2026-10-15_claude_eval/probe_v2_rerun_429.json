@@ -1,0 +1,17 @@
+{
+  "job_id": "bb71bf2647ab44099682fd3368fc0ff0",
+  "source": "tasks_probe_v2.py",
+  "run_count": 1,
+  "mean_reward": 0.96,
+  "error_count": 0,
+  "elapsed_seconds": 39.36655595898628,
+  "runs": [
+    {
+      "task_id": "peer_margin_change_rank",
+      "slug": "peer_margin_change_rank-6207007c",
+      "reward": 0.96,
+      "is_error": false,
+      "trace_id": "69d8ab9d72224b56b61d81eae79c8d17"
+    }
+  ]
+}

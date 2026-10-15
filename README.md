@@ -455,8 +455,11 @@ The two inputs are checked exactly, by label, in the citation block. These
 limits apply to the other numbers the answer cites in prose:
 
 - The probe set's difficulty is by design. The v1 subset was too easy (base
-  0.901 against a 0.55 to 0.80 target); the chained v2 subset has not been run
-  on a model yet, so whether it lands in the band is untested.
+  0.901 against a 0.55 to 0.80 target). On the chained v2 subset,
+  claude-sonnet-4-6 through `hud eval` scored 0.871 on 2026-10-15 (legacy
+  set 0.983); only `margin_vs_peers` (0.711) lands in the band, and nearly
+  every deduction is mental math on peer totals or an uncomputed aside in
+  prose. See `results/2026-10-15_claude_eval/README.md`.
 - Choices are read as whole words in any case, so a ticker that is also a word
   (`COST`, `DE`, `GE`, `KO`) counts as named wherever it appears on the ANSWER
   line (`ANSWER: WMT, the lowest cost 2.39%` names COST too, and is wrong).
